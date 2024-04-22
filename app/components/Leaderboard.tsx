@@ -24,10 +24,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ scores }) => {
               index === 0 ? "first" : index === 1 ? "second" : "third";
             return (
               <div key={score.id} className={className}>
-                <div
+                <Avatar className="hidden h-9 w-9 sm:flex">
+                  {/* <AvatarImage src={score.avatarUrl} alt="Avatar" /> */}
+                  <AvatarFallback>{index + 1}</AvatarFallback>
+                </Avatar>
+                {/* <div
                   className="avatar"
                   style={{ backgroundImage: `url(${score.avatarUrl})` }}
-                ></div>
+                ></div> */}
                 <strong>{score.name}</strong>
                 <span>{score.score}</span>
               </div>
@@ -38,7 +42,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ scores }) => {
           <>
             <div className="flex items-center gap-4" key={score.id}>
               <Avatar className="hidden h-9 w-9 sm:flex">
-                <AvatarImage src={score.avatarUrl} alt="Avatar" />
+                {/* <AvatarImage src={score.avatarUrl} alt="Avatar" /> */}
                 <AvatarFallback>{index + 4}</AvatarFallback>
               </Avatar>
               <div className="grid gap-1">

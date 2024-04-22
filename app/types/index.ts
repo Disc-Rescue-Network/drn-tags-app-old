@@ -9,3 +9,15 @@ export interface Score {
 }
 
 export type Scores = Score[];
+
+export interface Division {
+  Division: string;
+  Data: PlayerData[];
+}
+
+export interface PlayerData {
+  POS: string;
+  NAME: string;
+  SCORE: string;
+  THRU: string;
+}
