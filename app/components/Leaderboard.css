@@ -1,0 +1,45 @@
+/* Podium styles */
+.podium {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.podium > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 100px;
+  transition: all 0.3s ease-in-out;
+}
+
+.first {
+  background-color: gold;
+  height: 160px;
+  order: 2; /* Center position */
+}
+
+.second {
+  background-color: silver;
+  height: 145px;
+  order: 1; /* Left position */
+}
+
+.third {
+  background-color: #cd7f32; /* Bronze */
+  height: 130px;
+  order: 3; /* Right position */
+}
+
+.avatar {
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 8px;
+}
