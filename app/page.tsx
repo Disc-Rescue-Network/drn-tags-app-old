@@ -1,3 +1,5 @@
+"use client";
+
 import type { NextPage } from "next";
 import Leaderboard from "./components/Leaderboard";
 import { Scores } from "./types";
@@ -6,6 +8,9 @@ import Philo from "@/public/assets/philo.jpg";
 import Ricky from "@/public/assets/ricky_w.jpg";
 import LiveStandings from "./components/LiveStandings";
 import { ModeToggle } from "@/components/ui/modeToggle";
+import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const Home: NextPage = () => {
   const scores: Scores = [
@@ -75,11 +80,23 @@ const Home: NextPage = () => {
     },
   ];
 
+  const [showLiveScores, setShowLiveScores] = useState(false);
+
+  const toggleShowLiveScores = () => {
+    setShowLiveScores(!showLiveScores);
+  };
+
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 gap-4">
       <ModeToggle />
-      <Leaderboard scores={scores} />
-      <LiveStandings />
+      <div className="mt-4 mb-4">
+        <Button onClick={toggleShowLiveScores}>
+          {showLiveScores ? "Show Leaderboard" : "Show Live Scores"}
+        </Button>
+      </div>
+
+      {!showLiveScores && <Leaderboard scores={scores} />}
+      {showLiveScores && <LiveStandings />}
     </div>
   );
 };

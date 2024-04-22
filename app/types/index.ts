@@ -11,8 +11,13 @@ export interface Score {
 export type Scores = Score[];
 
 export interface Division {
-  Division: string;
-  Data: PlayerData[];
+  division: string;
+  division_data: PlayerData[];
+}
+
+export interface Event {
+  league_name: string;
+  data: Division[];
 }
 
 export interface PlayerData {
@@ -20,4 +25,5 @@ export interface PlayerData {
   NAME: string;
   SCORE: string;
   THRU: string;
+  change?: "up" | "down" | "steady"; // Indicating position change
 }

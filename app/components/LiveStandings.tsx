@@ -1,21 +1,34 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Division, PlayerData } from "../types"; // Adjust the import path as needed
+import { Division, PlayerData, Event } from "../types"; // Adjust the import path as needed
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import "./Leaderboard.css";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "./DataTable";
+import { columns } from "./columns";
+import { Progress } from "@/components/ui/progress";
+import { MdFiberManualRecord } from "react-icons/md"; // This icon looks like a typical "live" indicator
+import "./LiveStandings.css";
+import EndedLabel from "./EndedLabel";
+import LiveLabel from "./LiveLabel";
 
 const LiveStandings: React.FC = ({}) => {
   const [data, setData] = useState<Division[]>([]);
+  const [leagueName, setLeagueName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [live, setLive] = useState<boolean>(false);
 
   const [inputValue, setInputValue] = useState("");
 
   const [fullURL, setFullUrl] = useState<string>("");
+
+  useEffect(() => {
+    setInterval(fetchResults, 10000); // Continue fetching every minute (change back to 6)
+  }, []);
 
   const handleSubmit = async (url: string) => {
     setLoading(true);
@@ -42,20 +55,36 @@ const LiveStandings: React.FC = ({}) => {
   const fetchResults = async () => {
     try {
       const response = await fetch("http://127.0.0.1:5000/data");
-      const newData = await response.json();
-      setData(newData);
-      setLoading(false);
-      // Check if all players are finished
-      if (
-        !newData.some((division: Division) =>
-          division.Data.some((player: PlayerData) => player.THRU !== "F")
-        )
-      ) {
-        console.log("All players finished. Stop fetching.");
-      } else {
-        setTimeout(fetchResults, 60000); // Continue fetching every minute
+      const event_info: Event = await response.json();
+      console.log("Event Info:", event_info); // You can display this in your UI (optional
+      console.log("League Name:", event_info.league_name); // You can display this in your UI
+      console.log("Divisions:", event_info.data); // You can display this in your UI
+      if (event_info.data.length === 0) {
+        console.log("No data yet. Check back later.");
+        return;
       }
+      setData(event_info.data);
+      setLeagueName(event_info.league_name);
+      setLoading(false);
+      setLive(true);
+
+      //   // Check if all players are finished
+      //   if (
+      //     data.every((division: Division) =>
+      //       division.division_data.every(
+      //         (player: PlayerData) => player.THRU === "F"
+      //       )
+      //     )
+      //   ) {
+      //     console.log("All players finished. Stop fetching.");
+      //     setLive(false);
+      //   } else {
+      //     setLive(true);
+      //     setTimeout(fetchResults, 60000); // Continue fetching every minute
+      //   }
     } catch (error) {
+      setLive(false);
+      setLoading(false);
       console.error("Failed to fetch results:", error);
     }
   };
@@ -86,13 +115,42 @@ const LiveStandings: React.FC = ({}) => {
   //     return () => clearInterval(interval);
   //   }, [url]);
 
-  if (loading) return <p>Loading...</p>;
+  //   const [progress, setProgress] = useState(0);
+
+  //   useEffect(() => {
+  //     const interval = setInterval(() => {
+  //       setProgress((oldProgress) => {
+  //         if (oldProgress === 100) {
+  //           clearInterval(interval);
+  //           return 100;
+  //         }
+  //         return Math.min(oldProgress + 100 / (60 * 10), 100); // Increase the frequency of updates
+  //       });
+  //     }, 100); // Reduce the interval time
+
+  //     return () => {
+  //       clearInterval(interval);
+  //     };
+  //   }, []);
+
+  //   if (loading)
+  //     return (
+  //       <>
+  //         <p>Loading...</p>
+  //         {/* <Progress value={progress} /> */}
+  //       </>
+  //     );
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle>Tranquilty Tags Standings</CardTitle>
+    <Card>
+      <CardHeader style={{ position: "relative" }}>
+        {leagueName && (
+          <>
+            <CardTitle>{leagueName}</CardTitle>
+            {live ? <LiveLabel /> : <EndedLabel />}
+          </>
+        )}
       </CardHeader>
       <CardContent className="grid gap-8">
         {fullURL === "" ? (
@@ -116,19 +174,21 @@ const LiveStandings: React.FC = ({}) => {
           </div>
         ) : (
           <>
-            {data.map((division) => (
-              <div key={division.Division}>
-                <h3>{division.Division}</h3>
-                <ul>
-                  {division.Data.map((player: PlayerData, index: number) => (
-                    <li key={index}>
-                      {player.POS} - {player.NAME} - {player.SCORE} -{" "}
-                      {player.THRU}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {data === undefined ? (
+              <p>No scores yet - check back later</p>
+            ) : (
+              <>
+                {data.map((division) => (
+                  <div key={division.division}>
+                    <h3>{division.division}</h3>
+                    <DataTable
+                      columns={columns}
+                      data={division.division_data}
+                    />
+                  </div>
+                ))}
+              </>
+            )}
           </>
         )}
       </CardContent>

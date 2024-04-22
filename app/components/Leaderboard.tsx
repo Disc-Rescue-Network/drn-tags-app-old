@@ -15,7 +15,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ scores }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Tranquilty Tags Standings</CardTitle>
+        <CardTitle>Tranquility Tags Standings</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-8">
         <div className="podium">
