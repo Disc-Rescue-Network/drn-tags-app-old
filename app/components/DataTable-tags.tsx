@@ -28,6 +28,19 @@ export const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const getRowClassName = (position: number) => {
+    switch (position) {
+      case 1:
+        return "podium-1";
+      case 2:
+        return "podium-2";
+      case 3:
+        return "podium-3";
+      default:
+        return "";
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -46,7 +59,10 @@ export const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
+          <TableRow
+            key={row.id}
+            className={getRowClassName(row.original.position)}
+          >
             {row.getVisibleCells().map((cell) => (
               <TableCell key={cell.id}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

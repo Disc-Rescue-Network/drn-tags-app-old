@@ -229,6 +229,9 @@ function MenuHeader() {
             </div>
           </div>
           <nav className="grid gap-2 text-lg font-medium">
+            {/* <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
+              Analyze
+            </h2> */}
             <DialogTrigger asChild>
               <Button
                 asChild
@@ -239,27 +242,23 @@ function MenuHeader() {
                   href="/"
                   className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                 >
-                  <Home className="h-4 w-4" />
-                  Check In
+                  <Medal className="h-4 w-4" />
+                  Leaderboard
                 </Link>
               </Button>
             </DialogTrigger>
-
-            <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
-              Analyze
-            </h2>
             <DialogTrigger asChild>
               <Button
                 asChild
-                variant={pathname === "/leaderboard" ? "secondary" : "ghost"}
+                variant={pathname === "/check-in" ? "secondary" : "ghost"}
                 className="w-full justify-start flex gap-2 my-1"
               >
                 <Link
-                  href="/leaderboard"
+                  href="/check-in"
                   className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                 >
-                  <Medal className="h-4 w-4" />
-                  Leaderboard
+                  <Home className="h-4 w-4" />
+                  Check In
                 </Link>
               </Button>
             </DialogTrigger>
