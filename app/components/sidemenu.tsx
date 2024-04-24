@@ -236,7 +236,7 @@ function SideMenu() {
             {course.orgCode === "org_155e4b351474" && (
               <>
                 <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
-                  Admin
+                  Admin Tools
                 </h2>
 
                 <Button
