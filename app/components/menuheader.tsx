@@ -23,6 +23,7 @@ import {
   Menu,
   ScrollText,
   Medal,
+  NotebookText,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -272,7 +273,7 @@ function MenuHeader() {
                   href="/my-rounds"
                   className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                 >
-                  <BellRing className="h-4 w-4" />
+                  <NotebookText className="h-4 w-4" />
                   My Rounds
                 </Link>
               </Button>
@@ -280,7 +281,7 @@ function MenuHeader() {
             {course.orgCode === "org_155e4b351474" && (
               <>
                 <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
-                  Admin
+                  Admin Tools
                 </h2>
 
                 <DialogTrigger asChild>
@@ -320,12 +321,6 @@ function MenuHeader() {
           </nav>
         </SheetContent>
       </Sheet>
-      {isAuthenticated && (
-        <Button variant="outline" size="icon" className="m-auto h-8 w-8 ">
-          <Bell className="h-4 w-4" />
-          <span className="sr-only">Toggle notifications</span>
-        </Button>
-      )}
       <ModeToggle />
 
       {isAuthenticated ? (
