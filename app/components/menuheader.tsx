@@ -229,6 +229,9 @@ function MenuHeader() {
             </div>
           </div>
           <nav className="grid gap-2 text-lg font-medium">
+            {/* <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
+              Analyze
+            </h2> */}
             <DialogTrigger asChild>
               <Button
                 asChild
@@ -239,27 +242,23 @@ function MenuHeader() {
                   href="/"
                   className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                 >
-                  <Home className="h-4 w-4" />
-                  Check In
+                  <Medal className="h-4 w-4" />
+                  Leaderboard
                 </Link>
               </Button>
             </DialogTrigger>
-
-            <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
-              Analyze
-            </h2>
             <DialogTrigger asChild>
               <Button
                 asChild
-                variant={pathname === "/leaderboard" ? "secondary" : "ghost"}
+                variant={pathname === "/check-in" ? "secondary" : "ghost"}
                 className="w-full justify-start flex gap-2 my-1"
               >
                 <Link
-                  href="/leaderboard"
+                  href="/check-in"
                   className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                 >
-                  <Medal className="h-4 w-4" />
-                  Leaderboard
+                  <Home className="h-4 w-4" />
+                  Check In
                 </Link>
               </Button>
             </DialogTrigger>
@@ -359,7 +358,7 @@ function MenuHeader() {
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Link
-                href="/support"
+                href="https://www.discrescuenetwork.com/bugreport"
                 className="flex items-center gap-3 rounded-lg px-1 py-2 text-muted-foreground transition-all hover:text-primary"
               >
                 <MessageCircleQuestion className="h-4 w-4" />
@@ -367,45 +366,23 @@ function MenuHeader() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>My Course</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <Link
-                href="/analytics"
-                className="flex items-center gap-3 rounded-lg px-1 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <LineChart className="h-4 w-4" />
-                L&F Analytics
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link
-                href="/edit-pickup-options"
-                className="flex items-center gap-3 rounded-lg px-1 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Settings2 className="h-4 w-4" />
-                Edit Pickup Options
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link
-                href="/bulletin-board"
-                className="flex items-center gap-3 rounded-lg px-1 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <ClipboardPenLine className="h-4 w-4" />
-                Bulletin Board
-              </Link>
-            </DropdownMenuItem>
-            {course.courseName !== "" ? (
-              <ComboBox currentCourse={course} allCourses={allCourses} />
-            ) : (
-              <Skeleton className="w-[200px] h-[30px] rounded" />
+            {allCourses.length > 1 && (
+              <>
+                {course.courseName !== "" ? (
+                  <ComboBox currentCourse={course} allCourses={allCourses} />
+                ) : (
+                  <Skeleton className="w-[200px] h-[30px] rounded" />
+                )}
+                {isAuthenticated && <DropdownMenuSeparator className="mt-2" />}
+              </>
             )}
-            {isAuthenticated && <DropdownMenuSeparator className="mt-2" />}
 
             {isAuthenticated ? (
-              <DropdownMenuItem className="flex items-center gap-3 rounded-lg px-2 py-2 text-muted-foreground transition-all hover:text-primary">
-                <LogOut className="h-4 w-4" />
-                <LogoutLink>Log out</LogoutLink>
+              <DropdownMenuItem>
+                <div className="flex items-center gap-3 rounded-lg px-1 py-2 text-muted-foreground transition-all hover:text-primary">
+                  <LogOut className="h-4 w-4" />
+                  <LogoutLink>Log out</LogoutLink>
+                </div>
               </DropdownMenuItem>
             ) : (
               <></>

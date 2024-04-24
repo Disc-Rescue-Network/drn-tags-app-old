@@ -72,9 +72,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
               </div>
             );
           })}
-        </div> */}
+        </div>
 
-        {/* {sortedScores.slice(3).map((score, index) => (
+        {sortedScores.slice(3).map((score, index) => (
           <>
             <div className="flex items-center gap-4" key={score.position}>
               <Avatar className="hidden h-9 w-9 sm:flex">
