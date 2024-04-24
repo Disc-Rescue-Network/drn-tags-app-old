@@ -1,12 +1,12 @@
 "use client";
 
 import type { NextPage } from "next";
-import Leaderboard from "./components/Leaderboard";
-import { LeaderboardEntry, RunningScoreEntry, Scores } from "./types";
+import Leaderboard from "../components/Leaderboard";
+import { LeaderboardEntry, RunningScoreEntry, Scores } from "../types";
 import Chris from "@/public/assets/chris dickerson.jpg";
 import Philo from "@/public/assets/philo.jpg";
 import Ricky from "@/public/assets/ricky_w.jpg";
-import LiveStandings from "./components/LiveStandings";
+import LiveStandings from "../components/LiveStandings";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -492,25 +492,20 @@ const Home: NextPage = () => {
   ];
 
   return (
-    <div className="grid min-h-screen w-full text-center items-start">
-      <main className="flex flex-1 flex-col h-3/5 gap-4 p-4 lg:gap-6 lg:p-6">
-        <div className="flex">
-          <h1 className="text-lg font-semibold md:text-2xl">Check In</h1>
-        </div>
-        <div
-          className="flex flex-1 w-full m-auto h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-8 bg-muted/20"
-          x-chunk="dashboard-02-chunk-1"
-        >
-          <div className="flex flex-col items-center gap-1 text-center">
-            <h3 className="text-2xl font-bold tracking-tight">
-              No events running right now
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Check back later when the admin has started an event.
-            </p>
-          </div>
-        </div>
-      </main>
+    <div className="container mx-auto p-4 gap-4">
+      <div className="mt-4 mb-4">
+        {/* <Button onClick={toggleShowLiveScores}>
+          {showLiveScores ? "Show Leaderboard" : "Show Live Scores"}
+        </Button> */}
+      </div>
+
+      {!showLiveScores && (
+        <Leaderboard
+          leaderboardEntries={leaderboardData}
+          runningScoresData={runningScoresData}
+        />
+      )}
+      {showLiveScores && <LiveStandings />}
     </div>
   );
 };
