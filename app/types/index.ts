@@ -27,3 +27,25 @@ export interface PlayerData {
   THRU: string;
   change?: "up" | "down" | "steady"; // Indicating position change
 }
+
+export interface LeaderboardEntry {
+  position: number;
+  name: string;
+  score: number;
+  currentTag: number;
+  // roundsPlayed: number;
+  // averageScorePerRound: number; // New property for average score per round
+}
+export interface EnhancedLeaderboardEntry extends LeaderboardEntry {
+  roundsPlayed: number;
+  averageScorePerRound: number;
+}
+
+export interface RunningScoreEntry {
+  roundDate: string;
+  name: string;
+  place: number;
+  tagIn: string | null;
+  tagOut: number;
+  pointsScored: number;
+}

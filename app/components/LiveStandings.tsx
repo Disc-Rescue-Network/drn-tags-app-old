@@ -68,20 +68,20 @@ const LiveStandings: React.FC = ({}) => {
       setLoading(false);
       setLive(true);
 
-      //   // Check if all players are finished
-      //   if (
-      //     data.every((division: Division) =>
-      //       division.division_data.every(
-      //         (player: PlayerData) => player.THRU === "F"
-      //       )
-      //     )
-      //   ) {
-      //     console.log("All players finished. Stop fetching.");
-      //     setLive(false);
-      //   } else {
-      //     setLive(true);
-      //     setTimeout(fetchResults, 60000); // Continue fetching every minute
-      //   }
+      // Check if all players are finished - this check is broken
+      if (
+        data.every((division: Division) =>
+          division.division_data.every(
+            (player: PlayerData) => player.THRU === "F"
+          )
+        )
+      ) {
+        console.log("All players finished. Stop fetching.");
+        setLive(false);
+      } else {
+        setLive(true);
+        setTimeout(fetchResults, 60000); // Continue fetching every minute
+      }
     } catch (error) {
       setLive(false);
       setLoading(false);
