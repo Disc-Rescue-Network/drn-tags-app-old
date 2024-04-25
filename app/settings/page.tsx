@@ -100,7 +100,7 @@ export default function Settings() {
               <Input
                 placeholder="UDisc Display Name"
                 value={userProfile?.udisc_display_name}
-                disabled={loading || isLoading}
+                disabled={loading || isLoading!}
               />
             </form>
           </CardContent>

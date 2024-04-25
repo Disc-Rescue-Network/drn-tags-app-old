@@ -8,12 +8,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Label } from "@radix-ui/react-label";
 import React, { useEffect, useRef, useState } from "react";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { Input } from "@/components/ui/input";
+import Cookies from "js-cookie"; // Import js-cookie
 
 const UDiscDisplayNameDialog = () => {
   const {
@@ -39,6 +41,9 @@ const UDiscDisplayNameDialog = () => {
   } = useKindeBrowserClient();
 
   const [loading, setLoading] = useState(false);
+  const [isDialogDismissed, setIsDialogDismissed] = useState(
+    !!Cookies.get("udiscDisplayNameDismissed")
+  ); // Convert cookie value to boolean
 
   const [isUDiscNameMissing, setUDiscNameMissing] = useState(false);
   const [udiscDisplayName, setUdiscDisplayName] = useState("");
@@ -179,9 +184,20 @@ const UDiscDisplayNameDialog = () => {
       });
   };
 
-  //   if (isUDiscNameMissing) return null;
+  const handleDialogDismiss = () => {
+    Cookies.set("udiscDisplayNameDismissed", "true");
+    setIsDialogDismissed(true);
+  };
+
+  if (isDialogDismissed) {
+    return null;
+  }
+
   return (
-    <Dialog open={isUDiscNameMissing && !loading}>
+    <Dialog
+      open={isUDiscNameMissing && !loading && !isDialogDismissed}
+      onOpenChange={handleDialogDismiss}
+    >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>UDisc Display Name Missing</DialogTitle>
@@ -208,6 +224,11 @@ const UDiscDisplayNameDialog = () => {
           <Button onClick={saveDisplayName} type="submit">
             Save changes
           </Button>
+          {/* <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Dismiss
+            </Button>
+          </DialogClose> */}
         </DialogFooter>
       </DialogContent>
     </Dialog>
