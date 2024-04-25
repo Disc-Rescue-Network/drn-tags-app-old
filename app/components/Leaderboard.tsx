@@ -18,17 +18,17 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
   leaderboardEntries,
   runningScoresData,
 }) => {
-  // Helper function to compute rounds played and average score
+  // Helper function to compute rounds played and average points
   const enhanceLeaderboardEntries = (
     entries: LeaderboardEntry[]
   ): EnhancedLeaderboardEntry[] => {
     return entries.map((entry) => {
       const scores = runningScoresData.filter(
-        (score) => score.name === entry.name
+        (points) => points.name === entry.name
       );
       const roundsPlayed = scores.length;
       const totalPoints = scores.reduce(
-        (acc, score) => acc + score.pointsScored,
+        (acc, points) => acc + points.pointsScored,
         0
       );
       const averageScorePerRound =
@@ -43,16 +43,16 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
   };
 
   const enhancedEntries = enhanceLeaderboardEntries(leaderboardEntries);
-  const sortedScores = enhancedEntries.sort((a, b) => b.score - a.score);
+  const sortedScores = enhancedEntries.sort((a, b) => b.points - a.points);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Tranquility Tags Standings</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-8">
+      <CardContent className="p-0 grid gap-8 w-full">
         <DataTable columns={columns} data={sortedScores} />
-        <Card className="legend">
+        <Card className="legend m-6">
           <CardHeader>
             <CardTitle>Legend</CardTitle>
           </CardHeader>
@@ -73,43 +73,43 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
           </CardContent>
         </Card>
         {/* <div className="podium">
-          {podium.map((score, index) => {
+          {podium.map((points, index) => {
             const className =
               index === 0 ? "first" : index === 1 ? "second" : "third";
             return (
-              <div key={score.position} className={className}>
+              <div key={points.position} className={className}>
                 <Avatar className="hidden h-9 w-9 sm:flex">
-                  <AvatarImage src={score.avatarUrl} alt="Avatar" /> 
-                  <AvatarFallback>{score.position}</AvatarFallback>
+                  <AvatarImage src={points.avatarUrl} alt="Avatar" /> 
+                  <AvatarFallback>{points.position}</AvatarFallback>
                 </Avatar>
                 <div
                   className="avatar"
-                  style={{ backgroundImage: `url(${score.avatarUrl})` }}
+                  style={{ backgroundImage: `url(${points.avatarUrl})` }}
                 ></div> 
-                <strong>{score.name}</strong>
-                <span>{score.score}</span>
-                <span>Current Tag: {score.currentTag}</span>
+                <strong>{points.name}</strong>
+                <span>{points.points}</span>
+                <span>Current Tag: {points.currentTag}</span>
               </div>
             );
           })}
         </div>
 
-        {sortedScores.slice(3).map((score, index) => (
+        {sortedScores.slice(3).map((points, index) => (
           <>
-            <div className="flex items-center gap-4" key={score.position}>
+            <div className="flex items-center gap-4" key={points.position}>
               <Avatar className="hidden h-9 w-9 sm:flex">
-                <AvatarImage src={score.avatarUrl} alt="Avatar" />
-                <AvatarFallback>{score.position}</AvatarFallback>
+                <AvatarImage src={points.avatarUrl} alt="Avatar" />
+                <AvatarFallback>{points.position}</AvatarFallback>
               </Avatar>
               <div className="grid gap-1">
-                <p className="text-sm font-medium leading-none">{score.name}</p>
+                <p className="text-sm font-medium leading-none">{points.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {" "}
-                  Current Tag: {score.currentTag}
+                  Current Tag: {points.currentTag}
                 </p>
                 <p className="text-sm text-muted-foreground">Avg Score: TBD</p> 
               </div>
-              <div className="ml-auto font-medium">{score.score}</div>
+              <div className="ml-auto font-medium">{points.points}</div>
             </div>
           </>
         ))} */}

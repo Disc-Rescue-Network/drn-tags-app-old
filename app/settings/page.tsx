@@ -14,6 +14,7 @@ import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useEffect, useState } from "react";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { UserProfile } from "../types";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Settings() {
   const {
@@ -82,6 +83,47 @@ export default function Settings() {
     console.log("userProfile", userProfile);
   }, [userProfile]);
 
+  const { toast } = useToast();
+
+  const saveDisplayName = () => {
+    if (!user) {
+      console.error("User is not defined");
+      return;
+    }
+
+    setLoading(true);
+
+    const accessToken = getAccessToken(); // Assume getAccessToken is defined elsewhere and is synchronous or handled accordingly
+
+    fetch(`${TAGS_API_BASE_URL}/api/update-udisc-display-name`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        kinde_id: user.id,
+        udisc_display_name: userProfile?.udisc_display_name,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        setLoading(false);
+        toast({
+          variant: "default",
+          title: "Success",
+          description: "User settings successfully updated.",
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setLoading(false);
+      });
+  };
+
+  if (!userProfile) return null;
+
   return (
     <div className="grid min-h-screen w-full">
       <main className="flex flex-1 flex-col h-3/5 gap-4 p-4 lg:gap-6 lg:p-6">
@@ -100,12 +142,19 @@ export default function Settings() {
               <Input
                 placeholder="UDisc Display Name"
                 value={userProfile?.udisc_display_name}
-                disabled={loading || isLoading!}
+                onChange={(e) =>
+                  setUserProfile({
+                    ...userProfile,
+                    user_id: userProfile?.user_id,
+                    udisc_display_name: e.target.value,
+                  })
+                }
+                disabled={loading}
               />
             </form>
           </CardContent>
           <CardFooter className="border-t px-6 py-4">
-            <Button>Save</Button>
+            <Button onClick={saveDisplayName}>Save</Button>
           </CardFooter>
         </Card>
       </main>

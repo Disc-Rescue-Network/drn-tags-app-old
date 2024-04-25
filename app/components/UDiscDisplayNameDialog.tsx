@@ -16,6 +16,7 @@ import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { Input } from "@/components/ui/input";
 import Cookies from "js-cookie"; // Import js-cookie
+import { useToast } from "@/components/ui/use-toast";
 
 const UDiscDisplayNameDialog = () => {
   const {
@@ -149,6 +150,8 @@ const UDiscDisplayNameDialog = () => {
     setUdiscDisplayName(event.target.value);
   };
 
+  const { toast } = useToast();
+
   const saveDisplayName = () => {
     if (!user) {
       console.error("User is not defined");
@@ -176,6 +179,11 @@ const UDiscDisplayNameDialog = () => {
         if (data.success) {
           setUDiscNameMissing(false); // Assuming you have this state to close the dialog or handle UI changes
         }
+        toast({
+          variant: "default",
+          title: "Success",
+          description: "User settings successfully updated.",
+        });
         setLoading(false);
       })
       .catch((error) => {

@@ -20,6 +20,7 @@ import { Input } from "postcss";
 import { useState, useRef, useEffect } from "react";
 import { TAGS_API_BASE_URL } from "./networking/apiExports";
 import UDiscDisplayNameDialog from "./components/UDiscDisplayNameDialog";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -88,6 +89,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster />
           <div className="flex row-auto w-full h-full">
             <SideMenu />
             <div className="w-full">
