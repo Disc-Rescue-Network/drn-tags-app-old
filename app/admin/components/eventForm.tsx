@@ -53,6 +53,7 @@ const eventSchema = z.object({
     })
     .min(1, { message: "This field is required" }),
   leagueName: z.string().optional(),
+  eventName: z.string().min(1),
   uDiscEventURL: z.string().refine((url) => isValidUDiscURL(url), {
     message: "Invalid uDisc URL. Must end with '?tab=scores'.",
   }),
@@ -82,6 +83,7 @@ export default function EventForm() {
       location: "Tranquility Trails",
       format: "Singles",
       leagueName: "",
+      eventName: "Tags Event",
       uDiscEventURL: "",
       maxSignups: 72,
     },
@@ -195,19 +197,19 @@ export default function EventForm() {
               </FormItem>
             )}
           />
-          {/* <FormField
-          control={form.control}
-          name="leagueName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>League Name</FormLabel>
-              <FormControl>
-                <Input placeholder="League Name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
+          <FormField
+            control={form.control}
+            name="eventName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Event Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Tags Kickoff" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="uDiscEventURL"

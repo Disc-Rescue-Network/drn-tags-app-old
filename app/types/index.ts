@@ -64,5 +64,6 @@ export interface Event {
   uDiscEventURL: string;
   maxSignups: number;
   leagueName?: string;
+  eventName: string;
   data?: Division[];
 }
