@@ -35,7 +35,7 @@ const CreateEvent: NextPage = () => {
             className="flex flex-1 w-full m-auto h-full gap-4 items-center justify-center rounded-lg border border-dashed shadow-sm p-8 bg-muted/20 flex-col md:flex-row md:gap-8 md:items-start md:justify-start md:gap-8 md:p-8"
             x-chunk="dashboard-02-chunk-1"
           >
-            <div className="relative hidden flex-col items-start text-left justify-start gap-8 md:flex">
+            <div className="relative flex-col items-start text-left justify-start gap-8 md:flex">
               <EventForm />
             </div>
           </div>
