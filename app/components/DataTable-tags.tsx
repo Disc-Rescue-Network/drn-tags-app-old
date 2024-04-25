@@ -28,17 +28,14 @@ export const DataTable: React.FC<DataTableProps> = ({ columns, data }) => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  // Modify the getRowClassName function or create a similar utility to include the qualifier class
   const getRowClassName = (position: number) => {
-    switch (position) {
-      case 1:
-        return "podium-1";
-      case 2:
-        return "podium-2";
-      case 3:
-        return "podium-3";
-      default:
-        return "";
+    if (position >= 1 && position <= 3) {
+      return `podium-${position}`; // existing podium classes
+    } else if (position <= 16) {
+      return "qualifier"; // new qualifier class for positions 4 to 16
     }
+    return ""; // default, no additional class
   };
 
   return (

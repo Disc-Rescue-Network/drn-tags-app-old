@@ -118,3 +118,31 @@ body {
   border-left: 5px solid #cd7f32;
   /* background-image: linear-gradient(to right, #fffbe7, #ffffff); */
 }
+
+.qualifier {
+  border-left: 5px solid orange;
+}
+
+/* .legend div {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+.legend span {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+.legend .podium-1 {
+  background-color: gold;
+}
+.legend .podium-2 {
+  background-color: silver;
+}
+.legend .podium-3 {
+  background-color: #cd7f32;
+}
+.legend .qualifier {
+  background-color: orange;
+} */

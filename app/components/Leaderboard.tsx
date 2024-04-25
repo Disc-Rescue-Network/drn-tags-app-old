@@ -52,6 +52,26 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
       </CardHeader>
       <CardContent className="grid gap-8">
         <DataTable columns={columns} data={sortedScores} />
+        <Card className="legend">
+          <CardHeader>
+            <CardTitle>Legend</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="flex flex-row gap-4">
+              <span className="podium-1"></span> 1st Place (Gold)
+            </div>
+            <div className="flex flex-row gap-4">
+              <span className="podium-2"></span> 2nd Place (Silver)
+            </div>
+            <div className="flex flex-row gap-4">
+              <span className="podium-3"></span> 3rd Place (Bronze)
+            </div>
+            <div className="flex flex-row gap-4">
+              <span className="qualifier"></span> Qualifies for Invitational
+              (Top 16)
+            </div>
+          </CardContent>
+        </Card>
         {/* <div className="podium">
           {podium.map((score, index) => {
             const className =
