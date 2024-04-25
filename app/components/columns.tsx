@@ -5,7 +5,7 @@ import { FaArrowUp, FaArrowDown, FaCircle } from "react-icons/fa";
 export interface PlayerData {
   POS: string;
   NAME: string;
-  SCORE: string;
+  POINTS: string;
   THRU: string;
 }
 
@@ -34,8 +34,8 @@ export const columns: ColumnDef<PlayerData>[] = [
     cell: ({ getValue }) => <NameList names={(getValue() as string[]) || []} />,
   },
   {
-    accessorKey: "SCORE",
-    header: "Score",
+    accessorKey: "POINTS",
+    header: "Points",
     cell: (info) => info.getValue(),
   },
   {

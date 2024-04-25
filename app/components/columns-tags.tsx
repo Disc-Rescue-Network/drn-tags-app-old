@@ -1,37 +1,56 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LeaderboardEntry } from "../types";
 import { Medal } from "lucide-react";
+import { DataTableColumnHeader } from "./data-table-column-header";
 
 export const columns: ColumnDef<LeaderboardEntry>[] = [
   {
     accessorKey: "position",
-    header: "Position",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Position" />
+    ),
     cell: (info) => (
       <div className="flex flex-row gap-1">
         {getPodiumIcon(info.row.original.position)}
         {(info.getValue() as string).toString()}
       </div>
     ),
+    enableSorting: true,
+    enableHiding: true,
   },
-  { accessorKey: "name", header: "Name", cell: (info) => info.getValue() },
   {
-    accessorKey: "score",
-    header: "Score",
+    accessorKey: "name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
+    cell: (info) => info.getValue(),
+  },
+  {
+    accessorKey: "points",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Points Total" />
+    ),
     cell: (info) => (info.getValue() as string).toString(),
   },
   {
     accessorKey: "currentTag",
-    header: "Current Tag",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Current Tag" />
+    ),
     cell: (info) => (info.getValue() as string).toString(),
   },
   {
     accessorKey: "roundsPlayed",
-    header: "Rounds Played",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Rounds Played" />
+    ),
     cell: (info) => (info.getValue() as string).toString(),
   },
   {
     accessorKey: "averageScorePerRound",
-    header: "Avg Score/Round",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Average Score/Round" />
+    ),
     cell: (info) => (info.getValue() as string).toString(),
   }, // Format to 1 decimal place
 ];

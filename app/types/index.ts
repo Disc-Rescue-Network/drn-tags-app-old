@@ -3,7 +3,7 @@ import { StaticImageData } from "next/image";
 export interface Score {
   id: number;
   name: string;
-  score: number;
+  points: number;
   roundsPlayed: number;
   avatarUrl: string;
 }
@@ -23,7 +23,7 @@ export interface Event {
 export interface PlayerData {
   POS: string;
   NAME: string;
-  SCORE: string;
+  POINTS: string;
   THRU: string;
   change?: "up" | "down" | "steady"; // Indicating position change
 }
@@ -31,10 +31,10 @@ export interface PlayerData {
 export interface LeaderboardEntry {
   position: number;
   name: string;
-  score: number;
+  points: number;
   currentTag: number;
   // roundsPlayed: number;
-  // averageScorePerRound: number; // New property for average score per round
+  // averageScorePerRound: number; // New property for average points per round
 }
 export interface EnhancedLeaderboardEntry extends LeaderboardEntry {
   roundsPlayed: number;
@@ -48,4 +48,15 @@ export interface RunningScoreEntry {
   tagIn: string | null;
   tagOut: number;
   pointsScored: number;
+}
+export interface UserProfile {
+  user_id: number;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  email?: string;
+  texting_opt_in_status?: boolean;
+  account_type?: string;
+  home_course?: string;
+  udisc_display_name?: string;
 }

@@ -41,7 +41,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function SideMenu() {
   const pathname = usePathname();
-  console.log("pathname: ", pathname);
+  // console.log("pathname: ", pathname);
 
   const [belongsToOrg, setBelongsToOrg] = useState(false);
   const [course, setCourse] = useState<Course>({
@@ -77,14 +77,14 @@ function SideMenu() {
 
   const { toast } = useToast();
   const orgCode = getOrganization() as unknown as string;
-  console.log("orgCode at root: ", orgCode);
+  // console.log("orgCode at root: ", orgCode);
   const orgCodes = getUserOrganizations() as unknown as string[];
-  console.log("orgCodes at root: ", orgCodes);
+  // console.log("orgCodes at root: ", orgCodes);
 
   useEffect(() => {
     const fetchCourse = async () => {
       if (isLoading) return;
-      console.log("fetching course for orgCode", orgCode);
+      // console.log("fetching course for orgCode", orgCode);
       if (!orgCode || orgCode === "" || orgCode === "org_6c3b341e563") {
         console.error("Organization code is required");
         toast({
@@ -97,7 +97,7 @@ function SideMenu() {
       }
 
       try {
-        console.log(`${API_BASE_URL}/course/${orgCode}`);
+        // console.log(`${API_BASE_URL}/course/${orgCode}`);
 
         const accessToken = getAccessToken();
 
@@ -106,9 +106,9 @@ function SideMenu() {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        console.log(response);
+        // console.log(response);
         const data = response.data;
-        console.log(data);
+        // console.log(data);
         setCourse(data);
         setBelongsToOrg(true);
       } catch (error) {
@@ -126,7 +126,7 @@ function SideMenu() {
     fetchCourse();
 
     const fetchCourses = async () => {
-      console.log("fetching courses for orgCodes", orgCodes);
+      // console.log("fetching courses for orgCodes", orgCodes);
       if (orgCodes === undefined || orgCodes === null) {
         console.error("No organization codes provided");
         setErrorMessage("No organization codes found. Please contact support.");
@@ -151,7 +151,7 @@ function SideMenu() {
         });
 
         const fetchedCourses: Course[] = response.data;
-        console.log(fetchedCourses);
+        // console.log(fetchedCourses);
         setAllCourses(fetchedCourses);
       } catch (error) {
         console.error(`Error fetching courses: ${error}`);
@@ -169,8 +169,8 @@ function SideMenu() {
 
   // if (isLoading) return <div>Loading...</div>;
 
-  console.log("isAuthenticated: ", isAuthenticated);
-  console.log("user: ", user);
+  // console.log("isAuthenticated: ", isAuthenticated);
+  // console.log("user: ", user);
 
   return (
     <div className="hidden border-r bg-muted/40 md:block md:w-3/7 lg:w-1/5">
