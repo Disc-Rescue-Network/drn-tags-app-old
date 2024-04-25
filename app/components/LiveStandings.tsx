@@ -57,14 +57,14 @@ const LiveStandings: React.FC = ({}) => {
       const response = await fetch("http://127.0.0.1:5000/data");
       const event_info: Event = await response.json();
       console.log("Event Info:", event_info); // You can display this in your UI (optional
-      console.log("League Name:", event_info.league_name); // You can display this in your UI
+      console.log("League Name:", event_info.leagueName); // You can display this in your UI
       console.log("Divisions:", event_info.data); // You can display this in your UI
-      if (event_info.data.length === 0) {
+      if (event_info.data!.length === 0) {
         console.log("No data yet. Check back later.");
         return;
       }
-      setData(event_info.data);
-      setLeagueName(event_info.league_name);
+      setData(event_info.data!);
+      setLeagueName(event_info.leagueName!);
       setLoading(false);
       setLive(true);
 

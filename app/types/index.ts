@@ -14,12 +14,6 @@ export interface Division {
   division: string;
   division_data: PlayerData[];
 }
-
-export interface Event {
-  league_name: string;
-  data: Division[];
-}
-
 export interface PlayerData {
   POS: string;
   NAME: string;
@@ -59,4 +53,16 @@ export interface UserProfile {
   account_type?: string;
   home_course?: string;
   udisc_display_name?: string;
+}
+
+export interface Event {
+  id: number;
+  date: Date;
+  time: string;
+  location: string;
+  format: string;
+  uDiscEventURL: string;
+  maxSignups: number;
+  leagueName?: string;
+  data?: Division[];
 }

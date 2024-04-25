@@ -25,6 +25,7 @@ import {
   NotebookText,
   Package2,
   ScrollText,
+  ShieldCheck,
 } from "lucide-react";
 import DRNIconLogo from "@/public/assets/icon_logo_transparent_fullsize.png";
 import DRNFullLogo from "@/public/assets/full_logo_transparent_1740x300.png";
@@ -247,7 +248,7 @@ function SideMenu() {
                     href="/admin"
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                   >
-                    <Medal className="h-4 w-4" />
+                    <ShieldCheck className="h-4 w-4" />
                     Dashboard
                   </Link>
                 </Button>
