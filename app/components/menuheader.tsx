@@ -24,6 +24,7 @@ import {
   ScrollText,
   Medal,
   NotebookText,
+  ShieldCheck,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -290,7 +291,7 @@ function MenuHeader() {
                       href="/admin"
                       className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                     >
-                      <Medal className="h-4 w-4" />
+                      <ShieldCheck className="h-4 w-4" />
                       Dashboard
                     </Link>
                   </Button>
