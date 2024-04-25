@@ -49,3 +49,14 @@ export interface RunningScoreEntry {
   tagOut: number;
   pointsScored: number;
 }
+export interface UserProfile {
+  user_id: number;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  email?: string;
+  texting_opt_in_status?: boolean;
+  account_type?: string;
+  home_course?: string;
+  udisc_display_name?: string;
+}

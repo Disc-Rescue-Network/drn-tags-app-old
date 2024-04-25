@@ -48,12 +48,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import DRNIconLogo from "@/public/assets/icon_logo_transparent_fullsize.png";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Course } from "../layout";
 import { useToast } from "@/components/ui/use-toast";
-import { API_BASE_URL } from "../networking/apiExports";
+import { API_BASE_URL, TAGS_API_BASE_URL } from "../networking/apiExports";
 import DRNFullLogo from "@/public/assets/full_logo_transparent_1740x300.png";
 import axios from "axios";
+import { DialogTrigger } from "@/components/ui/dialog";
 import {
   Card,
   CardHeader,
@@ -61,13 +62,14 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { DialogTrigger } from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ComboBox } from "./comboBox";
+import { UserProfile } from "../types";
+import { Label } from "@/components/ui/label";
 
 interface KindeUser {
   family_name: string;
@@ -87,11 +89,6 @@ function MenuHeader() {
     organization,
     userOrganizations,
     getPermission,
-    getBooleanFlag,
-    getIntegerFlag,
-    getFlag,
-    getStringFlag,
-    getClaim,
     getAccessToken,
     getToken,
     getIdToken,
@@ -99,6 +96,9 @@ function MenuHeader() {
     getPermissions,
     getUserOrganizations,
   } = useKindeBrowserClient();
+
+  // console.log("isAuthenticated: ", isAuthenticated);
+  // console.log("user: ", user);
 
   const [course, setCourse] = useState<Course>({
     orgCode: "",
@@ -114,9 +114,9 @@ function MenuHeader() {
 
   const { toast } = useToast();
   const orgCode = getOrganization() as unknown as string;
-  console.log("orgCode at root: ", orgCode);
+  // console.log("orgCode at root: ", orgCode);
   const orgCodes = getUserOrganizations() as unknown as string[];
-  console.log("orgCodes at root: ", orgCodes);
+  // console.log("orgCodes at root: ", orgCodes);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -203,9 +203,6 @@ function MenuHeader() {
 
     fetchCourses();
   }, [orgCode, orgCodes]);
-
-  console.log("isAuthenticated: ", isAuthenticated);
-  console.log("user: ", user);
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
@@ -321,7 +318,6 @@ function MenuHeader() {
         </SheetContent>
       </Sheet>
       <ModeToggle />
-
       {isAuthenticated ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
