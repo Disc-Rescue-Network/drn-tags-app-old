@@ -14,6 +14,8 @@ import { MdFiberManualRecord } from "react-icons/md"; // This icon looks like a 
 import "./LiveStandings.css";
 import EndedLabel from "./EndedLabel";
 import LiveLabel from "./LiveLabel";
+import { TAGS_API_BASE_URL } from "../networking/apiExports";
+import { toast } from "@/components/ui/use-toast";
 
 const LiveStandings: React.FC = ({}) => {
   const [data, setData] = useState<Division[]>([]);
@@ -36,14 +38,22 @@ const LiveStandings: React.FC = ({}) => {
     const urlForReq = JSON.stringify({ url });
     console.log(urlForReq);
     try {
-      const response = await fetch("http://127.0.0.1:5000/fetch_data", {
+      const response = await fetch(`${TAGS_API_BASE_URL}/fetch_data`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: urlForReq,
       });
-      if (!response.ok) throw new Error("Failed to start fetching");
+      if (!response.ok) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description:
+            "There was an error fetching the data. Please try again later.",
+        });
+        throw new Error("Network response was not ok");
+      }
       const result = await response.json();
       console.log(result.message); // "Fetching initiated"
       fetchResults(); // Function to periodically fetch results
@@ -54,7 +64,7 @@ const LiveStandings: React.FC = ({}) => {
 
   const fetchResults = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/data");
+      const response = await fetch(`${TAGS_API_BASE_URL}/data`);
       const event_info: Event = await response.json();
       console.log("Event Info:", event_info); // You can display this in your UI (optional
       console.log("League Name:", event_info.leagueName); // You can display this in your UI

@@ -65,5 +65,20 @@ export interface Event {
   maxSignups: number;
   leagueName?: string;
   eventName: string;
+  layout: string;
+  checkInPeriod: number;
   data?: Division[];
+}
+
+export interface EventPreview {
+  date: Date;
+  time: string;
+  location: string;
+  format: string;
+  uDiscEventURL: string;
+  maxSignups: number;
+  leagueName?: string;
+  eventName: string;
+  layout: string;
+  checkInPeriod: number;
 }
