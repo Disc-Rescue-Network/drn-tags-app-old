@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface DatePickerWithPresetsProps {
+export interface DatePickerWithPresetsProps {
   field: {
     value: Date | undefined;
     onChange: (value: Date | undefined) => void;
@@ -34,9 +34,13 @@ export function DatePickerWithPresets({ field }: DatePickerWithPresetsProps) {
   const [date, setDate] = React.useState<Date>();
 
   React.useEffect(() => {
-    // Update the date state when the field value changes
-    setDate(field.value);
+    setDate(field.value); // Sync internal state with external field value
   }, [field.value]);
+
+  const handleDateChange = (newDate: Date | undefined) => {
+    setDate(newDate);
+    field.onChange(newDate); // Important: propagate changes up to the form!
+  };
 
   return (
     <Popover>
@@ -55,7 +59,7 @@ export function DatePickerWithPresets({ field }: DatePickerWithPresetsProps) {
       <PopoverContent className="flex w-auto flex-col space-y-2 p-2">
         <Select
           onValueChange={(value) =>
-            setDate(addDays(new Date(), parseInt(value)))
+            handleDateChange(addDays(new Date(), parseInt(value)))
           }
         >
           <SelectTrigger>
@@ -69,7 +73,7 @@ export function DatePickerWithPresets({ field }: DatePickerWithPresetsProps) {
           </SelectContent>
         </Select>
         <div className="rounded-md border">
-          <Calendar mode="single" selected={date} onSelect={setDate} />
+          <Calendar mode="single" selected={date} onSelect={handleDateChange} />
         </div>
       </PopoverContent>
     </Popover>

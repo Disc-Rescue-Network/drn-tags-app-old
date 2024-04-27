@@ -58,7 +58,7 @@ const CheckIn: NextPage = () => {
 
   return (
     <div className="grid min-h-screen w-full text-center items-start">
-      <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+      <main className="flex flex-1 min-h-96 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
         <div className="flex">
           <h1 className="text-lg font-semibold md:text-2xl">Check In</h1>
         </div>
@@ -112,7 +112,7 @@ const CheckIn: NextPage = () => {
                       <CardTitle>{event.eventName}</CardTitle>
                     </CardHeader>
                     <CardFooter className="flex flex-row gap-4 w-full justify-between items-end md:flex-row lg:flex-row p-4">
-                      <div className="flex flex-col gap-4 justify-start items-start p-0 m-0 md:flex-col lg:flex-col w-[60%]">
+                      <div className="flex flex-col gap-4 justify-start items-start p-0 m-0 w-full md:flex-col lg:flex-col">
                         <div className="flex flex-row gap-1 items-center justify-start">
                           <Map className="h-4 w-4" />
                           <Label className="text-xs">{event.layout}</Label>

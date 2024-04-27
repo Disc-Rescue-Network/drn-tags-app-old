@@ -29,7 +29,7 @@ const LiveStandings: React.FC = ({}) => {
   const [fullURL, setFullUrl] = useState<string>("");
 
   useEffect(() => {
-    setInterval(fetchResults, 10000); // Continue fetching every minute (change back to 6)
+    setInterval(fetchResults, 60000); // Continue fetching every minute (change back to 6)
   }, []);
 
   const handleSubmit = async (url: string) => {
@@ -56,6 +56,18 @@ const LiveStandings: React.FC = ({}) => {
       }
       const result = await response.json();
       console.log(result.message); // "Fetching initiated"
+      console.log("Result:", result.data); // You can display this in your UI (optional
+      const event_info: Event = await result.data;
+      console.log("Event Info:", event_info); // You can display this in your UI (optional
+      console.log("League Name:", event_info.leagueName); // You can display this in your UI
+      console.log("Divisions:", event_info.data); // You can display this in your UI
+      if (event_info.data!.length === 0) {
+        console.log("No data yet. Check back later.");
+        return;
+      }
+      setData(event_info.data!);
+      setLeagueName(event_info.leagueName!);
+      setLoading(false);
       fetchResults(); // Function to periodically fetch results
     } catch (error: any) {
       console.error("Error:", error.message);
@@ -90,7 +102,7 @@ const LiveStandings: React.FC = ({}) => {
         setLive(false);
       } else {
         setLive(true);
-        setTimeout(fetchResults, 60000); // Continue fetching every minute
+        // setTimeout(fetchResults, 60000); // Continue fetching every minute
       }
     } catch (error) {
       setLive(false);
