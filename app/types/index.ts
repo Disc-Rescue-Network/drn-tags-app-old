@@ -82,3 +82,12 @@ export interface EventPreview {
   layout: string;
   checkInPeriod: number;
 }
+
+export interface CourseSettingsData {
+  courseName: string;
+  layouts: { name: string }[];
+  holes: { hole_id: number; active: boolean }[];
+  divisions: { division_id: number; name: string; active: boolean }[];
+  venmoUsername?: string;
+  cashappUsername?: string;
+}
