@@ -493,19 +493,10 @@ const Home: NextPage = () => {
 
   return (
     <div className="container mx-auto p-4 gap-4">
-      <div className="mt-4 mb-4">
-        {/* <Button onClick={toggleShowLiveScores}>
-          {showLiveScores ? "Show Leaderboard" : "Show Live Scores"}
-        </Button> */}
-      </div>
-
-      {!showLiveScores && (
-        <Leaderboard
-          leaderboardEntries={leaderboardData}
-          runningScoresData={runningScoresData}
-        />
-      )}
-      {showLiveScores && <LiveStandings />}
+      <Leaderboard
+        leaderboardEntries={leaderboardData}
+        runningScoresData={runningScoresData}
+      />
     </div>
   );
 };
