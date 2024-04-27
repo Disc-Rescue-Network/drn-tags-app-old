@@ -17,7 +17,7 @@ export interface Division {
 export interface PlayerData {
   POS: string;
   NAME: string;
-  POINTS: string;
+  SCORE: string;
   THRU: string;
   change?: "up" | "down" | "steady"; // Indicating position change
 }

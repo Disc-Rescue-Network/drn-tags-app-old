@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -61,6 +63,15 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
 import { EventPreview } from "@/app/types";
+import { DatePicker } from "@/app/components/DatePicker";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface EventPreviewProps {
   data: EventPreview;
@@ -208,8 +219,11 @@ export default function EventForm() {
     },
   });
 
+  const [previewOpen, setPreviewOpen] = React.useState(false); // State to control preview modal
+
   function onSubmit(data: z.infer<typeof eventSchema>) {
     console.log(data);
+    setPreviewOpen(false); // Close preview modal
 
     // Validate uDisc URL
     if (!isValidUDiscURL(data.uDiscEventURL)) {
@@ -470,10 +484,30 @@ export default function EventForm() {
               )}
             />
           </fieldset>
-          <Button type="submit">Submit</Button>
+          <Button type="button" onClick={() => setPreviewOpen(true)}>
+            Preview Event
+          </Button>
+          <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Preview</DialogTitle>
+              </DialogHeader>
+
+              <EventPreviewComponent data={form.getValues()} />
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  className="bg-blue-500"
+                  onClick={form.handleSubmit(onSubmit)}
+                >
+                  Create Event
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </form>
       </Form>
-      <Card className="h-max bg-muted/20">
+      <Card className="h-max bg-muted/20 hidden md:block">
         <CardHeader className="p-4">
           <CardTitle>Preview</CardTitle>
         </CardHeader>
