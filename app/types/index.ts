@@ -91,3 +91,15 @@ export interface CourseSettingsData {
   venmoUsername?: string;
   cashappUsername?: string;
 }
+
+export interface Layout {
+  layout_id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  orgCode: string;
+}
+
+export type SuggestionFormData = {
+  suggestion: string;
+};

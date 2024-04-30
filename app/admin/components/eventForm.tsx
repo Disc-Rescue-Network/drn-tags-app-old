@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   Bird,
+  Info,
   Map,
   MapPin,
   Rabbit,
@@ -62,7 +63,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
-import { EventPreview } from "@/app/types";
+import { EventPreview, Layout } from "@/app/types";
 import { DatePicker } from "@/app/components/DatePicker";
 import {
   Dialog,
@@ -72,18 +73,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs/types";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface EventPreviewProps {
   data: EventPreview;
 }
 
-const layouts = [
-  "Short Tees",
-  "Long Tees",
-  "Short 4s, Long 3s",
-  "Long 4s, Short 3s",
-  "Mullet",
-]; // Array of layout options
+// const layouts = [
+//   "Short Tees",
+//   "Long Tees",
+//   "Short 4s, Long 3s",
+//   "Long 4s, Short 3s",
+//   "Mullet",
+// ]; // Array of layout options
 
 // Define the form schema using Zod
 const eventSchema = z.object({
@@ -117,6 +126,19 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
   const event = props.data;
   const checkInEndTime = addMinutes(new Date(event.date), -15);
   const formattedCheckInEndTime = format(checkInEndTime, "MMM d, yyyy h:mm aa");
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <Card className="text-left w-full">
@@ -165,20 +187,38 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
             <User className="h-4 w-4" />
             <Label className="text-xs">{event.format}</Label>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Progress
-                  value={(5 / event.maxSignups) * 100}
-                  max={event.maxSignups}
-                  aria-label="Sign ups"
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                5 / {event.maxSignups} Total Signups
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {isMobile ? (
+            <div className="flex flex-row w-full gap-1 items-center justify-start">
+              <Progress
+                value={(5 / event.maxSignups) * 100}
+                max={event.maxSignups}
+                aria-label="Sign ups"
+              />
+              <Popover>
+                <PopoverTrigger>
+                  <Info className="w-4 h-4" />{" "}
+                </PopoverTrigger>
+                <PopoverContent>
+                  5 / {event.maxSignups} Total Signups
+                </PopoverContent>
+              </Popover>
+            </div>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Progress
+                    value={(5 / event.maxSignups) * 100}
+                    max={event.maxSignups}
+                    aria-label="Sign ups"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  5 / {event.maxSignups} Total Signups
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
         <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
           <Button className="text-xs">Check In</Button>
@@ -220,6 +260,8 @@ export default function EventForm() {
   });
 
   const [previewOpen, setPreviewOpen] = React.useState(false); // State to control preview modal
+  const { isLoading, isAuthenticated, user, organization } =
+    useKindeBrowserClient();
 
   function onSubmit(data: z.infer<typeof eventSchema>) {
     console.log(data);
@@ -281,6 +323,69 @@ export default function EventForm() {
   const format = form.watch("format");
   const eventName = form.watch("eventName");
   const uDiscEventURL = form.watch("uDiscEventURL");
+
+  console.log("Org Code:", organization);
+
+  const [layouts, setLayouts] = React.useState<Layout[]>([]);
+
+  async function fetchSettingsData() {
+    if (!organization) {
+      console.error("Organization not found");
+      return null;
+    }
+
+    console.log("Fetching settings data...");
+    try {
+      const response = await fetch(
+        `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch settings data");
+      }
+      console.log("Settings data fetched successfully");
+      const data = await response.json();
+      console.log("Settings data:", data);
+      return data; // Return the fetched settings data
+    } catch (error) {
+      console.error("Error fetching settings data:", error);
+      return null;
+    }
+  }
+
+  // Use useEffect to fetch settings data when the component mounts
+  useEffect(() => {
+    // Fetch settings data
+    fetchSettingsData()
+      .then((settingsData) => {
+        // Extract relevant fields from settingsData to prepopulate the form
+        const defaultValues = {
+          date: new Date(),
+          time: "",
+          location: settingsData.courseName, // Assuming 'city' is the field in settings data you want to use for location
+          format: "Singles", // Default value
+          leagueName: "",
+          eventName: "Tags Event", // Default value
+          uDiscEventURL: "", // Default value
+          maxSignups: 72, // Default value
+          layout: settingsData.layouts[0]?.name || "", // Assuming 'layouts' is an array and you want to use the first layout
+          checkInPeriod: 30, // Default value
+        };
+
+        console.log("Default values:", defaultValues);
+
+        setLayouts(settingsData.layouts);
+
+        // Set the default values of the form fields
+        Object.entries(defaultValues).forEach(([key, value]) => {
+          form.setValue(key as keyof typeof defaultValues, value);
+        });
+
+        console.log("Form default values set successfully");
+      })
+      .catch((error) => {
+        console.error("Error setting default values:", error);
+      });
+  }, [organization]); // Empty dependency array to run the effect only once when the component mounts
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -385,8 +490,8 @@ export default function EventForm() {
                 <FormItem>
                   <FormLabel>Layout</FormLabel>
                   <FormDescription>
-                    The layout for the event. You can configure this in
-                    &apos;Course Settings&apos;.
+                    The layout for the event. Add layouts in &apos;Course
+                    Settings&apos;.
                   </FormDescription>
                   <FormControl>
                     <Select
@@ -401,8 +506,11 @@ export default function EventForm() {
                       <SelectContent>
                         <SelectGroup>
                           {layouts.map((layout) => (
-                            <SelectItem key={layout} value={layout}>
-                              {layout}
+                            <SelectItem
+                              key={layout.layout_id}
+                              value={layout.name}
+                            >
+                              {layout.name}
                             </SelectItem>
                           ))}
                         </SelectGroup>
