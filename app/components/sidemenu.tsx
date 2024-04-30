@@ -92,6 +92,7 @@ function SideMenu() {
           variant: "destructive",
           title: "Error",
           description: "Organization code is required.",
+          duration: 3000,
         });
         setBelongsToOrg(false);
         return;

@@ -183,6 +183,7 @@ const UDiscDisplayNameDialog = () => {
           variant: "default",
           title: "Success",
           description: "User settings successfully updated.",
+          duration: 3000,
         });
         setLoading(false);
       })

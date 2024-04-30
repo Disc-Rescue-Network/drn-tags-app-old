@@ -51,6 +51,7 @@ const LiveStandings: React.FC = ({}) => {
           title: "Error",
           description:
             "There was an error fetching the data. Please try again later.",
+          duration: 3000,
         });
         throw new Error("Network response was not ok");
       }

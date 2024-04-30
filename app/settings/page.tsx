@@ -114,6 +114,7 @@ export default function Settings() {
           variant: "default",
           title: "Success",
           description: "User settings successfully updated.",
+          duration: 3000,
         });
       })
       .catch((error) => {
