@@ -92,6 +92,7 @@ const CheckIn: NextPage = () => {
           title: "Error",
           description:
             "There was an error fetching the events. Please try again later",
+          duration: 3000,
         });
       });
   }, []);

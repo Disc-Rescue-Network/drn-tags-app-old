@@ -12,11 +12,11 @@ import {
   User,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { addMinutes, format, formatISO, set } from "date-fns";
+import { addMinutes, format, formatISO, set, subMinutes } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import { toast } from "@/components/ui/use-toast";
+import { toast, useToast } from "@/components/ui/use-toast";
 import {
   Card,
   CardContent,
@@ -269,6 +269,8 @@ export default function EventForm() {
     },
   });
 
+  const { toast } = useToast();
+
   const [previewOpen, setPreviewOpen] = React.useState(false); // State to control preview modal
   const { isLoading, isAuthenticated, user, organization } =
     useKindeBrowserClient();
@@ -306,6 +308,7 @@ export default function EventForm() {
         title: "Invalid uDisc URL",
         description:
           'The uDisc URL must be a valid URL and end with "?tab=scores".',
+        duration: 3000,
       });
       return; // Exit early if URL is invalid
     }
@@ -333,6 +336,7 @@ export default function EventForm() {
           variant: "default",
           title: "Event created successfully",
           description: "Your event has been successfully created.",
+          duration: 3000,
         });
       })
       .catch((error) => {
@@ -342,6 +346,7 @@ export default function EventForm() {
           variant: "destructive",
           title: "Error",
           description: "Failed to create event. Please try again later.",
+          duration: 3000,
         });
       });
   }

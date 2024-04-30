@@ -167,6 +167,7 @@ const AdminTools: NextPage = () => {
           toast({
             title: "Error",
             description: "Failed to load course settings",
+            duration: 3000,
           });
         });
     }
@@ -179,6 +180,7 @@ const AdminTools: NextPage = () => {
       toast({
         title: "Unauthorized",
         description: "You must be logged in to save settings.",
+        duration: 3000,
       });
       return;
     }
@@ -189,6 +191,7 @@ const AdminTools: NextPage = () => {
         title: "Unauthorized",
         description:
           "You must be logged in to an organization to perform this action.",
+        duration: 3000,
       });
       return;
     }
@@ -220,6 +223,7 @@ const AdminTools: NextPage = () => {
       toast({
         title: "Success",
         description: "Course settings saved successfully",
+        duration: 3000,
       });
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -227,6 +231,7 @@ const AdminTools: NextPage = () => {
         title: "Error",
         variant: "destructive",
         description: "Failed to submit the form",
+        duration: 3000,
       });
     }
   };

@@ -5,7 +5,7 @@ import {
   EyeNoneIcon,
 } from "@radix-ui/react-icons";
 import { Column } from "@tanstack/react-table";
-
+import Cookies from "js-cookie";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +60,12 @@ export function DataTableColumnHeader<TData, TValue>({
             Desc
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
+          <DropdownMenuItem
+            onClick={() => {
+              column.toggleVisibility(false);
+              Cookies.set(`column-${column.id}-visibility`, "false");
+            }}
+          >
             <EyeNoneIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Hide
           </DropdownMenuItem>

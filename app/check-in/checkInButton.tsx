@@ -10,7 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { min } from "date-fns";
+import { min, subMinutes } from "date-fns";
 
 // Assuming event.start is a Date object representing the event start time
 // and event.checkInPeriod is a number representing the check-in period duration in minutes
@@ -55,7 +55,7 @@ const convertToHighestCommonFactor = (timeValue: string) => {
     return result.trim();
   }
 
-  console.log("timeValue", timeValue);
+  // console.log("timeValue", timeValue);
   return timeValue;
 };
 
@@ -77,30 +77,44 @@ export default function CheckInButton(props: CheckInButtonProps) {
     timeValue =
       timeUntilCheckIn.split(" ")[4] + " " + timeUntilCheckIn.split(" ")[5];
   }
-  console.log("timeValue", timeValue);
+  // console.log("timeValue", timeValue);
   const abbreviatedTimeValue = timeValue
     .replace("minutes", "min")
     .replace("hours", "hrs");
-  console.log("abbreviatedTimeValue", abbreviatedTimeValue);
+  // console.log("abbreviatedTimeValue", abbreviatedTimeValue);
   const finalTimeValue = convertToHighestCommonFactor(abbreviatedTimeValue);
 
   useEffect(() => {
-    const checkInStartTime =
-      new Date(event.dateTime).getTime() - event.checkInPeriod * 60 * 1000;
+    const checkInEndtime = subMinutes(new Date(event.dateTime), 15).getTime();
+    // console.log("checkInEndtime", new Date(checkInEndtime));
+    const checkInStartTime = checkInEndtime - event.checkInPeriod * 60 * 1000;
+    // console.log("checkInStartTime", new Date(checkInStartTime));
     const eventDateTime = new Date(event.dateTime).getTime();
 
     const intervalId = setInterval(() => {
       const now = new Date().getTime();
+      const nowMinus15 = subMinutes(new Date(), 15).getTime();
       const timeLeft = Math.max(0, checkInStartTime - now);
+      // console.log("timeLeft", timeLeft);
       const minutesLeft = Math.floor(timeLeft / 1000 / 60);
+      // console.log("minutesLeft", minutesLeft);
       const secondsLeft = Math.floor(timeLeft / 1000);
+      // console.log("secondsLeft", secondsLeft);
 
       const finalTimeValue = convertToHighestCommonFactor(`${minutesLeft} min`);
       let timeUntilCheckIn = `Check in opens in ${finalTimeValue}`;
+      // console.log("timeUntilCheckIn", timeUntilCheckIn);
 
       if (minutesLeft < 1) {
         timeUntilCheckIn = `Check in opens in ${secondsLeft} seconds`;
       }
+
+      // console.log("timeUntilCheckIn", timeUntilCheckIn);
+
+      // console.log("check in open?", now >= checkInStartTime);
+      // console.log("before start time?", now < eventDateTime);
+      // console.log("now", new Date(now));
+      // console.log("event start time", new Date(eventDateTime));
 
       setIsCheckInOpen(now >= checkInStartTime && now < eventDateTime);
       setTimeUntilCheckIn(timeUntilCheckIn);
