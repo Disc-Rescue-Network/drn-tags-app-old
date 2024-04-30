@@ -65,7 +65,7 @@ const courseSchema = z.object({
   shortCode: z
     .string()
     .min(1, "Course short code is required.")
-    .max(5)
+    .max(5, "Course short code must be 5 characters or less.")
     .refine((value) => value === value.toUpperCase(), {
       message: "Course Short Code must be all uppercase",
     }),
