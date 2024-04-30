@@ -12,7 +12,7 @@ import {
   User,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { addMinutes, format, formatISO, set } from "date-fns";
+import { addMinutes, format, formatISO, set, subMinutes } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
