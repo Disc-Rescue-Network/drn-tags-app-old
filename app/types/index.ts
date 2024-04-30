@@ -88,6 +88,9 @@ export interface CourseSettingsData {
   layouts: { name: string }[];
   holes: { hole_id: number; active: boolean }[];
   divisions: { division_id: number; name: string; active: boolean }[];
+  city: string;
+  state: string;
+  shortCode: string;
   venmoUsername?: string;
   cashappUsername?: string;
 }

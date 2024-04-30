@@ -62,6 +62,15 @@ const fetchCourseSettings = async (orgCode: KindeOrganization) => {
 
 const courseSchema = z.object({
   courseName: z.string().min(1, "Course name is required."),
+  shortCode: z
+    .string()
+    .min(1, "Course short code is required.")
+    .max(5)
+    .refine((value) => value === value.toUpperCase(), {
+      message: "Course Short Code must be all uppercase",
+    }),
+  city: z.string().min(1, "City is required."),
+  state: z.string().min(1, "State is required."),
   layouts: z
     .array(
       z.object({
@@ -94,6 +103,9 @@ const AdminTools: NextPage = () => {
     resolver: zodResolver(courseSchema),
     defaultValues: {
       courseName: "",
+      shortCode: "",
+      city: "",
+      state: "",
       layouts: [{ name: "" }],
       holes: Array.from({ length: 18 }, (_, index) => ({
         hole_id: index + 1,
@@ -140,6 +152,9 @@ const AdminTools: NextPage = () => {
   });
 
   watch("courseName");
+  watch("shortCode");
+  watch("city");
+  watch("state");
   watch("layouts");
   watch("holes");
   watch("divisions");
@@ -166,6 +181,7 @@ const AdminTools: NextPage = () => {
           console.error("Failed to load settings:", error);
           toast({
             title: "Error",
+            variant: "destructive",
             description: "Failed to load course settings",
             duration: 3000,
           });
@@ -251,6 +267,55 @@ const AdminTools: NextPage = () => {
                 <FormLabel>Course Name</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Course Name" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Course Short Code */}
+          <FormField
+            control={form.control}
+            name="shortCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Course Short Code</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Course Short Code (i.e., TRANQ)"
+                    onChange={(e) => {
+                      e.target.value = e.target.value.toUpperCase();
+                      field.onChange(e);
+                    }}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* City */}
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="City" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* State */}
+          <FormField
+            control={form.control}
+            name="state"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>State</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="State" />
                 </FormControl>
               </FormItem>
             )}
