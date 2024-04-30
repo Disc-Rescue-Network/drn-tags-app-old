@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   Bird,
+  Info,
   Map,
   MapPin,
   Rabbit,
@@ -13,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { addMinutes, format, formatISO, set } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -62,7 +63,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
-import { EventPreview } from "@/app/types";
+import { EventPreview, Layout } from "@/app/types";
 import { DatePicker } from "@/app/components/DatePicker";
 import {
   Dialog,
@@ -72,22 +73,34 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs/types";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { time } from "console";
 
 interface EventPreviewProps {
   data: EventPreview;
 }
 
-const layouts = [
-  "Short Tees",
-  "Long Tees",
-  "Short 4s, Long 3s",
-  "Long 4s, Short 3s",
-  "Mullet",
-]; // Array of layout options
+// const layouts = [
+//   "Short Tees",
+//   "Long Tees",
+//   "Short 4s, Long 3s",
+//   "Long 4s, Short 3s",
+//   "Mullet",
+// ]; // Array of layout options
 
 // Define the form schema using Zod
 const eventSchema = z.object({
-  date: z.coerce.date(),
+  dateTime: z.date({
+    required_error: "This field is required",
+  }),
+  date: z.date({ required_error: "This field is required" }),
   time: z
     .string({
       required_error: "This field is required",
@@ -115,8 +128,36 @@ const eventSchema = z.object({
 
 const EventPreviewComponent = (props: EventPreviewProps) => {
   const event = props.data;
-  const checkInEndTime = addMinutes(new Date(event.date), -15);
+  const checkInEndTime = addMinutes(new Date(event.dateTime), -15);
   const formattedCheckInEndTime = format(checkInEndTime, "MMM d, yyyy h:mm aa");
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  let dateTime;
+
+  if (!event.date || !event.time) {
+    dateTime = "Invalid Date";
+  } else {
+    const date = new Date(event.date);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    dateTime = new Date(`${localDate}T${event.time}`);
+    console.log("Event Date Time:", dateTime);
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <Card className="text-left w-full">
@@ -126,23 +167,13 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
           style={{ gridTemplateColumns: "60% 40%" }}
         >
           <div className="text-left text-xs">
-            {event.date && event.time ? (
+            {dateTime.toString() !== "Invalid Date" ? (
               <>
                 {format(
-                  set(new Date(event.date), {
-                    hours: Number(event.time.split(":")[0]),
-                    minutes: Number(event.time.split(":")[1]),
-                  }),
-                  window.innerWidth <= 768 ? "EEE, MMM d" : "EEEE, MMMM do"
+                  new Date(dateTime),
+                  isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
                 )}{" "}
-                @{" "}
-                {format(
-                  set(new Date(event.date), {
-                    hours: Number(event.time.split(":")[0]),
-                    minutes: Number(event.time.split(":")[1]),
-                  }),
-                  "h:mm a"
-                )}
+                @ {format(new Date(dateTime), "h:mm a")}
               </>
             ) : (
               <span>&nbsp;</span>
@@ -165,20 +196,38 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
             <User className="h-4 w-4" />
             <Label className="text-xs">{event.format}</Label>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Progress
-                  value={(5 / event.maxSignups) * 100}
-                  max={event.maxSignups}
-                  aria-label="Sign ups"
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                5 / {event.maxSignups} Total Signups
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {isMobile ? (
+            <div className="flex flex-row w-full gap-1 items-center justify-start">
+              <Progress
+                value={(5 / event.maxSignups) * 100}
+                max={event.maxSignups}
+                aria-label="Sign ups"
+              />
+              <Popover>
+                <PopoverTrigger>
+                  <Info className="w-4 h-4" />{" "}
+                </PopoverTrigger>
+                <PopoverContent className="text-xs">
+                  5 / {event.maxSignups} Total Signups
+                </PopoverContent>
+              </Popover>
+            </div>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Progress
+                    value={(5 / event.maxSignups) * 100}
+                    max={event.maxSignups}
+                    aria-label="Sign ups"
+                  />
+                </TooltipTrigger>
+                <TooltipContent className="text-xs">
+                  5 / {event.maxSignups} Total Signups
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
         <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
           <Button className="text-xs">Check In</Button>
@@ -206,6 +255,7 @@ export default function EventForm() {
   const form = useForm({
     resolver: zodResolver(eventSchema),
     defaultValues: {
+      dateTime: new Date(),
       date: new Date(),
       time: "",
       location: "Tranquility Trails",
@@ -220,9 +270,32 @@ export default function EventForm() {
   });
 
   const [previewOpen, setPreviewOpen] = React.useState(false); // State to control preview modal
+  const { isLoading, isAuthenticated, user, organization } =
+    useKindeBrowserClient();
 
   function onSubmit(data: z.infer<typeof eventSchema>) {
     console.log(data);
+
+    const date = new Date(data.date);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    const dateTime = new Date(`${localDate}T${data.time}`);
+    console.log("FINAL DateTime:", dateTime);
+
+    // Now you can use dateTime in your submit logic
+    // For example:
+    const eventData = {
+      ...data,
+      dateTime,
+      date: undefined,
+      time: undefined,
+    };
+    delete eventData.date;
+    delete eventData.time;
+
     setPreviewOpen(false); // Close preview modal
 
     // Validate uDisc URL
@@ -236,6 +309,8 @@ export default function EventForm() {
       });
       return; // Exit early if URL is invalid
     }
+
+    console.log(JSON.stringify(data));
 
     // Make POST request to API endpoint
     fetch(`${TAGS_API_BASE_URL}/api/create-event`, {
@@ -271,7 +346,6 @@ export default function EventForm() {
       });
   }
 
-  console.log(form.getValues());
   const layout = form.watch("layout");
   const checkInPeriod = form.watch("checkInPeriod");
   const maxSignups = form.watch("maxSignups");
@@ -282,6 +356,73 @@ export default function EventForm() {
   const eventName = form.watch("eventName");
   const uDiscEventURL = form.watch("uDiscEventURL");
 
+  console.log(form.getValues());
+  console.log(form.formState.errors);
+
+  console.log("Org Code:", organization);
+
+  const [layouts, setLayouts] = React.useState<Layout[]>([]);
+
+  async function fetchSettingsData() {
+    if (!organization) {
+      console.error("Organization not found");
+      return null;
+    }
+
+    console.log("Fetching settings data...");
+    try {
+      const response = await fetch(
+        `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch settings data");
+      }
+      console.log("Settings data fetched successfully");
+      const data = await response.json();
+      console.log("Settings data:", data);
+      return data; // Return the fetched settings data
+    } catch (error) {
+      console.error("Error fetching settings data:", error);
+      return null;
+    }
+  }
+
+  // Use useEffect to fetch settings data when the component mounts
+  useEffect(() => {
+    // Fetch settings data
+    fetchSettingsData()
+      .then((settingsData) => {
+        // Extract relevant fields from settingsData to prepopulate the form
+        const defaultValues = {
+          dateTime: new Date(),
+          date: "",
+          time: "",
+          location: settingsData.courseName, // Assuming 'city' is the field in settings data you want to use for location
+          format: "Singles", // Default value
+          leagueName: "",
+          eventName: "Tags Event", // Default value
+          uDiscEventURL: "", // Default value
+          maxSignups: 72, // Default value
+          layout: settingsData.layouts[0]?.name || "", // Assuming 'layouts' is an array and you want to use the first layout
+          checkInPeriod: 30, // Default value
+        };
+
+        console.log("Default values:", defaultValues);
+
+        setLayouts(settingsData.layouts);
+
+        // Set the default values of the form fields
+        Object.entries(defaultValues).forEach(([key, value]) => {
+          form.setValue(key as keyof typeof defaultValues, value);
+        });
+
+        console.log("Form default values set successfully");
+      })
+      .catch((error) => {
+        console.error("Error setting default values:", error);
+      });
+  }, [organization]); // Empty dependency array to run the effect only once when the component mounts
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <Form {...form}>
@@ -290,7 +431,8 @@ export default function EventForm() {
             <legend className="-ml-1 px-1 text-sm font-medium text-center ">
               Create Event
             </legend>
-            <FormField
+
+            <Controller
               control={form.control}
               name="date"
               render={({ field }) => (
@@ -298,14 +440,19 @@ export default function EventForm() {
                   <FormLabel>Date</FormLabel>
                   <FormDescription>Day of the event.</FormDescription>
                   <FormControl>
-                    <DatePickerWithPresets field={field} />
+                    <DatePickerWithPresets
+                      field={{
+                        ...field,
+                        value: field.value ? new Date(field.value) : undefined,
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
+            <Controller
               control={form.control}
               name="time"
               render={({ field }) => (
@@ -320,7 +467,7 @@ export default function EventForm() {
                       type="time"
                       placeholder="Select time"
                       {...field}
-                      disabled={!form.getValues("date")}
+                      disabled={!form.watch("date")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -385,8 +532,8 @@ export default function EventForm() {
                 <FormItem>
                   <FormLabel>Layout</FormLabel>
                   <FormDescription>
-                    The layout for the event. You can configure this in
-                    &apos;Course Settings&apos;.
+                    The layout for the event. Add layouts in &apos;Course
+                    Settings&apos;.
                   </FormDescription>
                   <FormControl>
                     <Select
@@ -401,8 +548,11 @@ export default function EventForm() {
                       <SelectContent>
                         <SelectGroup>
                           {layouts.map((layout) => (
-                            <SelectItem key={layout} value={layout}>
-                              {layout}
+                            <SelectItem
+                              key={layout.layout_id}
+                              value={layout.name}
+                            >
+                              {layout.name}
                             </SelectItem>
                           ))}
                         </SelectGroup>

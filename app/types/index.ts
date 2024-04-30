@@ -57,8 +57,7 @@ export interface UserProfile {
 
 export interface Event {
   id: number;
-  date: Date;
-  time: string;
+  dateTime: Date;
   location: string;
   format: string;
   uDiscEventURL: string;
@@ -71,8 +70,9 @@ export interface Event {
 }
 
 export interface EventPreview {
-  date: Date;
-  time: string;
+  dateTime: Date;
+  date?: Date;
+  time?: string;
   location: string;
   format: string;
   uDiscEventURL: string;
@@ -91,3 +91,15 @@ export interface CourseSettingsData {
   venmoUsername?: string;
   cashappUsername?: string;
 }
+
+export interface Layout {
+  layout_id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  orgCode: string;
+}
+
+export type SuggestionFormData = {
+  suggestion: string;
+};

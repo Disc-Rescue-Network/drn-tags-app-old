@@ -1,21 +1,16 @@
 "use client";
 
 import { NextPage } from "next";
-import { DatePickerWithPresets } from "../components/DatePickerWithPresets";
-import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import EventForm from "./components/eventForm";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import {
   Card,
   CardContent,
@@ -25,12 +20,24 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LiveStandings from "../components/LiveStandings";
+import { useForm } from "react-hook-form";
+import { SuggestionFormData } from "../types";
+import { useRouter } from "next/navigation";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useEffect, useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const AdminTools: NextPage = () => {
   const { isLoading, isAuthenticated, user } = useKindeBrowserClient();
 
   const router = useRouter();
   const [showLiveScores, setShowLiveScores] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SuggestionFormData>();
 
   useEffect(() => {
     if (isLoading) return;
@@ -53,6 +60,23 @@ const AdminTools: NextPage = () => {
     router.push("/admin/course-settings");
   };
 
+  const onSubmit = (data: SuggestionFormData) => {
+    console.log(data);
+    const isMobile = window.innerWidth <= 768;
+    const subject = encodeURIComponent("Suggestion for Tags App");
+    const body = encodeURIComponent(
+      data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
+    );
+
+    if (isMobile) {
+      window.location.href = `mailto:support@discrescuenetwork.com?subject=${subject}&body=${body}`;
+    } else {
+      const mailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=support@discrescuenetwork.com&su=${subject}&body=${body}`;
+      window.open(mailUrl, "_blank");
+    }
+    console.log("Submitted suggestion");
+  };
+
   return (
     <div className="grid h-full max-h-80 w-full text-center items-start">
       {isAuthenticated && user ? (
@@ -68,10 +92,7 @@ const AdminTools: NextPage = () => {
           </div>
 
           {!showLiveScores && (
-            <div
-              className="flex flex-1 w-full m-auto h-full gap-4 items-center justify-center rounded-lg border border-dashed shadow-sm p-8 bg-muted/20 flex-col md:flex-row md:gap-8 md:items-start md:justify-start md:gap-8 md:p-8"
-              x-chunk="dashboard-02-chunk-1"
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full m-auto h-full gap-4 items-center justify-center rounded-lg border border-dashed shadow-sm p-8 bg-muted/20 flex-col md:flex-row md:gap-8 md:items-start md:justify-start md:p-8">
               <Card className="text-left">
                 <CardHeader>
                   <CardTitle>Create Event</CardTitle>
@@ -90,8 +111,7 @@ const AdminTools: NextPage = () => {
                 <CardHeader>
                   <CardTitle>Course Settings</CardTitle>
                   <CardDescription>
-                    Want to edit the course layouts for your events? Maybe your
-                    venmo username? Do it all here.
+                    Want to edit the course layouts or divisions? Click here.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -113,10 +133,54 @@ const AdminTools: NextPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div></div>
-                  <Button size="sm" variant="secondary">
-                    Submit Suggestion
-                  </Button>
+                  <Drawer>
+                    <DrawerTrigger>
+                      {" "}
+                      <Button size="sm" variant="secondary">
+                        Submit Suggestion
+                      </Button>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                      <DrawerHeader>
+                        <DrawerTitle>Submit Suggestion</DrawerTitle>
+                        <DrawerDescription>
+                          Type your comments or suggestions here.
+                        </DrawerDescription>
+                      </DrawerHeader>
+                      <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className="space-y-4"
+                      >
+                        <div className="flex flex-col w-full p-4 items-center text-left justify-center gap-8 md:flex">
+                          <Label className="block w-full">
+                            <Textarea
+                              {...register("suggestion", { required: true })}
+                              className="form-textarea mt-1 mb-2 block w-full"
+                              rows={3}
+                              placeholder="Enter your suggestion"
+                            />
+                            {errors.suggestion && (
+                              <span className="text-red-500">
+                                This field is required
+                              </span>
+                            )}
+                          </Label>
+                        </div>
+                        <DrawerFooter>
+                          <Button type="submit">Submit</Button>
+                          <DrawerClose>
+                            <Button variant="outline">Cancel</Button>
+                          </DrawerClose>
+                        </DrawerFooter>
+                      </form>
+                      {/* <DrawerFooter>
+                        <Button>Submit</Button>
+                        <DrawerClose>
+                          <Button variant="outline">Cancel</Button>
+                        </DrawerClose>
+                      </DrawerFooter> */}
+                    </DrawerContent>
+                  </Drawer>
                 </CardContent>
               </Card>
 
