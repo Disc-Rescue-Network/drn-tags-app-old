@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { addMinutes, format, formatISO, set } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -81,6 +81,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { time } from "console";
 
 interface EventPreviewProps {
   data: EventPreview;
@@ -96,7 +97,10 @@ interface EventPreviewProps {
 
 // Define the form schema using Zod
 const eventSchema = z.object({
-  date: z.coerce.date(),
+  dateTime: z.date({
+    required_error: "This field is required",
+  }),
+  date: z.date({ required_error: "This field is required" }),
   time: z
     .string({
       required_error: "This field is required",
@@ -124,10 +128,25 @@ const eventSchema = z.object({
 
 const EventPreviewComponent = (props: EventPreviewProps) => {
   const event = props.data;
-  const checkInEndTime = addMinutes(new Date(event.date), -15);
+  const checkInEndTime = addMinutes(new Date(event.dateTime), -15);
   const formattedCheckInEndTime = format(checkInEndTime, "MMM d, yyyy h:mm aa");
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  let dateTime;
+
+  if (!event.date || !event.time) {
+    dateTime = "Invalid Date";
+  } else {
+    const date = new Date(event.date);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    dateTime = new Date(`${localDate}T${event.time}`);
+    console.log("Event Date Time:", dateTime);
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -148,23 +167,13 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
           style={{ gridTemplateColumns: "60% 40%" }}
         >
           <div className="text-left text-xs">
-            {event.date && event.time ? (
+            {dateTime.toString() !== "Invalid Date" ? (
               <>
                 {format(
-                  set(new Date(event.date), {
-                    hours: Number(event.time.split(":")[0]),
-                    minutes: Number(event.time.split(":")[1]),
-                  }),
-                  window.innerWidth <= 768 ? "EEE, MMM d" : "EEEE, MMMM do"
+                  new Date(dateTime),
+                  isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
                 )}{" "}
-                @{" "}
-                {format(
-                  set(new Date(event.date), {
-                    hours: Number(event.time.split(":")[0]),
-                    minutes: Number(event.time.split(":")[1]),
-                  }),
-                  "h:mm a"
-                )}
+                @ {format(new Date(dateTime), "h:mm a")}
               </>
             ) : (
               <span>&nbsp;</span>
@@ -198,7 +207,7 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
                 <PopoverTrigger>
                   <Info className="w-4 h-4" />{" "}
                 </PopoverTrigger>
-                <PopoverContent>
+                <PopoverContent className="text-xs">
                   5 / {event.maxSignups} Total Signups
                 </PopoverContent>
               </Popover>
@@ -213,7 +222,7 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
                     aria-label="Sign ups"
                   />
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent className="text-xs">
                   5 / {event.maxSignups} Total Signups
                 </TooltipContent>
               </Tooltip>
@@ -246,6 +255,7 @@ export default function EventForm() {
   const form = useForm({
     resolver: zodResolver(eventSchema),
     defaultValues: {
+      dateTime: new Date(),
       date: new Date(),
       time: "",
       location: "Tranquility Trails",
@@ -265,6 +275,27 @@ export default function EventForm() {
 
   function onSubmit(data: z.infer<typeof eventSchema>) {
     console.log(data);
+
+    const date = new Date(data.date);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    const dateTime = new Date(`${localDate}T${data.time}`);
+    console.log("FINAL DateTime:", dateTime);
+
+    // Now you can use dateTime in your submit logic
+    // For example:
+    const eventData = {
+      ...data,
+      dateTime,
+      date: undefined,
+      time: undefined,
+    };
+    delete eventData.date;
+    delete eventData.time;
+
     setPreviewOpen(false); // Close preview modal
 
     // Validate uDisc URL
@@ -278,6 +309,8 @@ export default function EventForm() {
       });
       return; // Exit early if URL is invalid
     }
+
+    console.log(JSON.stringify(data));
 
     // Make POST request to API endpoint
     fetch(`${TAGS_API_BASE_URL}/api/create-event`, {
@@ -313,7 +346,6 @@ export default function EventForm() {
       });
   }
 
-  console.log(form.getValues());
   const layout = form.watch("layout");
   const checkInPeriod = form.watch("checkInPeriod");
   const maxSignups = form.watch("maxSignups");
@@ -323,6 +355,9 @@ export default function EventForm() {
   const format = form.watch("format");
   const eventName = form.watch("eventName");
   const uDiscEventURL = form.watch("uDiscEventURL");
+
+  console.log(form.getValues());
+  console.log(form.formState.errors);
 
   console.log("Org Code:", organization);
 
@@ -359,7 +394,8 @@ export default function EventForm() {
       .then((settingsData) => {
         // Extract relevant fields from settingsData to prepopulate the form
         const defaultValues = {
-          date: new Date(),
+          dateTime: new Date(),
+          date: "",
           time: "",
           location: settingsData.courseName, // Assuming 'city' is the field in settings data you want to use for location
           format: "Singles", // Default value
@@ -395,7 +431,8 @@ export default function EventForm() {
             <legend className="-ml-1 px-1 text-sm font-medium text-center ">
               Create Event
             </legend>
-            <FormField
+
+            <Controller
               control={form.control}
               name="date"
               render={({ field }) => (
@@ -403,14 +440,19 @@ export default function EventForm() {
                   <FormLabel>Date</FormLabel>
                   <FormDescription>Day of the event.</FormDescription>
                   <FormControl>
-                    <DatePickerWithPresets field={field} />
+                    <DatePickerWithPresets
+                      field={{
+                        ...field,
+                        value: field.value ? new Date(field.value) : undefined,
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
+            <Controller
               control={form.control}
               name="time"
               render={({ field }) => (
@@ -425,7 +467,7 @@ export default function EventForm() {
                       type="time"
                       placeholder="Select time"
                       {...field}
-                      disabled={!form.getValues("date")}
+                      disabled={!form.watch("date")}
                     />
                   </FormControl>
                   <FormMessage />
