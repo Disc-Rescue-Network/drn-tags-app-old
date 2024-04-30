@@ -1,9 +1,12 @@
 "use client";
 
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
-
+import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +15,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useEffect } from "react";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
@@ -20,6 +24,22 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
+  useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      const visibility = Cookies.get(`column-${column.id}-visibility`);
+      if (visibility !== undefined) {
+        column.toggleVisibility(visibility === "true");
+      }
+    });
+  }, [table]);
+
+  const resetToDefault = () => {
+    table.getAllColumns().forEach((column) => {
+      Cookies.remove(`column-${column.id}-visibility`);
+      column.toggleVisibility(true);
+    });
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -43,12 +63,22 @@ export function DataTableViewOptions<TData>({
                 key={column.id}
                 className="capitalize"
                 checked={column.getIsVisible()}
-                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                onCheckedChange={(value) => {
+                  column.toggleVisibility(!!value);
+                  Cookies.set(`column-${column.id}-visibility`, String(value));
+                }}
               >
                 {column.id}
               </DropdownMenuCheckboxItem>
             );
           })}
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel
+          onClick={resetToDefault}
+          className="capitalize text-sm cursor-pointer"
+        >
+          Reset to default
+        </DropdownMenuLabel>
       </DropdownMenuContent>
     </DropdownMenu>
   );
