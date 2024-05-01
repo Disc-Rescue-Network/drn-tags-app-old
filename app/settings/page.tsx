@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { UserProfile } from "../types";
 import { useToast } from "@/components/ui/use-toast";
+import { useUserDetails } from "../hooks/useUserDetails";
 
 export default function Settings() {
   const {
@@ -41,43 +42,11 @@ export default function Settings() {
 
   const [loading, setLoading] = useState(false);
 
-  const [userProfile, setUserProfile] = useState<UserProfile>();
-
-  useEffect(() => {
-    const checkUDiscDisplayName = async () => {
-      setLoading(true);
-      if (isAuthenticated && user) {
-        console.log("Checking UDisc display name status for user:", user);
-        // Ensure user.email is not null before using it
-        const accessToken = getAccessToken(); // Assume getAccessToken is async
-        try {
-          const response = await fetch(
-            `${TAGS_API_BASE_URL}/api/getUserDetails`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`, // Correctly handle accessToken usage
-              },
-              body: JSON.stringify({
-                kinde_id: user.id,
-              }),
-            }
-          );
-
-          const data = await response.json();
-          console.log("data", data);
-          setLoading(false);
-          setUserProfile(data.user);
-        } catch (error) {
-          console.error("Failed to fetch UDisc display name status:", error);
-          setLoading(false);
-        }
-      }
-    };
-
-    checkUDiscDisplayName();
-  }, [isAuthenticated, user]);
+  const { userProfile, setUserProfile } = useUserDetails(
+    isAuthenticated,
+    user,
+    getAccessToken
+  );
 
   useEffect(() => {
     console.log("userProfile", userProfile);

@@ -10,10 +10,17 @@ export interface Score {
 
 export type Scores = Score[];
 
-export interface Division {
+export interface DivisionResults {
   division: string;
   division_data: PlayerData[];
 }
+
+export interface Division {
+  division_id: number;
+  name: string;
+  active: boolean;
+}
+
 export interface PlayerData {
   POS: string;
   NAME: string;
@@ -53,9 +60,10 @@ export interface UserProfile {
   account_type?: string;
   home_course?: string;
   udisc_display_name?: string;
+  kinde_id: string;
 }
 
-export interface Event {
+export interface TagsEvent {
   event_id: number;
   dateTime: Date;
   location: string;
@@ -66,7 +74,8 @@ export interface Event {
   eventName: string;
   layout: string;
   checkInPeriod: number;
-  data?: Division[];
+  Divisions: Division[];
+  data?: DivisionResults[];
 }
 
 export interface EventPreview {
@@ -106,3 +115,12 @@ export interface Layout {
 export type SuggestionFormData = {
   suggestion: string;
 };
+
+export interface CheckInFormData {
+  uDiscDisplayName: string;
+  tagIn: number;
+  divisionId: number;
+  paid: boolean;
+  event_id: number;
+  kinde_id: string | null; // assuming kinde_id can be null for unauthenticated check-ins
+}
