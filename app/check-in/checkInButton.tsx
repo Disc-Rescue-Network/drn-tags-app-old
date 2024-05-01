@@ -2,7 +2,7 @@
 
 import { Clock } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Event } from "../types";
+import { TagsEvent } from "../types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,7 +16,7 @@ import { min, subMinutes } from "date-fns";
 // and event.checkInPeriod is a number representing the check-in period duration in minutes
 
 interface CheckInButtonProps {
-  event: Event;
+  event: TagsEvent;
   checkIn: () => void;
   isMobile: boolean;
   isLoading: boolean;

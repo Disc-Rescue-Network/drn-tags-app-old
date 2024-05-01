@@ -63,7 +63,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
-import { EventPreview, Layout } from "@/app/types";
+import { Division, EventPreview, Layout } from "@/app/types";
 import { DatePicker } from "@/app/components/DatePicker";
 import {
   Dialog,
@@ -82,10 +82,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { time } from "console";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface EventPreviewProps {
   data: EventPreview;
 }
+
+const formats = [
+  { format_id: 1, name: "Singles" },
+  { format_id: 2, name: "Doubles" },
+  { format_id: 3, name: "Triples" },
+  { format_id: 4, name: "Match Play" },
+]; // Array of format options
 
 // const layouts = [
 //   "Short Tees",
@@ -124,12 +132,20 @@ const eventSchema = z.object({
   maxSignups: z.number().min(1),
   layout: z.string().min(1),
   checkInPeriod: z.number().min(1),
+  divisions: z.array(
+    z.object({ division_id: z.number(), name: z.string(), active: z.boolean() })
+  ),
 });
 
 const EventPreviewComponent = (props: EventPreviewProps) => {
   const event = props.data;
   const checkInEndTime = addMinutes(new Date(event.dateTime), -15);
-  const formattedCheckInEndTime = format(checkInEndTime, "MMM d, yyyy h:mm aa");
+  let formattedCheckInEndTime = "";
+  try {
+    formattedCheckInEndTime = format(checkInEndTime, "MMM d, yyyy h:mm aa");
+  } catch (error) {
+    console.error("Invalid time value:", checkInEndTime);
+  }
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -266,6 +282,12 @@ export default function EventForm() {
       maxSignups: 72,
       layout: "Short Tees",
       checkInPeriod: 30,
+      divisions: [
+        { division_id: 1, name: "MPO (Open)", active: true },
+        { division_id: 2, name: "MA1 (Advanced)", active: true },
+        { division_id: 3, name: "MA2 (Intermediate)", active: true },
+        { division_id: 4, name: "MA3 (Recreational)", active: false },
+      ],
     },
   });
 
@@ -360,6 +382,24 @@ export default function EventForm() {
   const format = form.watch("format");
   const eventName = form.watch("eventName");
   const uDiscEventURL = form.watch("uDiscEventURL");
+  const divisionsWatch = form.watch("divisions");
+
+  const dateValue = form.getValues().date;
+  const timeValue = form.getValues().time;
+
+  if (!dateValue || !timeValue) {
+    console.error("Date or time is empty");
+  } else {
+    const dateTmp = new Date(dateValue);
+    const localDate = new Date(
+      dateTmp.getTime() - dateTmp.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    const dateTime = new Date(`${localDate}T${timeValue}`);
+    console.log("FINAL DateTime:", dateTime);
+    form.setValue("dateTime", dateTime);
+  }
 
   console.log(form.getValues());
   console.log(form.formState.errors);
@@ -367,6 +407,7 @@ export default function EventForm() {
   console.log("Org Code:", organization);
 
   const [layouts, setLayouts] = React.useState<Layout[]>([]);
+  const [divisions, setDivisions] = React.useState<Division[]>([]);
 
   async function fetchSettingsData() {
     if (!organization) {
@@ -398,6 +439,7 @@ export default function EventForm() {
     fetchSettingsData()
       .then((settingsData) => {
         // Extract relevant fields from settingsData to prepopulate the form
+        console.log("Divisions data:", settingsData.divisions);
         const defaultValues = {
           dateTime: new Date(),
           date: "",
@@ -410,11 +452,13 @@ export default function EventForm() {
           maxSignups: 72, // Default value
           layout: settingsData.layouts[0]?.name || "", // Assuming 'layouts' is an array and you want to use the first layout
           checkInPeriod: 30, // Default value
+          divisions: settingsData.divisions,
         };
 
         console.log("Default values:", defaultValues);
 
         setLayouts(settingsData.layouts);
+        setDivisions(settingsData.divisions);
 
         // Set the default values of the form fields
         Object.entries(defaultValues).forEach(([key, value]) => {
@@ -509,6 +553,57 @@ export default function EventForm() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="maxSignups"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Signups</FormLabel>
+                  <FormDescription>
+                    The maximum number of signups allowed for the event.
+                  </FormDescription>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="72"
+                      min={1}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        form.setValue("maxSignups", Number(e.target.value));
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="checkInPeriod"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Check In Period (minutes)</FormLabel>
+                  <FormDescription>
+                    The time period when you will allow check-ins. The check in
+                    period will always end 15 minutes before the event starts.
+                  </FormDescription>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="30"
+                      min={1}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        form.setValue("checkInPeriod", Number(e.target.value));
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </fieldset>
           <fieldset className="grid gap-6 rounded-lg border p-4">
             <legend className="-ml-1 px-1 text-sm font-medium text-center ">
@@ -524,12 +619,100 @@ export default function EventForm() {
                     The format of the event. Example: &apos;Doubles&apos;.
                   </FormDescription>
                   <FormControl>
-                    <Input placeholder="Singles" {...field} />
+                    <Select
+                      {...field}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a layout" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {formats.map((format) => (
+                            <SelectItem
+                              key={format.format_id}
+                              value={format.name}
+                            >
+                              {format.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="divisions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Divisions</FormLabel>
+                  <FormDescription>
+                    Select the divisions you want to add for the event
+                  </FormDescription>
+                  <FormControl>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Division Name</TableHead>
+                          <TableHead>Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {field.value
+                          .filter(
+                            (division) =>
+                              division.name.startsWith("M") ||
+                              division.name.startsWith("F")
+                          )
+                          .sort((a, b) => {
+                            // First sort by name prefix 'M' or 'F'
+                            if (a.name[0] === "M" && b.name[0] === "F")
+                              return -1;
+                            if (a.name[0] === "F" && b.name[0] === "M")
+                              return 1;
+                            // If both start with the same letter, sort by division_id
+                            return a.division_id - b.division_id;
+                          })
+                          .map((division) => (
+                            <TableRow key={division.division_id}>
+                              <TableCell>{division.name}</TableCell>
+                              <TableCell>
+                                <Button
+                                  type="button"
+                                  variant={
+                                    division.active
+                                      ? "destructive"
+                                      : "secondary"
+                                  }
+                                  onClick={() => {
+                                    const newValue = field.value.map((div) =>
+                                      div.division_id === division.division_id
+                                        ? { ...div, active: !div.active }
+                                        : div
+                                    );
+                                    field.onChange(newValue);
+                                  }}
+                                >
+                                  {division.active ? "Remove" : "Add"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="layout"
@@ -582,57 +765,6 @@ export default function EventForm() {
                   </FormDescription>
                   <FormControl>
                     <Input placeholder="Enter UDisc Event URL" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="maxSignups"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Max Signups</FormLabel>
-                  <FormDescription>
-                    The maximum number of signups allowed for the event.
-                  </FormDescription>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="72"
-                      min={1}
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        form.setValue("maxSignups", Number(e.target.value));
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="checkInPeriod"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Check In Period (minutes)</FormLabel>
-                  <FormDescription>
-                    The time period when you will allow check-ins. The check in
-                    period will always end 15 minutes before the event starts.
-                  </FormDescription>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="30"
-                      min={1}
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        form.setValue("checkInPeriod", Number(e.target.value));
-                      }}
-                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

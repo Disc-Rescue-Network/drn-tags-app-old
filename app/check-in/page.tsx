@@ -1,10 +1,10 @@
 "use client";
 
-import type { NextPage } from "next";
+import type { NextApiRequest, NextApiResponse, NextPage } from "next";
 import { useState, useEffect, use } from "react";
-import { Event } from "../types";
+import { CheckInFormData, TagsEvent } from "../types";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import {
   Card,
   CardDescription,
@@ -43,20 +43,59 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useCheckUDiscDisplayName } from "../hooks/useCheckUDiscDisplayName";
+import { useLogin } from "../hooks/useLogin";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useUserDetails } from "../hooks/useUserDetails";
+import CheckInForm from "./checkInForm";
 
 const CheckIn: NextPage = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<TagsEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [checkInStarted, setCheckInStarted] = useState(false);
+  // const [unauthenticatedCheckIn, setUnauthenticatedCheckIn] = useState(false);
+  const [udiscDisplayName, setUdiscDisplayName] = useState("");
 
-  const { isAuthenticated, user } = useKindeBrowserClient();
+  const { isAuthenticated, user, getAccessToken } = useKindeBrowserClient();
+  const { loading: loginLoading, doesAccountExist } = useLogin(
+    isAuthenticated,
+    user,
+    getAccessToken
+  );
+  const { loading: displayNameLoading, isUDiscNameMissing } =
+    useCheckUDiscDisplayName(
+      isAuthenticated,
+      user,
+      getAccessToken,
+      doesAccountExist
+    );
 
-  const [unauthenticatedCheckIn, setUnauthenticatedCheckIn] = useState(false);
-  const [ignoreLoginErrors, setIgnoreLoginErrors] = useState(false);
+  console.log("Does account exist:", doesAccountExist);
+  console.log("Login loading:", loginLoading);
+  console.log("Is authenticated:", isAuthenticated);
+  console.log("User:", user);
+  console.log("Is UDisc name missing:", isUDiscNameMissing);
+  console.log("Display name loading:", displayNameLoading);
 
-  const handleAlertDialogDismiss = () => {
-    setUnauthenticatedCheckIn(false);
-  };
+  const { userProfile, setUserProfile } = useUserDetails(
+    isAuthenticated,
+    user,
+    getAccessToken
+  );
+
+  useEffect(() => {
+    console.log("userProfile", userProfile);
+  }, [userProfile]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -70,7 +109,7 @@ const CheckIn: NextPage = () => {
       .then((data) => {
         console.log("Fetched events data:", data);
         // Filter events that are in the future
-        const futureEvents = data.filter((event: Event) => {
+        const futureEvents = data.filter((event: TagsEvent) => {
           const eventDate = new Date(event.dateTime);
           const currentDate = new Date();
 
@@ -97,36 +136,76 @@ const CheckIn: NextPage = () => {
       });
   }, []);
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     console.log("Fetched events data:", events);
-  //     // Filter events that are in the future
-  //     const futureEvents = events.filter((event: Event) => {
-  //       const eventDate = new Date(event.dateTime);
-  //       const currentDate = new Date();
+  const beginUnauthenticatedCheckIn = () => {
+    console.log("Beginning unauthenticated check in...");
+    //bring up a form with no data prefilled
+  };
 
-  //       console.log("Event Date:", eventDate);
-  //       console.log("Current Date:", currentDate);
-  //       console.log("Comparison Result:", eventDate > currentDate);
+  const [showLoginDisclaimer, setShowLoginDisclaimer] = useState(false);
 
-  //       return eventDate > currentDate;
-  //     });
-  //     console.log("Future events:", futureEvents);
-  //     setEvents(futureEvents);
-  //   }, 1000); // Update every second
+  const [eventForCheckIn, setEventForCheckIn] = useState<TagsEvent | null>(
+    null
+  );
 
-  //   return () => {
-  //     clearInterval(intervalId); // Clear the interval when the component unmounts
-  //   };
-  // }, [events]); // Recreate the interval whenever the data changes
+  const checkIn = (event: TagsEvent) => {
+    console.log("Checking in to event: ", event);
 
-  const PROD_READY = true;
-
-  const checkIn = () => {
-    console.log("Checking in...");
-    if (!isAuthenticated || !user) {
-      setUnauthenticatedCheckIn(true);
+    // check for authentication
+    if (!user || !userProfile) {
+      console.log("User or userProfile is missing...");
+      setShowLoginDisclaimer(true);
+      return;
     }
+
+    //if they get here, they are logged in
+    setEventForCheckIn(event);
+    setCheckInStarted(true);
+    console.log("Check-in started...");
+  };
+
+  const handleCheckInComplete = () => {
+    console.log("check in complete...");
+    setCheckInStarted(false);
+  };
+
+  const checkInPlayer = async (formData: CheckInFormData) => {
+    console.log("Checking in player...", formData);
+    try {
+      const response = await fetch(`${TAGS_API_BASE_URL}/api/player-check-in`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Check-in successful:", data);
+      toast({
+        variant: "default",
+        title: "Check-in successful",
+        description: "You have been successfully checked in.",
+        duration: 3000,
+      });
+      return data; // Handle success
+    } catch (error: any) {
+      console.error("Failed to check in:", error.message);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to check in. Please try again later.",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleAlertDialogDismiss = () => {
+    // setUnauthenticatedCheckIn(false);
+    setShowLoginDisclaimer(false);
   };
 
   useEffect(() => {
@@ -160,7 +239,6 @@ const CheckIn: NextPage = () => {
           x-chunk="dashboard-02-chunk-1"
         >
           {events.length === 0 ? (
-            // {!PROD_READY ? (
             <div className="flex flex-col items-center gap-1 text-center">
               <h3 className="text-2xl font-bold tracking-tight">
                 No events running right now
@@ -183,7 +261,7 @@ const CheckIn: NextPage = () => {
                         new Date(b.dateTime).getTime()
                     )
                     .map((event) => (
-                      <Card className="text-left w-full" key={event.id}>
+                      <Card className="text-left w-full" key={event.event_id}>
                         <CardHeader className="p-4">
                           <CardDescription
                             className="text-balance leading-relaxed grid grid-cols-2 w-full"
@@ -249,7 +327,7 @@ const CheckIn: NextPage = () => {
                           <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
                             <CheckInButton
                               event={event}
-                              checkIn={checkIn}
+                              checkIn={() => checkIn(event)}
                               isMobile={isMobile}
                               isLoading={isLoading}
                             />
@@ -263,29 +341,37 @@ const CheckIn: NextPage = () => {
           )}
         </div>
         <AlertDialog
-          open={unauthenticatedCheckIn}
+          open={showLoginDisclaimer}
           onOpenChange={handleAlertDialogDismiss}
         >
           <AlertDialogContent className="w-80">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-left">
-                Continue without logging in?
+                You are not logged in
               </AlertDialogTitle>
               <AlertDialogDescription className="text-sm text-left">
-                In order to save your user settings, round history and more, you
-                will need to log in. However, you can continue without logging
-                in. <br></br> <br></br>Please note that your data may not be
-                saved.
+                In order to continue, you will need to log in. If you do not
+                have an account, you will need to create one. <br></br>{" "}
+                <br></br>Please close this dialog and click the
+                &apos;Login&apos; or &apos;Sign up&apos; button (top right) to
+                continue.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => setIgnoreLoginErrors(true)}>
-                Continue
-              </AlertDialogAction>
+              <AlertDialogAction>Sounds good!</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        {checkInStarted && eventForCheckIn && (
+          <CheckInForm
+            userProfile={userProfile!}
+            event={eventForCheckIn!}
+            kinde_id={userProfile!.kinde_id}
+            onSubmit={checkInPlayer} // Pass the function directly
+            setCheckInStarted={setCheckInStarted}
+            onClose={handleCheckInComplete}
+          />
+        )}
       </main>
     </div>
   );

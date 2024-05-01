@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Division, PlayerData, Event } from "../types"; // Adjust the import path as needed
+import { DivisionResults, PlayerData, TagsEvent } from "../types"; // Adjust the import path as needed
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import "./Leaderboard.css";
@@ -18,7 +18,7 @@ import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { toast } from "@/components/ui/use-toast";
 
 const LiveStandings: React.FC = ({}) => {
-  const [data, setData] = useState<Division[]>([]);
+  const [data, setData] = useState<DivisionResults[]>([]);
   const [leagueName, setLeagueName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -58,7 +58,7 @@ const LiveStandings: React.FC = ({}) => {
       const result = await response.json();
       console.log(result.message); // "Fetching initiated"
       console.log("Result:", result.data); // You can display this in your UI (optional
-      const event_info: Event = await result.data;
+      const event_info: TagsEvent = await result.data;
       console.log("Event Info:", event_info); // You can display this in your UI (optional
       console.log("League Name:", event_info.leagueName); // You can display this in your UI
       console.log("Divisions:", event_info.data); // You can display this in your UI
@@ -78,7 +78,7 @@ const LiveStandings: React.FC = ({}) => {
   const fetchResults = async () => {
     try {
       const response = await fetch(`${TAGS_API_BASE_URL}/data`);
-      const event_info: Event = await response.json();
+      const event_info: TagsEvent = await response.json();
       console.log("Event Info:", event_info); // You can display this in your UI (optional
       console.log("League Name:", event_info.leagueName); // You can display this in your UI
       console.log("Divisions:", event_info.data); // You can display this in your UI
@@ -93,7 +93,7 @@ const LiveStandings: React.FC = ({}) => {
 
       // Check if all players are finished - this check is broken
       if (
-        data.every((division: Division) =>
+        data.every((division: DivisionResults) =>
           division.division_data.every(
             (player: PlayerData) => player.THRU === "F"
           )
@@ -122,7 +122,7 @@ const LiveStandings: React.FC = ({}) => {
   //         setLoading(true);
   //         const response = await fetch("http://127.0.0.1:5000/data");
   //         if (!response.ok) throw new Error("Network response was not ok");
-  //         const data: Division[] = await response.json();
+  //         const data: DivisionResults[] = await response.json();
   //         setData(data);
   //         setLoading(false);
   //       } catch (err: any) {
