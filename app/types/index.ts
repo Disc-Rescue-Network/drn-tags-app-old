@@ -56,7 +56,7 @@ export interface UserProfile {
 }
 
 export interface Event {
-  id: number;
+  event_id: number;
   dateTime: Date;
   location: string;
   format: string;

@@ -54,10 +54,6 @@ const CheckIn: NextPage = () => {
   const [unauthenticatedCheckIn, setUnauthenticatedCheckIn] = useState(false);
   const [ignoreLoginErrors, setIgnoreLoginErrors] = useState(false);
 
-  const handleAlertDialogDismiss = () => {
-    setUnauthenticatedCheckIn(false);
-  };
-
   useEffect(() => {
     setIsLoading(true);
     console.log("Fetching events data...");
@@ -97,35 +93,23 @@ const CheckIn: NextPage = () => {
       });
   }, []);
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     console.log("Fetched events data:", events);
-  //     // Filter events that are in the future
-  //     const futureEvents = events.filter((event: Event) => {
-  //       const eventDate = new Date(event.dateTime);
-  //       const currentDate = new Date();
-
-  //       console.log("Event Date:", eventDate);
-  //       console.log("Current Date:", currentDate);
-  //       console.log("Comparison Result:", eventDate > currentDate);
-
-  //       return eventDate > currentDate;
-  //     });
-  //     console.log("Future events:", futureEvents);
-  //     setEvents(futureEvents);
-  //   }, 1000); // Update every second
-
-  //   return () => {
-  //     clearInterval(intervalId); // Clear the interval when the component unmounts
-  //   };
-  // }, [events]); // Recreate the interval whenever the data changes
-
   const PROD_READY = true;
 
   const checkIn = () => {
     console.log("Checking in...");
-    if (!isAuthenticated || !user) {
+    if (!isAuthenticated || (!user && !ignoreLoginErrors)) {
       setUnauthenticatedCheckIn(true);
+    }
+
+    // Perform check-in logic
+    console.log("Check-in would begin!");
+  };
+
+  const handleAlertDialogDismiss = () => {
+    setUnauthenticatedCheckIn(false);
+    if (ignoreLoginErrors) {
+      console.log("Ignoring login errors...");
+      checkIn();
     }
   };
 
@@ -183,7 +167,7 @@ const CheckIn: NextPage = () => {
                         new Date(b.dateTime).getTime()
                     )
                     .map((event) => (
-                      <Card className="text-left w-full" key={event.id}>
+                      <Card className="text-left w-full" key={event.event_id}>
                         <CardHeader className="p-4">
                           <CardDescription
                             className="text-balance leading-relaxed grid grid-cols-2 w-full"
