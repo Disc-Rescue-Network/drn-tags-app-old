@@ -47,7 +47,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
   const sortedScores = enhancedEntries.sort((a, b) => b.points - a.points);
 
   return (
-    <Tabs defaultValue="account">
+    <Tabs defaultValue="tranq">
       <TabsList>
         <TabsTrigger value="tranq">Tranquility Trails</TabsTrigger>
         <TabsTrigger value="alcyon">Alycon Woods</TabsTrigger>
