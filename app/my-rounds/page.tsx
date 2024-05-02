@@ -18,7 +18,7 @@ const Home: NextPage = () => {
               No data to show yet
             </h3>
             <p className="text-sm text-muted-foreground">
-              Check back later when tmore data is available.
+              Check back later when more data is available.
             </p>
           </div>
         </div>
