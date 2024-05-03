@@ -4,23 +4,11 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import SideMenu from "./components/sidemenu";
-import { Label } from "@radix-ui/react-label";
 import MenuHeader from "./components/menuheader";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "postcss";
-import { useState, useRef, useEffect } from "react";
-import { TAGS_API_BASE_URL } from "./networking/apiExports";
 import UDiscDisplayNameDialog from "./components/UDiscDisplayNameDialog";
 import { Toaster } from "@/components/ui/toaster";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -44,28 +32,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const {
-    getAccessToken,
-    getBooleanFlag,
-    getFlag,
-    getIdToken,
-    getIntegerFlag,
-    getOrganization,
-    getPermission,
-    getPermissions,
-    getStringFlag,
-    getUser,
-    getUserOrganizations,
-    isAuthenticated,
-  } = getKindeServerSession();
+  const { getOrganization, getUser } = getKindeServerSession();
 
-  // console.log(await getAccessToken());
-  // console.log(await getOrganization());
-  // console.log(await getPermissions());
-  // console.log(await getStringFlag("sflag", "test"));
   const user = await getUser();
-  // console.log(user);
-  // console.log(await getUserOrganizations());
 
   const organization = (await getOrganization()) as KindeOrganization;
   const orgCode =
@@ -99,6 +68,8 @@ export default async function RootLayout({
           </div>
           <UDiscDisplayNameDialog />
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
