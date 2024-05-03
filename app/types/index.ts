@@ -74,6 +74,7 @@ export interface TagsEvent {
   eventName: string;
   layout: string;
   checkInPeriod: number;
+  courseId: string;
   Divisions: Division[];
   data?: DivisionResults[];
 }

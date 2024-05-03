@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   LeaderboardEntry,
   RunningScoreEntry,
@@ -9,42 +11,63 @@ import { DataTable } from "./DataTable-tags";
 import "./Leaderboard.css";
 import { columns } from "./columns-tags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TAGS_API_BASE_URL } from "../networking/apiExports";
+import { toast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface LeaderboardProps {
-  leaderboardEntries: LeaderboardEntry[];
-  runningScoresData: RunningScoreEntry[];
-}
+const Leaderboard = () => {
+  const [loading, setLoading] = useState(true);
 
-const Leaderboard: React.FC<LeaderboardProps> = ({
-  leaderboardEntries,
-  runningScoresData,
-}) => {
-  // Helper function to compute rounds played and average points
-  const enhanceLeaderboardEntries = (
-    entries: LeaderboardEntry[]
-  ): EnhancedLeaderboardEntry[] => {
-    return entries.map((entry) => {
-      const scores = runningScoresData.filter(
-        (points) => points.name === entry.name
+  const fetchLeaderboardData = async (courseId: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${TAGS_API_BASE_URL}/api/leaderboard/${courseId}`
       );
-      const roundsPlayed = scores.length;
-      const totalPoints = scores.reduce(
-        (acc, points) => acc + points.pointsScored,
-        0
-      );
-      const averageScorePerRound =
-        roundsPlayed > 0 ? Number((totalPoints / roundsPlayed).toFixed(2)) : 0;
-
-      return {
-        ...entry,
-        roundsPlayed,
-        averageScorePerRound,
-      };
-    });
+      if (!response.ok) {
+        setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch leaderboard data",
+        });
+        throw new Error("Failed to fetch leaderboard data");
+      }
+      setLoading(false);
+      return await response.json();
+    } catch (error) {
+      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch leaderboard data",
+      });
+      console.error("Error fetching leaderboard data:", error);
+      throw error;
+    }
   };
 
-  const enhancedEntries = enhanceLeaderboardEntries(leaderboardEntries);
-  const sortedScores = enhancedEntries.sort((a, b) => b.points - a.points);
+  const [leaderboardData, setLeaderboardData] = useState<
+    EnhancedLeaderboardEntry[] | null
+  >(null);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const data = await fetchLeaderboardData("org_155e4b351474");
+        setLeaderboardData(data.data);
+      } catch (error) {
+        setLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch leaderboard data",
+        });
+      }
+    };
+
+    fetchLeaderboard();
+  }, []);
 
   return (
     <Tabs defaultValue="tranq">
@@ -58,7 +81,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({
             <CardTitle>Tranquility Tags Standings</CardTitle>
           </CardHeader>
           <CardContent className="p-0 grid gap-8 w-full">
-            <DataTable columns={columns} data={sortedScores} />
+            {loading && <Skeleton className="h-80 p-4 m-4" />}
+            {leaderboardData && (
+              <DataTable columns={columns} data={leaderboardData} />
+            )}
             <Card className="legend m-6">
               <CardHeader>
                 <CardTitle>Legend</CardTitle>
