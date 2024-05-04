@@ -37,7 +37,10 @@ export const columns: ColumnDef<LeaderboardEntry>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Current Tag" />
     ),
-    cell: (info) => (info.getValue() as string).toString(),
+    cell: (info) => {
+      const value = info.getValue();
+      return value ? (value as string).toString() : "";
+    },
   },
   {
     accessorKey: "roundsPlayed",
