@@ -141,4 +141,5 @@ export type CheckInData = {
   kinde_id: string;
   event_id: number;
   division_id: number;
+  division_name: string;
 };
