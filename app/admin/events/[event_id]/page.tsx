@@ -184,6 +184,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                             onClick={() =>
                               markAsPaid(event.event_id, player.kinde_id)
                             }
+                            onTouchStart={() =>
+                              markAsPaid(event.event_id, player.kinde_id)
+                            }
                           >
                             Mark as Paid
                           </Button>
@@ -193,6 +196,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                         <Button
                           variant="destructive"
                           onClick={() => removeFromQueue(player.checkInId)}
+                          onTouchStart={() => removeFromQueue(player.checkInId)}
                         >
                           Delete
                         </Button>
