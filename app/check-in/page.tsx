@@ -191,6 +191,27 @@ const CheckIn: NextPage = () => {
         description: "You have been successfully checked in.",
         duration: 3000,
       });
+
+      // Find the event that the player is checking into
+      const eventIndex = events.findIndex(
+        (event) => event.event_id === formData.event_id
+      );
+
+      if (eventIndex !== -1) {
+        // Create a new copy of the event and update its CheckedInPlayers array
+        const updatedEvent = {
+          ...events[eventIndex],
+          CheckedInPlayers: [...events[eventIndex]!.CheckedInPlayers!, data],
+        };
+
+        // Create a new copy of the events array and replace the old event with the updated event
+        const updatedEvents = [...events];
+        updatedEvents[eventIndex] = updatedEvent;
+
+        // Update the events state
+        setEvents(updatedEvents);
+      }
+
       return data; // Handle success
     } catch (error: any) {
       console.error("Failed to check in:", error.message);
