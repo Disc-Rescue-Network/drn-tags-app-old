@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { TagsEvent } from "@/app/types";
+import { CheckInData, Division, TagsEvent } from "@/app/types";
 import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
@@ -20,11 +20,104 @@ import { toast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
+import * as React from "react";
+import {
+  ColumnDef,
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  SortingState,
+  getSortedRowModel,
+  sortingFns,
+} from "@tanstack/react-table";
+import { DataTableToolbar } from "@/app/components/data-table-toolbar";
+import { DataTablePagination } from "@/app/components/data-table-pagination";
+
+// Helper function to enrich players with division names
+function enrichPlayersWithDivisionNames(
+  players: CheckInData[],
+  divisions: Division[]
+) {
+  return players.map((player) => {
+    const division = divisions.find(
+      (d) => d.division_id === player.division_id
+    );
+    return {
+      ...player,
+      division_name: division ? division.name : "Unknown Division",
+    };
+  });
+}
+
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [event, setEvent] = useState<TagsEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const event_id = params.event_id;
   const { isLoading, isAuthenticated, user } = useKindeBrowserClient();
+
+  const playersWithDivisions = enrichPlayersWithDivisionNames(
+    event?.CheckedInPlayers || [], // Add null check and default value
+    event?.Divisions || [] // Add null check and default value
+  );
+
+  const columns: ColumnDef<(typeof playersWithDivisions)[number]>[] = [
+    {
+      accessorKey: "division_name",
+      header: "Division",
+      enableSorting: true,
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "udisc_display_name",
+      header: "Player",
+      enableSorting: true,
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "paid",
+      header: "Paid",
+      enableSorting: true,
+      cell: ({ row }) =>
+        row.original.paid ? (
+          <div className="text-xs flex flex-row gap-2">
+            <Check className="w-4 h-4" />
+            <Label className="text-sm">Paid</Label>
+          </div>
+        ) : (
+          <Button
+            onClick={() =>
+              markAsPaid(row.original.event_id, row.original.kinde_id)
+            }
+          >
+            Mark as Paid
+          </Button>
+        ),
+    },
+  ];
+
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = React.useState("");
+
+  const table = useReactTable({
+    data: playersWithDivisions.filter(
+      (player) =>
+        player.udisc_display_name
+          .toLowerCase()
+          .includes(globalFilter.toLowerCase()) ||
+        player.division_name.toLowerCase().includes(globalFilter.toLowerCase())
+    ),
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true, // set this according to your data fetching strategy
+    sortingFns: {
+      alphanumeric: sortingFns.alphanumeric,
+    },
+  });
 
   const router = useRouter();
 
@@ -153,7 +246,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           <Label className="text-2xl">
             Date: {format(new Date(event.dateTime), "Pp")}
           </Label>{" "}
-          <Table className="w-full">
+          <Table className="w-80 md:w-full">
             <TableHeader>
               <TableRow>
                 <TableHead>Division</TableHead>
@@ -170,7 +263,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                   );
 
                   return (
-                    <TableRow key={player.kinde_id}>
+                    <TableRow
+                      key={player.kinde_id}
+                      className="min-h-[100px] h-[100px]"
+                    >
                       <TableCell>{division!.name}</TableCell>
                       <TableCell>{player.udisc_display_name}</TableCell>
                       <TableCell>
@@ -184,9 +280,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                             onClick={() =>
                               markAsPaid(event.event_id, player.kinde_id)
                             }
-                            onTouchStart={() =>
-                              markAsPaid(event.event_id, player.kinde_id)
-                            }
                           >
                             Mark as Paid
                           </Button>
@@ -196,7 +289,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                         <Button
                           variant="destructive"
                           onClick={() => removeFromQueue(player.checkInId)}
-                          onTouchStart={() => removeFromQueue(player.checkInId)}
+                          className="z-10"
                         >
                           Delete
                         </Button>
@@ -213,6 +306,40 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               )}
             </TableBody>
           </Table>
+          {/* <DataTableToolbar searchName={"udisc_display_name"} table={table} />
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <DataTablePagination table={table} />*/}
         </div>
       ) : (
         <>Unauthenticated. Redirecting to home page...</>

@@ -121,7 +121,7 @@ const CheckInForm = (props: CheckInFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={setCheckInStarted}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[800px] sm:max-w-[325px]">
         <DialogHeader>
           <DialogTitle>Check In</DialogTitle>
           <DialogDescription>
