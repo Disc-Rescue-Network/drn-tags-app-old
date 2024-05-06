@@ -77,6 +77,7 @@ export interface TagsEvent {
   courseId: string;
   Divisions: Division[];
   data?: DivisionResults[];
+  CheckedInPlayers?: CheckInData[];
 }
 
 export interface EventPreview {
@@ -91,6 +92,7 @@ export interface EventPreview {
   eventName: string;
   layout: string;
   checkInPeriod: number;
+  // CheckedInPlayers?: string[];
 }
 
 export interface CourseSettingsData {
@@ -125,3 +127,18 @@ export interface CheckInFormData {
   event_id: number;
   kinde_id: string | null; // assuming kinde_id can be null for unauthenticated check-ins
 }
+
+export type CheckInData = {
+  checkInId: number;
+  udisc_display_name: string;
+  tagIn: number;
+  tagOut: number | null;
+  place: number | null;
+  pointsScored: number | null;
+  paid: boolean;
+  createdAt: string;
+  updatedAt: string;
+  kinde_id: string;
+  event_id: number;
+  division_id: number;
+};

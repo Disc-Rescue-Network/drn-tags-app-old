@@ -135,6 +135,7 @@ const eventSchema = z.object({
   divisions: z.array(
     z.object({ division_id: z.number(), name: z.string(), active: z.boolean() })
   ),
+  courseId: z.string().optional(),
 });
 
 const EventPreviewComponent = (props: EventPreviewProps) => {
@@ -288,6 +289,7 @@ export default function EventForm() {
         { division_id: 3, name: "MA2 (Intermediate)", active: true },
         { division_id: 4, name: "MA3 (Recreational)", active: false },
       ],
+      courseId: "",
     },
   });
 
@@ -316,6 +318,7 @@ export default function EventForm() {
       dateTime,
       date: undefined,
       time: undefined,
+      courseId: organization,
     };
     delete eventData.date;
     delete eventData.time;
@@ -343,7 +346,7 @@ export default function EventForm() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(eventData),
     })
       .then((response) => {
         if (!response.ok) {
@@ -453,6 +456,7 @@ export default function EventForm() {
           layout: settingsData.layouts[0]?.name || "", // Assuming 'layouts' is an array and you want to use the first layout
           checkInPeriod: 30, // Default value
           divisions: settingsData.divisions,
+          courseId: organization,
         };
 
         console.log("Default values:", defaultValues);
