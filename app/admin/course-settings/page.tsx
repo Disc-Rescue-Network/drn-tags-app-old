@@ -75,6 +75,7 @@ const courseSchema = z.object({
     .array(
       z.object({
         name: z.string(),
+        layout_id: z.number().optional(),
       })
     )
     .nonempty("At least one layout is required."),
@@ -106,7 +107,7 @@ const AdminTools: NextPage = () => {
       shortCode: "",
       city: "",
       state: "",
-      layouts: [{ name: "" }],
+      layouts: [{ name: "", layout_id: -1 }],
       holes: Array.from({ length: 18 }, (_, index) => ({
         hole_id: index + 1,
         hole_number: index + 1,

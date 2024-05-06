@@ -42,6 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useRouter } from "next/navigation";
 
 const ManageEvents: NextPage = () => {
   const [events, setEvents] = useState<TagsEvent[]>([]);
@@ -68,6 +69,8 @@ const ManageEvents: NextPage = () => {
     getAccessToken
   );
 
+  const router = useRouter();
+
   useEffect(() => {
     console.log("userProfile", userProfile);
   }, [userProfile]);
@@ -86,13 +89,16 @@ const ManageEvents: NextPage = () => {
         // Filter events that are in the future
         const futureEvents = data.filter((event: TagsEvent) => {
           const eventDate = new Date(event.dateTime);
+          eventDate.setHours(0, 0, 0, 0);
+
           const currentDate = new Date();
+          currentDate.setHours(0, 0, 0, 0);
 
           console.log("Event Date:", eventDate);
           console.log("Current Date:", currentDate);
-          console.log("Comparison Result:", eventDate > currentDate);
+          console.log("Comparison Result:", eventDate >= currentDate);
 
-          return eventDate > currentDate;
+          return eventDate >= currentDate;
         });
         console.log("Future events:", futureEvents);
         setEvents(futureEvents);
@@ -130,6 +136,12 @@ const ManageEvents: NextPage = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  function openEvent(event: TagsEvent) {
+    return () => {
+      router.push(`/admin/events/${event.event_id}`);
+    };
+  }
 
   return (
     <div className="grid min-h-screen w-full text-center items-start">
@@ -173,7 +185,12 @@ const ManageEvents: NextPage = () => {
                           {format(new Date(event.dateTime), "MM/dd/yyyy")}
                         </TableCell>
                         <TableCell>
-                          <Button variant="secondary">Edit</Button>
+                          <Button
+                            variant="secondary"
+                            onClick={openEvent(event)}
+                          >
+                            Edit
+                          </Button>
                           <Button variant="destructive">Delete</Button>
                         </TableCell>
                       </TableRow>

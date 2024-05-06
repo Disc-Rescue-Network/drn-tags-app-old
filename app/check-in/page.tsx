@@ -2,7 +2,7 @@
 
 import type { NextApiRequest, NextApiResponse, NextPage } from "next";
 import { useState, useEffect, use } from "react";
-import { CheckInFormData, TagsEvent } from "../types";
+import { CheckInData, CheckInFormData, TagsEvent } from "../types";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { format, set } from "date-fns";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Info, Map, MapPin, User } from "lucide-react";
+import { Check, Info, Map, MapPin, User } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -228,6 +228,12 @@ const CheckIn: NextPage = () => {
     };
   }, []);
 
+  const isCheckedIn = (event: TagsEvent, kindeId: string) => {
+    return event.CheckedInPlayers!.some(
+      (player: CheckInData) => player.kinde_id === kindeId
+    );
+  };
+
   return (
     <div className="grid min-h-screen w-full text-center items-start">
       <main className="flex flex-1 min-h-96 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
@@ -294,7 +300,11 @@ const CheckIn: NextPage = () => {
                             {isMobile ? (
                               <div className="flex flex-row w-full gap-1 items-center justify-start">
                                 <Progress
-                                  value={(5 / event.maxSignups) * 100}
+                                  value={
+                                    (event.CheckedInPlayers!.length /
+                                      event.maxSignups) *
+                                    100
+                                  }
                                   max={event.maxSignups}
                                   aria-label="Sign ups"
                                 />
@@ -303,7 +313,8 @@ const CheckIn: NextPage = () => {
                                     <Info className="w-4 h-4" />{" "}
                                   </PopoverTrigger>
                                   <PopoverContent className="text-xs">
-                                    5 / {event.maxSignups} Total Signups
+                                    {event.CheckedInPlayers!.length} /{" "}
+                                    {event.maxSignups} Total Signups
                                   </PopoverContent>
                                 </Popover>
                               </div>
@@ -312,26 +323,40 @@ const CheckIn: NextPage = () => {
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Progress
-                                      value={(5 / event.maxSignups) * 100}
+                                      value={
+                                        (event.CheckedInPlayers!.length /
+                                          event.maxSignups) *
+                                        100
+                                      }
                                       max={event.maxSignups}
                                       aria-label="Sign ups"
                                     />
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    5 / {event.maxSignups} Total Signups
+                                    {event.CheckedInPlayers!.length} /{" "}
+                                    {event.maxSignups} Total Signups
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             )}
                           </div>
-                          <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
-                            <CheckInButton
-                              event={event}
-                              checkIn={() => checkIn(event)}
-                              isMobile={isMobile}
-                              isLoading={isLoading}
-                            />
-                          </div>
+                          {isAuthenticated && (
+                            <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
+                              {isCheckedIn(event, user!.id) ? (
+                                <Label className="text-xs flex flex-row gap-2">
+                                  <Check className="w-4 h-4" />
+                                  Checked In!
+                                </Label>
+                              ) : (
+                                <CheckInButton
+                                  event={event}
+                                  checkIn={() => checkIn(event)}
+                                  isMobile={isMobile}
+                                  isLoading={isLoading}
+                                />
+                              )}
+                            </div>
+                          )}
                         </CardFooter>
                       </Card>
                     ))}
