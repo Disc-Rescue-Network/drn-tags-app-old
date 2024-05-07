@@ -6,7 +6,13 @@ import {
   RunningScoreEntry,
   EnhancedLeaderboardEntry,
 } from "../types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DataTable } from "./DataTable-tags";
 import "./Leaderboard.css";
 import { columns } from "./columns-tags";
@@ -14,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { toast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
 
 const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
@@ -51,11 +58,15 @@ const Leaderboard = () => {
     EnhancedLeaderboardEntry[] | null
   >(null);
 
+  const [dataAsOf, setDataAsOf] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
         const data = await fetchLeaderboardData("org_155e4b351474");
-        setLeaderboardData(data.data);
+        console.log("Leaderboard data", data);
+        setDataAsOf(data.data.lastRoundPlayedOverall);
+        setLeaderboardData(data.data.leaderboard);
       } catch (error) {
         setLoading(false);
         toast({
@@ -106,6 +117,9 @@ const Leaderboard = () => {
               </CardContent>
             </Card>
           </CardContent>
+          <CardFooter className="text-sm italic">
+            *Data as of {dataAsOf ? format(dataAsOf, "MM/dd/yyyy") : ""}
+          </CardFooter>
         </Card>
       </TabsContent>
       <TabsContent value="alcyon">

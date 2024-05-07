@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   Bird,
   Info,
+  Loader2,
   Map,
   MapPin,
   Rabbit,
@@ -299,7 +300,10 @@ export default function EventForm() {
   const { isLoading, isAuthenticated, user, organization } =
     useKindeBrowserClient();
 
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
   function onSubmit(data: z.infer<typeof eventSchema>) {
+    setIsSubmitting(true);
     console.log(data);
 
     const date = new Date(data.date);
@@ -335,6 +339,7 @@ export default function EventForm() {
           'The uDisc URL must be a valid URL and end with "?tab=scores".',
         duration: 3000,
       });
+      setIsSubmitting(false);
       return; // Exit early if URL is invalid
     }
 
@@ -350,6 +355,7 @@ export default function EventForm() {
     })
       .then((response) => {
         if (!response.ok) {
+          setIsSubmitting(false);
           throw new Error("Network response was not ok");
         }
         return response.json();
@@ -357,6 +363,7 @@ export default function EventForm() {
       .then((data) => {
         // Handle successful response from API
         console.log("Event created successfully:", data);
+        setIsSubmitting(false);
         toast({
           variant: "default",
           title: "Event created successfully",
@@ -367,6 +374,7 @@ export default function EventForm() {
       .catch((error) => {
         // Handle errors
         console.error("Error creating event:", error);
+        setIsSubmitting(false);
         toast({
           variant: "destructive",
           title: "Error",
@@ -775,8 +783,19 @@ export default function EventForm() {
               )}
             />
           </fieldset>
-          <Button type="button" onClick={() => setPreviewOpen(true)}>
-            Preview Event
+          <Button
+            type="button"
+            disabled={isSubmitting}
+            onClick={() => setPreviewOpen(true)}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Label>Please wait</Label>
+              </>
+            ) : (
+              "Preview Event"
+            )}
           </Button>
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <DialogContent className="sm:max-w-[425px]">

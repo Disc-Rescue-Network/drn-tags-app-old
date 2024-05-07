@@ -78,20 +78,35 @@ const AdminTools: NextPage = () => {
   };
 
   return (
-    <div className="grid h-full max-h-80 w-full text-center items-start">
+    <div className="grid min-h-screen w-full text-center items-start">
       {isAuthenticated && user ? (
-        <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-          <div className="flex">
-            <h1 className="text-lg font-semibold md:text-2xl">Admin Tools</h1>
-          </div>
-          <div className="flex flex-col w-full mt-4 mb-4 gap-4 text-left">
+        <div className="flex flex-1 flex-col h-3/5 gap-4 p-4 lg:gap-6 lg:p-6">
+          {/* <div className="flex flex-col w-full mt-4 mb-4 gap-4 text-left">
             <Button onClick={toggleShowLiveScores} className="w-[200px]">
               {showLiveScores ? "Hide Live Scores" : "Show Live Scores"}
             </Button>
             {showLiveScores && <LiveStandings />}
+          </div> */}
+          <div className="flex">
+            <h1 className="text-lg font-semibold md:text-2xl">
+              Admin Dashboard
+            </h1>
+          </div>
+          <div
+            className="flex flex-1 w-full m-auto h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-8 bg-muted/20"
+            x-chunk="dashboard-02-chunk-1"
+          >
+            <div className="flex flex-col items-center gap-1 text-center">
+              <h3 className="text-2xl font-bold tracking-tight">
+                No data to show yet
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Check back later when more data is available.
+              </p>
+            </div>
           </div>
 
-          {!showLiveScores && (
+          {/* {!showLiveScores && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full m-auto h-full gap-4 items-center justify-center rounded-lg border border-dashed shadow-sm p-8 bg-muted/20 flex-col md:flex-row md:gap-8 md:items-start md:justify-start md:p-8">
               <Card className="text-left">
                 <CardHeader>
@@ -173,22 +188,12 @@ const AdminTools: NextPage = () => {
                           </DrawerClose>
                         </DrawerFooter>
                       </form>
-                      {/* <DrawerFooter>
-                        <Button>Submit</Button>
-                        <DrawerClose>
-                          <Button variant="outline">Cancel</Button>
-                        </DrawerClose>
-                      </DrawerFooter> */}
                     </DrawerContent>
                   </Drawer>
                 </CardContent>
               </Card>
-
-              {/* <div className="relative hidden flex-col items-start text-left justify-start gap-8 md:flex">
-              <EventForm />
-            </div> */}
             </div>
-          )}
+          )} */}
         </div>
       ) : (
         <>Unauthenticated. Redirecting to home page...</>
