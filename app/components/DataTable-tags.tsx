@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableBody,
   TableCell,
+  TableFooter,
 } from "@/components/ui/table";
 import { LeaderboardEntry } from "../types";
 import { DataTablePagination } from "./data-table-pagination";
