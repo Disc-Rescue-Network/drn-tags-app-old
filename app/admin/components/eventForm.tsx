@@ -149,7 +149,11 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
     console.error("Invalid time value:", checkInEndTime);
   }
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
 
   let dateTime;
 

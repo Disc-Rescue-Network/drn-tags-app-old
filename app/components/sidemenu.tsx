@@ -62,7 +62,11 @@ function SideMenu() {
   const pathname = usePathname();
   // console.log("pathname: ", pathname);
 
-  const isMobile = window.innerWidth <= 1080;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
 
   const [belongsToOrg, setBelongsToOrg] = useState(false);
   const [course, setCourse] = useState<Course>({
@@ -197,7 +201,6 @@ function SideMenu() {
 
   const onSubmit = (data: SuggestionFormData) => {
     console.log(data);
-    const isMobile = window.innerWidth <= 768;
     const subject = encodeURIComponent("Suggestion for Tags App");
     const body = encodeURIComponent(
       data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
