@@ -24,6 +24,7 @@ import {
   MoreHorizontal,
   Pencil,
   Undo,
+  ShieldAlert,
   X,
 } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
@@ -37,6 +38,12 @@ import {
   SortingState,
   getSortedRowModel,
   sortingFns,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  ColumnFiltersState,
+  VisibilityState,
 } from "@tanstack/react-table";
 import { DataTableToolbar } from "@/app/components/data-table-toolbar";
 import { DataTablePagination } from "@/app/components/data-table-pagination";
@@ -106,6 +113,19 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
 
+  const statuses = [
+    {
+      value: false,
+      label: "Not Paid",
+      icon: ShieldAlert,
+    },
+    {
+      value: true,
+      label: "Paid",
+      icon: Check,
+    },
+  ];
+
   const columns: ColumnDef<PlayersWithDivisions>[] = [
     {
       accessorKey: "udisc_display_name",
@@ -136,9 +156,15 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Paid" />
       ),
-      enableSorting: true,
-      cell: ({ row }) =>
-        row.original.paid ? (
+      cell: ({ row }) => {
+        const status = statuses.find(
+          (status) => status.value === row.getValue("paid")
+        );
+
+        if (!status) {
+          return null;
+        }
+        return row.original.paid ? (
           <div className="text-xs flex flex-row gap-2">
             <Check className="w-4 h-4" />
             <Label className="text-sm">Paid</Label>
@@ -148,7 +174,17 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             <CircleDashed className="w-4 h-4" />
             <Label className="text-sm">Not Paid</Label>
           </div>
-        ),
+        );
+      },
+
+      filterFn: (row, id, value) => {
+        console.log("Filtering:", {
+          rowValue: row.getValue(id),
+          filterValue: value,
+        });
+        return value.includes(row.getValue(id));
+      },
+      enableSorting: true,
     },
     {
       id: "actions",
@@ -196,26 +232,43 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     },
   ];
 
-  const table = useReactTable({
-    data: playersWithDivisions.filter(
-      (player) =>
-        player.udisc_display_name
-          .toLowerCase()
-          .includes(globalFilter.toLowerCase()) ||
-        player.division_name.toLowerCase().includes(globalFilter.toLowerCase())
-    ),
-    columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    manualSorting: true, // set this according to your data fetching strategy
-    sortingFns: {
-      alphanumeric: sortingFns.alphanumeric,
-    },
-  });
+  // const [rowSelection, setRowSelection] = React.useState({});
+  // const [columnVisibility, setColumnVisibility] =
+  //   React.useState<VisibilityState>({});
+  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+  //   []
+  // );
+
+  // const table = useReactTable({
+  //   data: playersWithDivisions.filter(
+  //     (player) =>
+  //       player.udisc_display_name
+  //         .toLowerCase()
+  //         .includes(globalFilter.toLowerCase()) ||
+  //       player.division_name.toLowerCase().includes(globalFilter.toLowerCase())
+  //   ),
+  //   columns,
+  //   state: {
+  //     sorting,
+  //     columnVisibility,
+  //     rowSelection,
+  //     columnFilters,
+  //   },
+  //   enableRowSelection: true,
+  //   onRowSelectionChange: setRowSelection,
+  //   onSortingChange: setSorting,
+  //   onColumnFiltersChange: setColumnFilters,
+  //   onColumnVisibilityChange: setColumnVisibility,
+  //   getCoreRowModel: getCoreRowModel(),
+  //   getFilteredRowModel: getFilteredRowModel(),
+  //   getPaginationRowModel: getPaginationRowModel(),
+  //   getSortedRowModel: getSortedRowModel(),
+  //   getFacetedRowModel: getFacetedRowModel(),
+  //   getFacetedUniqueValues: getFacetedUniqueValues(),
+  //   sortingFns: {
+  //     alphanumeric: sortingFns.alphanumeric,
+  //   },
+  // });
 
   const router = useRouter();
 

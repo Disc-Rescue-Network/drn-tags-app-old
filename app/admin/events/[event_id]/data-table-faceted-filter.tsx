@@ -26,7 +26,7 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   title?: string;
   options: {
     label: string;
-    value: string;
+    value: boolean;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
 }
@@ -37,7 +37,9 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
-  const selectedValues = new Set(column?.getFilterValue() as string[]);
+  console.log("Facets:", facets);
+  const selectedValues = new Set(column?.getFilterValue() as boolean[]);
+  console.log("Selected Values:", selectedValues);
 
   return (
     <Popover>
@@ -68,7 +70,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     .map((option) => (
                       <Badge
                         variant="secondary"
-                        key={option.value}
+                        key={option.value ? "true" : "false"}
                         className="rounded-sm px-1 font-normal"
                       >
                         {option.label}
@@ -90,7 +92,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 const isSelected = selectedValues.has(option.value);
                 return (
                   <CommandItem
-                    key={option.value}
+                    key={option.value ? "true" : "false"}
                     onSelect={() => {
                       if (isSelected) {
                         selectedValues.delete(option.value);

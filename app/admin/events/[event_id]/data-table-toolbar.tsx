@@ -8,11 +8,11 @@ import { DataTableViewOptions } from "../../../components/data-table-view-option
 
 // import { statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { Check, ShieldAlert } from "lucide-react";
 // import { columnHeadersArray } from "./columns";
 
 interface DataTableToolbarProps<TData> {
   searchName: string;
-  labelName: string;
   table: Table<TData>;
 }
 
@@ -26,9 +26,21 @@ const columnHeadersArray: { [key: string]: string } = {
 export function DataTableToolbar<TData>({
   searchName,
   table,
-  labelName,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+
+  const statuses = [
+    {
+      value: false,
+      label: "Not Paid",
+      icon: ShieldAlert,
+    },
+    {
+      value: true,
+      label: "Paid",
+      icon: Check,
+    },
+  ];
 
   return (
     <div className="flex items-center justify-between">
@@ -43,13 +55,13 @@ export function DataTableToolbar<TData>({
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {/* {table.getColumn("status") && (
+        {table.getColumn("paid") && (
           <DataTableFacetedFilter
-            column={table.getColumn("status")}
-            title="Status"
+            column={table.getColumn("paid")}
+            title="Paid"
             options={statuses}
           />
-        )} */}
+        )}
         {isFiltered && (
           <Button
             variant="ghost"
