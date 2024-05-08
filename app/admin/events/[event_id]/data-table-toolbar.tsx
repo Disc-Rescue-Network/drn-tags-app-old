@@ -8,13 +8,20 @@ import { DataTableViewOptions } from "../../../components/data-table-view-option
 
 // import { statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { columnHeadersArray } from "./columns";
+// import { columnHeadersArray } from "./columns";
 
 interface DataTableToolbarProps<TData> {
   searchName: string;
   labelName: string;
   table: Table<TData>;
 }
+
+const columnHeadersArray: { [key: string]: string } = {
+  udisc_display_name: "Player",
+  division_name: "Division",
+  tagIn: "Tag In",
+  paid: "Paid",
+};
 
 export function DataTableToolbar<TData>({
   searchName,
