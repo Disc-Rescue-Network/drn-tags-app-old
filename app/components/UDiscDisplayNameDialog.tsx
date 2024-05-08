@@ -139,7 +139,7 @@ const UDiscDisplayNameDialog = () => {
       open={isUDiscNameMissing && !loading && !isDialogDismissed}
       onOpenChange={handleDialogDismiss}
     >
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-width-90">
         <DialogHeader>
           <DialogTitle>UDisc Display Name Missing</DialogTitle>
           <DialogDescription>

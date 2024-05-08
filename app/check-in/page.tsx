@@ -301,7 +301,7 @@ const CheckIn: NextPage = () => {
                               )}{" "}
                               @ {format(new Date(event.dateTime), "h:mm a")}
                             </div>
-                            <div className="flex flex-row gap-1 items-center justify-end text-xs text-right">
+                            <div className="flex flex-row gap-1 items-center justify-end text-xs text-right text-nowrap">
                               <MapPin className="h-4 w-4" /> {event.location}
                             </div>
                           </CardDescription>

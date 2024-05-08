@@ -25,6 +25,9 @@ import {
   Medal,
   NotebookText,
   ShieldCheck,
+  CalendarSearch,
+  CalendarPlus,
+  LayoutDashboard,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -292,8 +295,25 @@ function MenuHeader() {
                       href="/admin"
                       className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                     >
-                      <ShieldCheck className="h-4 w-4" />
+                      <LayoutDashboard className="h-4 w-4" />
                       Dashboard
+                    </Link>
+                  </Button>
+                </DialogTrigger>
+                <DialogTrigger asChild>
+                  <Button
+                    asChild
+                    variant={
+                      pathname === "/admin/create-event" ? "secondary" : "ghost"
+                    }
+                    className="w-full justify-start flex gap-2 my-1"
+                  >
+                    <Link
+                      href="/admin/create-event"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                    >
+                      <CalendarPlus className="h-4 w-4" />
+                      Create Event
                     </Link>
                   </Button>
                 </DialogTrigger>
@@ -311,8 +331,27 @@ function MenuHeader() {
                       href="/admin/manage-events"
                       className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                     >
-                      <ShieldCheck className="h-4 w-4" />
+                      <CalendarSearch className="h-4 w-4" />
                       Manage Events
+                    </Link>
+                  </Button>
+                </DialogTrigger>
+                <DialogTrigger asChild>
+                  <Button
+                    asChild
+                    variant={
+                      pathname === "/admin/course-settings"
+                        ? "secondary"
+                        : "ghost"
+                    }
+                    className="w-full justify-start flex gap-2 my-1"
+                  >
+                    <Link
+                      href="/admin/course-settings"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Course Settings
                     </Link>
                   </Button>
                 </DialogTrigger>
