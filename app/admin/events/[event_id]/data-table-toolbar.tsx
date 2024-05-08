@@ -2,23 +2,24 @@
 
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "./data-table-view-options";
+import { DataTableViewOptions } from "../../../components/data-table-view-options";
 
 // import { statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { columnHeadersArrayTags } from "./columns-tags";
+import { columnHeadersArray } from "./page";
 
 interface DataTableToolbarProps<TData> {
   searchName: string;
+  labelName: string;
   table: Table<TData>;
 }
 
 export function DataTableToolbar<TData>({
   searchName,
   table,
+  labelName,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -53,10 +54,7 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions
-        table={table}
-        columnHeaders={columnHeadersArrayTags}
-      />
+      <DataTableViewOptions table={table} columnHeaders={columnHeadersArray} />
     </div>
   );
 }

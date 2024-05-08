@@ -75,3 +75,12 @@ const getPodiumIcon = (position: number) => {
       return null;
   }
 };
+
+export const columnHeadersArrayTags: { [key: string]: string } = {
+  position: "Position",
+  name: "Name",
+  points: "Points",
+  currentTag: "Current Tag",
+  roundsPlayed: "Rounds Played",
+  averageScorePerRound: "Average Score/Round",
+};

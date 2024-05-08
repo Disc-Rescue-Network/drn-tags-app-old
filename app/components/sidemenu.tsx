@@ -62,6 +62,8 @@ function SideMenu() {
   const pathname = usePathname();
   // console.log("pathname: ", pathname);
 
+  const isMobile = window.innerWidth <= 1080;
+
   const [belongsToOrg, setBelongsToOrg] = useState(false);
   const [course, setCourse] = useState<Course>({
     orgCode: "",
@@ -364,7 +366,7 @@ function SideMenu() {
                   >
                     <div className="flex flex-row gap-2">
                       <NotebookText className="h-4 w-4" />
-                      Submit Feedback
+                      {isMobile ? "Submit" : "Submit Feedback"}
                     </div>
                   </Button>
                 </DrawerTrigger>

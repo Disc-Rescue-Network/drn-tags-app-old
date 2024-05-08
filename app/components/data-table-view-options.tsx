@@ -19,10 +19,12 @@ import { useEffect } from "react";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
+  columnHeaders: { [key: string]: string };
 }
 
 export function DataTableViewOptions<TData>({
   table,
+  columnHeaders,
 }: DataTableViewOptionsProps<TData>) {
   useEffect(() => {
     table.getAllColumns().forEach((column) => {
@@ -68,7 +70,7 @@ export function DataTableViewOptions<TData>({
                   Cookies.set(`column-${column.id}-visibility`, String(value));
                 }}
               >
-                {column.id}
+                {columnHeaders[column.id]}
               </DropdownMenuCheckboxItem>
             );
           })}
