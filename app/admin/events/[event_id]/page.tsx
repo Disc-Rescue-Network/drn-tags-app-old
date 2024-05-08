@@ -23,6 +23,8 @@ import {
   Handshake,
   MoreHorizontal,
   Pencil,
+  Undo,
+  ShieldAlert,
   X,
 } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
@@ -36,6 +38,12 @@ import {
   SortingState,
   getSortedRowModel,
   sortingFns,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  ColumnFiltersState,
+  VisibilityState,
 } from "@tanstack/react-table";
 import { DataTableToolbar } from "@/app/components/data-table-toolbar";
 import { DataTablePagination } from "@/app/components/data-table-pagination";
@@ -105,6 +113,19 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
 
+  const statuses = [
+    {
+      value: false,
+      label: "Not Paid",
+      icon: ShieldAlert,
+    },
+    {
+      value: true,
+      label: "Paid",
+      icon: Check,
+    },
+  ];
+
   const columns: ColumnDef<PlayersWithDivisions>[] = [
     {
       accessorKey: "udisc_display_name",
@@ -135,9 +156,15 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Paid" />
       ),
-      enableSorting: true,
-      cell: ({ row }) =>
-        row.original.paid ? (
+      cell: ({ row }) => {
+        const status = statuses.find(
+          (status) => status.value === row.getValue("paid")
+        );
+
+        if (!status) {
+          return null;
+        }
+        return row.original.paid ? (
           <div className="text-xs flex flex-row gap-2">
             <Check className="w-4 h-4" />
             <Label className="text-sm">Paid</Label>
@@ -147,7 +174,17 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             <CircleDashed className="w-4 h-4" />
             <Label className="text-sm">Not Paid</Label>
           </div>
-        ),
+        );
+      },
+
+      filterFn: (row, id, value) => {
+        console.log("Filtering:", {
+          rowValue: row.getValue(id),
+          filterValue: value,
+        });
+        return value.includes(row.getValue(id));
+      },
+      enableSorting: true,
     },
     {
       id: "actions",
@@ -169,12 +206,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                   <Pencil className="w-4 h-4" /> Edit Check In
                 </div>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => markAsPaid(player.event_id, player.kinde_id)}
-              >
-                <div className="flex flex-row gap-2 justify-center items-center">
-                  <Handshake className="w-4 h-4" /> Mark as Paid
-                </div>
+              <DropdownMenuItem onClick={() => markAsPaid(player.checkInId)}>
+                {player.paid ? (
+                  <div className="flex flex-row gap-2 justify-center items-center">
+                    <Undo className="w-4 h-4" /> Revert to Unpaid
+                  </div>
+                ) : (
+                  <div className="flex flex-row gap-2 justify-center items-center">
+                    <Handshake className="w-4 h-4" /> Mark as Paid
+                  </div>
+                )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -191,26 +232,43 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     },
   ];
 
-  const table = useReactTable({
-    data: playersWithDivisions.filter(
-      (player) =>
-        player.udisc_display_name
-          .toLowerCase()
-          .includes(globalFilter.toLowerCase()) ||
-        player.division_name.toLowerCase().includes(globalFilter.toLowerCase())
-    ),
-    columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    manualSorting: true, // set this according to your data fetching strategy
-    sortingFns: {
-      alphanumeric: sortingFns.alphanumeric,
-    },
-  });
+  // const [rowSelection, setRowSelection] = React.useState({});
+  // const [columnVisibility, setColumnVisibility] =
+  //   React.useState<VisibilityState>({});
+  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+  //   []
+  // );
+
+  // const table = useReactTable({
+  //   data: playersWithDivisions.filter(
+  //     (player) =>
+  //       player.udisc_display_name
+  //         .toLowerCase()
+  //         .includes(globalFilter.toLowerCase()) ||
+  //       player.division_name.toLowerCase().includes(globalFilter.toLowerCase())
+  //   ),
+  //   columns,
+  //   state: {
+  //     sorting,
+  //     columnVisibility,
+  //     rowSelection,
+  //     columnFilters,
+  //   },
+  //   enableRowSelection: true,
+  //   onRowSelectionChange: setRowSelection,
+  //   onSortingChange: setSorting,
+  //   onColumnFiltersChange: setColumnFilters,
+  //   onColumnVisibilityChange: setColumnVisibility,
+  //   getCoreRowModel: getCoreRowModel(),
+  //   getFilteredRowModel: getFilteredRowModel(),
+  //   getPaginationRowModel: getPaginationRowModel(),
+  //   getSortedRowModel: getSortedRowModel(),
+  //   getFacetedRowModel: getFacetedRowModel(),
+  //   getFacetedUniqueValues: getFacetedUniqueValues(),
+  //   sortingFns: {
+  //     alphanumeric: sortingFns.alphanumeric,
+  //   },
+  // });
 
   const router = useRouter();
 
@@ -236,16 +294,17 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     fetchEvent();
   }, []);
 
-  async function markAsPaid(event_id: number, kinde_id: string) {
+  async function markAsPaid(checkInId: number) {
     try {
       setLoading(true);
-      console.log("marking as paid", event_id, kinde_id);
+      console.log("marking as paid", checkInId);
       const response = await axios.put(
-        `${TAGS_API_BASE_URL}/api/player-check-in/pay`,
-        { kinde_id: kinde_id, event_id: event_id },
+        `${TAGS_API_BASE_URL}/api/player-check-in/pay/${checkInId}`,
+        {},
         { headers: { "Content-Type": "application/json" } }
       );
       console.log("response", response.data);
+      const result = (await response.data) as PlayersWithDivisions;
 
       if (response.status !== 200) {
         toast({
@@ -259,16 +318,27 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         return;
       }
 
-      toast({
-        title: "Success",
-        description: "Player marked as paid",
-        variant: "default",
-        duration: 3000,
-      });
+      if (result.paid === false) {
+        toast({
+          title: "Success",
+          description: "Payment reverted to unpaid",
+          variant: "default",
+          duration: 3000,
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Player marked as paid",
+          variant: "default",
+          duration: 3000,
+        });
+      }
 
       // Update the "paid" variable in the CheckedInPlayers array
       const updatedPlayers = event!.CheckedInPlayers!.map((player) =>
-        player.kinde_id === kinde_id ? { ...player, paid: true } : player
+        player.checkInId === checkInId
+          ? { ...player, paid: result.paid }
+          : player
       );
 
       // Update the event state
@@ -285,7 +355,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   async function removeFromQueue(checkInId: number) {
     try {
-      console.log("marking as paid", checkInId);
+      console.log("removing from queue", checkInId);
       setLoading(true);
       const response = await axios.delete(
         `${TAGS_API_BASE_URL}/api/player-check-in/${checkInId}`,
