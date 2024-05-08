@@ -8,7 +8,7 @@ import { DataTableViewOptions } from "../../../components/data-table-view-option
 
 // import { statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { columnHeadersArray } from "./page";
+import { columnHeadersArray } from "./columns";
 
 interface DataTableToolbarProps<TData> {
   searchName: string;
