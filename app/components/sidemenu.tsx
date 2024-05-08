@@ -62,6 +62,12 @@ function SideMenu() {
   const pathname = usePathname();
   // console.log("pathname: ", pathname);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
+
   const [belongsToOrg, setBelongsToOrg] = useState(false);
   const [course, setCourse] = useState<Course>({
     orgCode: "",
@@ -195,7 +201,6 @@ function SideMenu() {
 
   const onSubmit = (data: SuggestionFormData) => {
     console.log(data);
-    const isMobile = window.innerWidth <= 768;
     const subject = encodeURIComponent("Suggestion for Tags App");
     const body = encodeURIComponent(
       data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
@@ -364,7 +369,7 @@ function SideMenu() {
                   >
                     <div className="flex flex-row gap-2">
                       <NotebookText className="h-4 w-4" />
-                      Submit Feedback
+                      {isMobile ? "Submit" : "Submit Feedback"}
                     </div>
                   </Button>
                 </DrawerTrigger>

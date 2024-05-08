@@ -39,6 +39,12 @@ const AdminTools: NextPage = () => {
     formState: { errors },
   } = useForm<SuggestionFormData>();
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
+
   useEffect(() => {
     if (isLoading) return;
     if (!user || !isAuthenticated) {
@@ -62,7 +68,6 @@ const AdminTools: NextPage = () => {
 
   const onSubmit = (data: SuggestionFormData) => {
     console.log(data);
-    const isMobile = window.innerWidth <= 768;
     const subject = encodeURIComponent("Suggestion for Tags App");
     const body = encodeURIComponent(
       data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
