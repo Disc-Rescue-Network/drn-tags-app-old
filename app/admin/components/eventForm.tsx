@@ -197,7 +197,7 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
               <span>&nbsp;</span>
             )}
           </div>
-          <div className="flex flex-row gap-1 items-center justify-end text-xs text-right">
+          <div className="flex flex-row gap-1 items-center justify-end text-xs text-right text-nowrap">
             <MapPin className="h-4 w-4" /> {event.location}
           </div>
         </CardDescription>
@@ -798,7 +798,7 @@ export default function EventForm() {
             )}
           </Button>
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="max-width-90">
               <DialogHeader>
                 <DialogTitle>Preview</DialogTitle>
               </DialogHeader>
