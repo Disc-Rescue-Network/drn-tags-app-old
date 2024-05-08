@@ -117,9 +117,9 @@
 //   },
 // ];
 
-// export const columnHeadersArray: { [key: string]: string } = {
-//   udisc_display_name: "Player",
-//   division_name: "Division",
-//   tagIn: "Tag In",
-//   paid: "Paid",
-// };
+export const columnHeadersArray: { [key: string]: string } = {
+  udisc_display_name: "Player",
+  division_name: "Division",
+  tagIn: "Tag In",
+  paid: "Paid",
+};

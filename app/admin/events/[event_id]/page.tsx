@@ -83,13 +83,6 @@ export interface PlayersWithDivisions {
   division_id: number;
 }
 
-export const columnHeadersArray: { [key: string]: string } = {
-  udisc_display_name: "Player",
-  division_name: "Division",
-  tagIn: "Tag In",
-  paid: "Paid",
-};
-
 const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [event, setEvent] = useState<TagsEvent | null>(null);
   const [loading, setLoading] = useState(true);
