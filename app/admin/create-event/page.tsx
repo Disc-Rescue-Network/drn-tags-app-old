@@ -1,4 +1,5 @@
 "use client";
+
 import * as React from "react";
 import { NextPage } from "next";
 import EventForm from "../components/eventForm";
