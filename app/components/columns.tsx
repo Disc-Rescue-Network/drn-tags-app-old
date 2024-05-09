@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import NameList from "./nameList";
+import NameList from "./NameList";
 import { FaArrowUp, FaArrowDown, FaCircle } from "react-icons/fa";
 
 export interface PlayerData {
