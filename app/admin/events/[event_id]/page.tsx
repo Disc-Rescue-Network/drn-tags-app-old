@@ -45,9 +45,6 @@ import {
   ColumnFiltersState,
   VisibilityState,
 } from "@tanstack/react-table";
-import { DataTableToolbar } from "@/app/components/data-table-toolbar";
-import { DataTablePagination } from "@/app/components/data-table-pagination";
-import { DataTableManageEvent } from "./DataTableManageEvent";
 import { DataTableColumnHeader } from "@/app/components/data-table-column-header";
 import {
   DropdownMenu,
@@ -58,6 +55,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import EditCheckInForm, { EditCheckInFormProps } from "./editCheckInForm";
+import { DataTableManageEvent } from "./dataTableManageEvent";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -231,44 +229,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       },
     },
   ];
-
-  // const [rowSelection, setRowSelection] = React.useState({});
-  // const [columnVisibility, setColumnVisibility] =
-  //   React.useState<VisibilityState>({});
-  // const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-  //   []
-  // );
-
-  // const table = useReactTable({
-  //   data: playersWithDivisions.filter(
-  //     (player) =>
-  //       player.udisc_display_name
-  //         .toLowerCase()
-  //         .includes(globalFilter.toLowerCase()) ||
-  //       player.division_name.toLowerCase().includes(globalFilter.toLowerCase())
-  //   ),
-  //   columns,
-  //   state: {
-  //     sorting,
-  //     columnVisibility,
-  //     rowSelection,
-  //     columnFilters,
-  //   },
-  //   enableRowSelection: true,
-  //   onRowSelectionChange: setRowSelection,
-  //   onSortingChange: setSorting,
-  //   onColumnFiltersChange: setColumnFilters,
-  //   onColumnVisibilityChange: setColumnVisibility,
-  //   getCoreRowModel: getCoreRowModel(),
-  //   getFilteredRowModel: getFilteredRowModel(),
-  //   getPaginationRowModel: getPaginationRowModel(),
-  //   getSortedRowModel: getSortedRowModel(),
-  //   getFacetedRowModel: getFacetedRowModel(),
-  //   getFacetedUniqueValues: getFacetedUniqueValues(),
-  //   sortingFns: {
-  //     alphanumeric: sortingFns.alphanumeric,
-  //   },
-  // });
 
   const router = useRouter();
 

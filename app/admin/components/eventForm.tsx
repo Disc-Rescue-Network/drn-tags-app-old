@@ -1,23 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import {
-  ArrowUpRight,
-  Bird,
-  Info,
-  Loader2,
-  Map,
-  MapPin,
-  Rabbit,
-  Turtle,
-  User,
-} from "lucide-react";
+import { Info, Loader2, Map, MapPin, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { addMinutes, format, formatISO, set, subMinutes } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import { toast, useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Card,
   CardContent,
@@ -45,7 +34,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DatePickerWithPresets } from "@/app/components/DatePickerWithPresets";
+import { DatePickerWithPresets } from "@/app/components/datePickerWithPresets";
 import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import {
   Select,
@@ -65,7 +54,6 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
 import { Division, EventPreview, Layout } from "@/app/types";
-import { DatePicker } from "@/app/components/DatePicker";
 import {
   Dialog,
   DialogContent,
@@ -76,14 +64,13 @@ import {
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs/types";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { time } from "console";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 interface EventPreviewProps {
   data: EventPreview;
