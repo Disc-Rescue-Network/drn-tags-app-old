@@ -6,15 +6,7 @@ import axios from "axios";
 import { CheckInData, Division, TagsEvent } from "@/app/types";
 import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import { Label } from "@/components/ui/label";
-import { format, set } from "date-fns";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -26,25 +18,16 @@ import {
   Undo,
   ShieldAlert,
   X,
+  Map,
+  MapPin,
+  User,
+  Info,
+  ListChecks,
 } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 // import { columns } from "./columns";
 import * as React from "react";
-import {
-  ColumnDef,
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  SortingState,
-  getSortedRowModel,
-  sortingFns,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  ColumnFiltersState,
-  VisibilityState,
-} from "@tanstack/react-table";
+import { ColumnDef, SortingState } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/app/components/data-table-column-header";
 import {
   DropdownMenu,
@@ -56,6 +39,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import EditCheckInForm, { EditCheckInFormProps } from "./editCheckInForm";
 import { DataTableManageEvent } from "./DataTableManageEvent";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Progress } from "@radix-ui/react-progress";
+import EndedLabel from "@/app/components/EndedLabel";
+import LiveLabel from "@/app/components/LiveLabel";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -231,6 +235,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   ];
 
   const router = useRouter();
+  const [live, setLive] = useState<boolean>(false);
 
   useEffect(() => {
     if (isLoading || loading) return;
@@ -248,6 +253,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     console.log("response", response.data);
     setEvent(response.data);
     setLoading(false);
+    //TODO: add check for whether the event is live
   };
 
   useEffect(() => {
@@ -424,6 +430,28 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     }
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      console.log("Window width:", window.innerWidth);
+      if (window.innerWidth <= 768) {
+        setIsMobile(true);
+        console.log("isMobile is true");
+      } else {
+        setIsMobile(false);
+        console.log("isMobile is false");
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   if (!event) {
     return <div>Loading...</div>;
   }
@@ -432,11 +460,46 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     <>
       {isAuthenticated && user ? (
         <div className="grid gap-4 p-8">
-          <Label className="text-2xl">League: {event.leagueName}</Label>
-          <Label className="text-2xl">Name: {event.eventName}</Label>
-          <Label className="text-2xl">
-            Date: {format(new Date(event.dateTime), "Pp")}
-          </Label>{" "}
+          <Card className="text-left w-full" key={event.event_id}>
+            <CardHeader className="p-4">
+              <CardDescription
+                className="text-balance leading-relaxed items-center flex flex-row justify-between w-full"
+                style={{ gridTemplateColumns: "60% 40%" }}
+              >
+                {format(
+                  new Date(event.dateTime),
+                  isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
+                )}{" "}
+                @ {format(new Date(event.dateTime), "h:mm a")}
+                <Label className="flex flex-row gap-2 justify-center items-center">
+                  <MapPin className="h-4 w-4" />
+                  {event.location}
+                </Label>
+              </CardDescription>
+
+              <CardTitle>{event.eventName}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4 w-full justify-between items-start p-4">
+              <div className="flex flex-row gap-1 items-center justify-start">
+                <Map className="h-4 w-4" />
+                <Label className="text-xs">{event.layout}</Label>
+              </div>
+              <div className="flex flex-row gap-1 items-center justify-start">
+                <User className="h-4 w-4" />
+                <Label className="text-xs">{event.format}</Label>
+              </div>
+              <div className="flex flex-row gap-1 w-full items-center justify-between">
+                <div className="flex flex-row gap-1 items-center justify-start">
+                  <ListChecks className="h-4 w-4" />
+                  <Label className="text-xs">
+                    {event.CheckedInPlayers!.length} / {event.maxSignups}{" "}
+                    checked in
+                  </Label>
+                </div>
+                {live ? <LiveLabel /> : <EndedLabel />}
+              </div>
+            </CardContent>
+          </Card>
           <DataTableManageEvent columns={columns} data={playersWithDivisions} />
         </div>
       ) : (

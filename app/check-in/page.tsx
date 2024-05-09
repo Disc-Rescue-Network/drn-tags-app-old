@@ -291,19 +291,18 @@ const CheckIn: NextPage = () => {
                       <Card className="text-left w-full" key={event.event_id}>
                         <CardHeader className="p-4">
                           <CardDescription
-                            className="text-balance leading-relaxed grid grid-cols-2 w-full"
+                            className="text-balance leading-relaxed items-center flex flex-row justify-between w-full"
                             style={{ gridTemplateColumns: "60% 40%" }}
                           >
-                            <div className="text-left text-xs">
-                              {format(
-                                new Date(event.dateTime),
-                                isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
-                              )}{" "}
-                              @ {format(new Date(event.dateTime), "h:mm a")}
-                            </div>
-                            <div className="flex flex-row gap-1 items-center justify-end text-xs text-right text-nowrap">
-                              <MapPin className="h-4 w-4" /> {event.location}
-                            </div>
+                            {format(
+                              new Date(event.dateTime),
+                              isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
+                            )}{" "}
+                            @ {format(new Date(event.dateTime), "h:mm a")}
+                            <Label className="flex flex-row gap-2 justify-center items-center">
+                              <MapPin className="h-4 w-4" />
+                              {event.location}
+                            </Label>
                           </CardDescription>
 
                           <CardTitle>{event.eventName}</CardTitle>
