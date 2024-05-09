@@ -12,8 +12,8 @@ import { columns } from "./columns";
 import { Progress } from "@/components/ui/progress";
 import { MdFiberManualRecord } from "react-icons/md"; // This icon looks like a typical "live" indicator
 import "./LiveStandings.css";
-import EndedLabel from "./endedLabel";
-import LiveLabel from "./liveLabel";
+import EndedLabel from "./EndedLabel";
+import LiveLabel from "./LiveLabel";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { toast } from "@/components/ui/use-toast";
 
