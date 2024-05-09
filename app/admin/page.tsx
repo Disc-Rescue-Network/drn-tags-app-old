@@ -19,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import LiveStandings from "../components/LiveStandings";
+import LiveStandings from "../components/liveStandings";
 import { useForm } from "react-hook-form";
 import { SuggestionFormData } from "../types";
 import { useRouter } from "next/navigation";

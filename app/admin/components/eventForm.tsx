@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DatePickerWithPresets } from "@/app/components/DatePickerWithPresets";
+import { DatePickerWithPresets } from "@/app/components/datePickerWithPresets";
 import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import {
   Select,
@@ -65,7 +65,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
 import { Division, EventPreview, Layout } from "@/app/types";
-import { DatePicker } from "@/app/components/DatePicker";
+import { DatePicker } from "@/app/components/datePicker";
 import {
   Dialog,
   DialogContent,
