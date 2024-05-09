@@ -1,7 +1,7 @@
 "use client";
 
 import type { NextPage } from "next";
-import Leaderboard from "./components/leaderboard";
+import Leaderboard from "./components/Leaderboard";
 
 const Home: NextPage = () => {
   return (

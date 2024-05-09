@@ -55,7 +55,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import EditCheckInForm, { EditCheckInFormProps } from "./editCheckInForm";
-import { DataTableManageEvent } from "./dataTableManageEvent";
+import { DataTableManageEvent } from "./DataTableManageEvent";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
