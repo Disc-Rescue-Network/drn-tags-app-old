@@ -45,9 +45,6 @@ import {
   ColumnFiltersState,
   VisibilityState,
 } from "@tanstack/react-table";
-import { DataTableToolbar } from "@/app/components/data-table-toolbar";
-import { DataTablePagination } from "@/app/components/data-table-pagination";
-
 import { DataTableColumnHeader } from "@/app/components/data-table-column-header";
 import {
   DropdownMenu,
