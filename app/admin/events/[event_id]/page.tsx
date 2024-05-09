@@ -308,7 +308,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           // Handle errors
           toast({
             title: "Error",
-            description: "Failed to mark as paid",
+            description: `Failed to mark as paid - ${error}`,
             variant: "destructive",
             duration: 3000,
           });
@@ -326,39 +326,43 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     try {
       console.log("removing from queue", checkInId);
       setLoading(true);
-      const response = await axios.delete(
-        `${TAGS_API_BASE_URL}/api/player-check-in/${checkInId}`,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log("response", response.data);
+      fetch(`${TAGS_API_BASE_URL}/api/player-check-in/${checkInId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            setLoading(false);
+            toast({
+              title: "Error",
+              description: "Network response was not ok",
+              variant: "destructive",
+              duration: 3000,
+            });
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Handle successful response from API
+          console.log("response", data);
+          toast({
+            title: "Success",
+            description: "Player removed from event",
+            variant: "default",
+            duration: 3000,
+          });
+          // Remove the player from the CheckedInPlayers array
+          const updatedPlayers = event!.CheckedInPlayers!.filter(
+            (player) => player.checkInId !== checkInId
+          );
 
-      if (response.status !== 200) {
-        toast({
-          title: "Error",
-          description: "Failed to remove player from event",
-          variant: "destructive",
-          duration: 3000,
+          // Update the event state
+          setEvent({ ...event!, CheckedInPlayers: updatedPlayers });
+          setLoading(false);
         });
-        console.log("Failed to remove player from event", response.data);
-        setLoading(false);
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Player removed from event",
-        variant: "default",
-        duration: 3000,
-      });
-
-      // Remove the player from the CheckedInPlayers array
-      const updatedPlayers = event!.CheckedInPlayers!.filter(
-        (player) => player.checkInId !== checkInId
-      );
-
-      // Update the event state
-      setEvent({ ...event!, CheckedInPlayers: updatedPlayers });
-      setLoading(false);
     } catch (error) {
       console.error(error);
       setLoading(false);
