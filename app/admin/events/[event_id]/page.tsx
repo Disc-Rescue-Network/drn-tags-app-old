@@ -199,6 +199,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => editCheckIn(player)}>
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <Pencil className="w-4 h-4" /> Edit Check In
+                </div>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => markAsPaid(player.checkInId)}>
                 {player.paid ? (
                   <div className="flex flex-row gap-2 justify-center items-center">
@@ -210,12 +215,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                   </div>
                 )}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => editCheckIn(player)}>
-                <div className="flex flex-row gap-2 justify-center items-center">
-                  <Pencil className="w-4 h-4" /> Edit Check In
-                </div>
-              </DropdownMenuItem>
-
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => removeFromQueue(player.checkInId)}
@@ -259,55 +258,64 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     try {
       setLoading(true);
       console.log("marking as paid", checkInId);
-      const response = await axios.put(
-        `${TAGS_API_BASE_URL}/api/player-check-in/pay/${checkInId}`,
-        {},
-        { headers: { "Content-Type": "application/json" } }
-      );
-      console.log("response", response.data);
-      const result = (await response.data) as PlayersWithDivisions;
+      fetch(`${TAGS_API_BASE_URL}/api/player-check-in/pay/${checkInId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            setLoading(false);
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          // Handle successful response from API
+          console.log("response", data);
+          const result = data as PlayersWithDivisions;
+          // Update the "paid" variable in the CheckedInPlayers array
+          const updatedPlayers = event!.CheckedInPlayers!.map((player) =>
+            player.checkInId === checkInId
+              ? { ...player, paid: result.paid }
+              : player
+          );
 
-      if (response.status !== 200) {
-        toast({
-          title: "Error",
-          description: "Failed to mark as paid",
-          variant: "destructive",
-          duration: 3000,
+          // Update the event state
+          setEvent({
+            ...event!,
+            CheckedInPlayers: updatedPlayers,
+          });
+          setLoading(false);
+          if (result.paid === false) {
+            toast({
+              title: "Success",
+              description: "Payment reverted to unpaid",
+              variant: "default",
+              duration: 3000,
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: "Player marked as paid",
+              variant: "default",
+              duration: 3000,
+            });
+          }
+        })
+        .catch((error) => {
+          // Handle errors
+          toast({
+            title: "Error",
+            description: "Failed to mark as paid",
+            variant: "destructive",
+            duration: 3000,
+          });
+          console.log("Failed to mark as paid", error);
+          setLoading(false);
+          return;
         });
-        console.log("Failed to mark as paid", response.data);
-        setLoading(false);
-        return;
-      }
-
-      if (result.paid === false) {
-        toast({
-          title: "Success",
-          description: "Payment reverted to unpaid",
-          variant: "default",
-          duration: 3000,
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Player marked as paid",
-          variant: "default",
-          duration: 3000,
-        });
-      }
-
-      // Update the "paid" variable in the CheckedInPlayers array
-      const updatedPlayers = event!.CheckedInPlayers!.map((player) =>
-        player.checkInId === checkInId
-          ? { ...player, paid: result.paid }
-          : player
-      );
-
-      // Update the event state
-      setEvent({
-        ...event!,
-        CheckedInPlayers: updatedPlayers,
-      });
-      setLoading(false);
     } catch (error) {
       console.error(error);
       setLoading(false);
@@ -369,10 +377,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     setIdToEdit(player.checkInId);
   }
 
-  if (!event) {
-    return <div>Loading...</div>;
-  }
-
   const submitEditedCheckIn = async (formData: PlayersWithDivisions) => {
     console.log("Editing check-in player...");
     console.log("before: ", editedPlayerDetails);
@@ -415,6 +419,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       });
     }
   };
+
+  if (!event) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
