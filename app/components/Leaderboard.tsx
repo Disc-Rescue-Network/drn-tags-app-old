@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DataTable } from "./DataTable-tags";
+import { DataTable } from "./dataTable-tags";
 import "./Leaderboard.css";
 import { columns } from "./columns-tags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
