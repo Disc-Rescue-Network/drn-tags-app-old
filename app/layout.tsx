@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import SideMenu from "./components/Sidemenu";
+import SideMenu from "./components/sidemenu";
 import MenuHeader from "./components/menuheader";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
