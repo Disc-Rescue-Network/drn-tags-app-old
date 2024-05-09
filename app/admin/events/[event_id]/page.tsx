@@ -199,11 +199,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => editCheckIn(player)}>
-                <div className="flex flex-row gap-2 justify-center items-center">
-                  <Pencil className="w-4 h-4" /> Edit Check In
-                </div>
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => markAsPaid(player.checkInId)}>
                 {player.paid ? (
                   <div className="flex flex-row gap-2 justify-center items-center">
@@ -215,6 +210,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                   </div>
                 )}
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => editCheckIn(player)}>
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <Pencil className="w-4 h-4" /> Edit Check In
+                </div>
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => removeFromQueue(player.checkInId)}
