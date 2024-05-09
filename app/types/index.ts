@@ -1,4 +1,5 @@
 import { StaticImageData } from "next/image";
+import { PlayersWithDivisions } from "../admin/events/[event_id]/page";
 
 export interface Score {
   id: number;
@@ -143,3 +144,9 @@ export type CheckInData = {
   division_id: number;
   division_name: string;
 };
+
+export interface CardModel {
+  starting_hole: number;
+  event_id: number;
+  player_check_ins: PlayersWithDivisions[];
+}

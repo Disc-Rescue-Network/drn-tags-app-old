@@ -60,6 +60,9 @@ import {
 import { Progress } from "@radix-ui/react-progress";
 import EndedLabel from "@/app/components/EndedLabel";
 import LiveLabel from "@/app/components/LiveLabel";
+import { Badge } from "@/components/ui/badge";
+import { CardModel } from "../../../types/index";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -91,6 +94,7 @@ export interface PlayersWithDivisions {
   kinde_id: string;
   event_id: number;
   division_id: number;
+  label: string;
 }
 
 const EventPage = ({ params }: { params: { event_id: string } }) => {
@@ -102,15 +106,190 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [playersWithDivisions, setPlayersWithDivisions] = useState<
     PlayersWithDivisions[]
   >([]);
+  const [cards, setCards] = useState<CardModel[]>([]);
+  const avoidHoles = [7, 8, 9, 10]; // Define holes to avoid for card creation
 
   useEffect(() => {
     const enrichedPlayers = enrichPlayersWithDivisionNames(
       event?.CheckedInPlayers || [], // Add null check and default value
       event?.Divisions || [] // Add null check and default value
-    );
+    ).map((player) => ({
+      ...player,
+      label: player.paid ? "paid" : "unpaid",
+    }));
 
     setPlayersWithDivisions(enrichedPlayers);
   }, [event]);
+
+  useEffect(() => {
+    if (playersWithDivisions.length > 0) {
+      console.log("Players with divisions:", playersWithDivisions);
+      startCardCreation();
+    }
+  }, [playersWithDivisions]);
+
+  const startCardCreation = () => {
+    const newCards = createCards(playersWithDivisions);
+    const spacedCards = evenlySpaceCards(newCards, 18);
+    console.log("Spaced cards:", spacedCards);
+    setCards(spacedCards);
+  };
+
+  const createCards = (players: PlayersWithDivisions[]): CardModel[] => {
+    // Group players by division
+    const playersByDivision: { [key: string]: PlayersWithDivisions[] } =
+      players.reduce((acc, player) => {
+        if (!acc[player.division_name]) {
+          acc[player.division_name] = [];
+        }
+        acc[player.division_name].push(player);
+        return acc;
+      }, {} as { [key: string]: PlayersWithDivisions[] });
+
+    // Log the total number of players
+    const totalPlayersBeginning = players.length;
+    console.log("BEGIN: Total number of players:", totalPlayersBeginning);
+    //this is logging 47
+
+    const allCards: CardModel[] = [];
+    let remainingPlayers: PlayersWithDivisions[] = [];
+
+    Object.values(playersByDivision).forEach((divisionPlayers) => {
+      // Shuffle players within the division
+      const shuffledPlayers = shuffleArray(divisionPlayers);
+
+      // Create cards for the division
+      const { cards, remaining } = createDivisionCards(
+        shuffledPlayers,
+        divisionPlayers[0].event_id
+      );
+
+      console.log("Division cards:", cards);
+      console.log("Remaining players:", remaining);
+
+      allCards.push(...cards);
+      remainingPlayers.push(...remaining);
+    });
+
+    // Try to create mixed division cards with remaining players
+    while (remainingPlayers.length > 0) {
+      const shuffledRemainingPlayers = shuffleArray(remainingPlayers);
+      const { cards: mixedCards, remaining } = createDivisionCards(
+        shuffledRemainingPlayers,
+        remainingPlayers[0].event_id
+      );
+      allCards.push(...mixedCards);
+      remainingPlayers = remaining;
+
+      // If remaining players are less than 3 and we can't form a full card, break out to avoid infinite loop
+      if (remainingPlayers.length < 3) break;
+    }
+
+    const totalPlayers = allCards.reduce(
+      (count, card) => count + card.player_check_ins.length,
+      0
+    );
+    console.log("Total number of players:", totalPlayers);
+    //this is logging 46 - we lose one somewhere
+
+    return allCards;
+  };
+
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = array.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const createDivisionCards = (
+    players: PlayersWithDivisions[],
+    eventId: number
+  ): { cards: CardModel[]; remaining: PlayersWithDivisions[] } => {
+    const divisionCards: CardModel[] = [];
+    let card: CardModel = {
+      starting_hole: 1,
+      event_id: eventId,
+      player_check_ins: [],
+    };
+    const remainingPlayers: PlayersWithDivisions[] = [];
+
+    players.forEach((player, index) => {
+      card.player_check_ins.push(player);
+
+      if (
+        card.player_check_ins.length === 4 ||
+        (card.player_check_ins.length >= 3 && index === players.length - 1)
+      ) {
+        divisionCards.push(card);
+        card = { starting_hole: 1, event_id: eventId, player_check_ins: [] };
+      } else if (
+        card.player_check_ins.length === 3 &&
+        players.length - index - 1 < 3
+      ) {
+        divisionCards.push(card);
+        card = { starting_hole: 1, event_id: eventId, player_check_ins: [] };
+      }
+    });
+
+    // If there are remaining players that couldn't form a complete card, return them
+    if (card.player_check_ins.length > 0) {
+      remainingPlayers.push(
+        ...card.player_check_ins.map(
+          (mappedPlayer) =>
+            players.find(
+              (player) => player.checkInId === mappedPlayer.checkInId
+            )!
+        )
+      );
+    }
+
+    return { cards: divisionCards, remaining: remainingPlayers };
+  };
+
+  const evenlySpaceCards = (
+    cards: CardModel[],
+    totalHoles: number
+  ): CardModel[] => {
+    const spacedCards: CardModel[] = [];
+    const usedHoles = new Set<number>();
+    const numCards = cards.length;
+    const spacing = Math.floor(totalHoles / numCards);
+
+    let startingHole = 1;
+
+    for (let i = 0; i < numCards; i++) {
+      // Find the next starting hole that is not in the avoidHoles array and not already used
+      while (avoidHoles.includes(startingHole) || usedHoles.has(startingHole)) {
+        startingHole = (startingHole % totalHoles) + 1; // Increment and wrap around if necessary
+      }
+
+      cards[i].starting_hole = startingHole;
+      usedHoles.add(startingHole); // Mark the hole as used
+      spacedCards.push(cards[i]);
+
+      // Calculate the next starting hole, considering the spacing
+      startingHole = ((startingHole + spacing - 1) % totalHoles) + 1;
+
+      // If the next starting hole is in the avoidHoles array or already used, find the next available hole
+      while (avoidHoles.includes(startingHole) || usedHoles.has(startingHole)) {
+        startingHole = (startingHole % totalHoles) + 1; // Increment and wrap around if necessary
+      }
+    }
+
+    return spacedCards.sort((a, b) => a.starting_hole - b.starting_hole); // Ensure the cards are sorted by starting hole
+  };
+
+  const handleCreateCards = async () => {
+    try {
+      const response = await axios.post("/api/cards", { cards });
+      console.log("Cards created successfully:", response.data);
+    } catch (error) {
+      console.error("Error creating cards:", error);
+    }
+  };
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
@@ -128,14 +307,54 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     },
   ];
 
+  // const labels = [
+  //   {
+  //     value: "paid",
+  //     label: "Paid",
+  //   },
+  //   {
+  //     value: "unpaid",
+  //     label: "Not Paid",
+  //   },
+  // ];
+
   const columns: ColumnDef<PlayersWithDivisions>[] = [
     {
       accessorKey: "udisc_display_name",
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Player" />
       ),
-      enableSorting: true,
       cell: (info) => info.getValue(),
+      enableSorting: true,
+      // cell: ({ row }) => {
+      //   const label = labels.find(
+      //     (label) => label.value === row.original.label
+      //   );
+
+      //   if (!label) {
+      //     return (
+      //       <div className="flex space-x-2">
+      //         <CircleDashed className="w-4 h-4" />
+      //         <span className="max-w-[500px] truncate font-medium">
+      //           {row.getValue("udisc_display_name")}
+      //         </span>
+      //       </div>
+      //     );
+      //   }
+
+      //   return (
+      //     <div className="flex space-x-2">
+      //       {label.label === "Paid" ? (
+      //         <span className="max-w-[500px] truncate font-medium flex flex-row gap-2">
+      //           <Check className="w-4 h-4" />{" "}
+      //           {row.getValue("udisc_display_name")}
+      //         </span>
+      //       ) : (
+      //         <Badge variant="destructive">{label.label}</Badge>
+      //       )}
+      //     </div>
+      //   );
+      // },
     },
     {
       accessorKey: "division_name",
@@ -452,6 +671,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     };
   }, []);
 
+  const [showCards, setShowCards] = useState(false);
+
   if (!event) {
     return <div>Loading...</div>;
   }
@@ -500,6 +721,63 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               </div>
             </CardContent>
           </Card>
+          <div className="flex flex-col gap-4 mt-2 mb-2 items-left justify-start">
+            <div className="flex flex-row gap-4 items-center justify-between w-full">
+              <Button
+                variant="secondary"
+                className="w-48"
+                onClick={() => setShowCards(!showCards)}
+              >
+                {showCards ? "Hide Cards" : "Show Cards"}
+              </Button>
+              <Button
+                className="w-48"
+                onClick={handleCreateCards}
+                variant="default"
+              >
+                Submit Cards
+              </Button>
+            </div>
+            {showCards && (
+              <Card className="w-full">
+                <CardHeader>
+                  <CardTitle>Cards</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 relative pb-24">
+                  {cards.map((card) => (
+                    <div
+                      className="flex items-center gap-4"
+                      key={card.starting_hole}
+                    >
+                      <Avatar className="hidden h-9 w-9 sm:flex">
+                        <AvatarFallback>{card.starting_hole}</AvatarFallback>
+                      </Avatar>
+                      <div className="grid gap-1">
+                        {card.player_check_ins.map((player) => (
+                          <p
+                            key={player.checkInId}
+                            className="text-sm text-muted-foreground"
+                          >
+                            {player.udisc_display_name} - {player.division_name}{" "}
+                            (#{player.tagIn})
+                            {/* <br /> {player.checkInId} &{" "}
+                            {player.division_id} */}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    className="absolute bottom-4 right-4 w-48"
+                    onClick={startCardCreation}
+                    variant="destructive"
+                  >
+                    Re-shuffle Cards
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
           <DataTableManageEvent columns={columns} data={playersWithDivisions} />
         </div>
       ) : (
