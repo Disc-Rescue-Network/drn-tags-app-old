@@ -146,7 +146,14 @@ export type CheckInData = {
 };
 
 export interface CardModel {
+  card_id: number | null;
   starting_hole: number;
   event_id: number;
   player_check_ins: PlayersWithDivisions[];
+}
+
+export interface HoleModel {
+  hold_id: number;
+  hole_number: number;
+  active: boolean;
 }
