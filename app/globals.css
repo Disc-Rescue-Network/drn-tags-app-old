@@ -36,6 +36,7 @@
 
     height: 100dvh;
     width: 100dvw;
+    overflow: hidden;
   }
 
   .dark {
@@ -70,8 +71,9 @@
 }
 
 body {
-  height: 100dvh;
-  width: 100dvw;
+  height: 100%;
+  width: 100%;
+  max-width: 100dvw;
 }
 
 @layer base {
@@ -125,6 +127,11 @@ body {
 
 .max-width-90 {
   max-width: 90%;
+}
+
+.main-overflow {
+  overflow: auto !important;
+  height: calc(100vh - 4rem);
 }
 
 /* .legend div {

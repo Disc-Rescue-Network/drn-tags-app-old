@@ -63,6 +63,23 @@ import LiveLabel from "@/app/components/LiveLabel";
 import { Badge } from "@/components/ui/badge";
 import { CardModel } from "../../../types/index";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -149,7 +166,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     // Log the total number of players
     const totalPlayersBeginning = players.length;
     console.log("BEGIN: Total number of players:", totalPlayersBeginning);
-    //this is logging 47
+
+    // Track all player checkInIds
+    const initialCheckInIds = new Set(
+      players.map((player) => player.checkInId)
+    );
 
     const allCards: CardModel[] = [];
     let remainingPlayers: PlayersWithDivisions[] = [];
@@ -181,7 +202,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       allCards.push(...mixedCards);
       remainingPlayers = remaining;
 
-      // If remaining players are less than 3 and we can't form a full card, break out to avoid infinite loop
+      // If remaining players are less than 3 and we can't form a full card, break out to avoid an infinite loop
       if (remainingPlayers.length < 3) break;
     }
 
@@ -190,7 +211,42 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       0
     );
     console.log("Total number of players:", totalPlayers);
-    //this is logging 46 - we lose one somewhere
+
+    // Find missing player
+    const assignedCheckInIds = new Set(
+      allCards.flatMap((card) =>
+        card.player_check_ins.map((player) => player.checkInId)
+      )
+    );
+    const missingCheckInIds = Array.from(initialCheckInIds).filter(
+      (id) => !assignedCheckInIds.has(id)
+    );
+
+    console.log("Missing player checkInIds:", missingCheckInIds);
+
+    if (missingCheckInIds.length > 0) {
+      const missingPlayers = players.filter((player) =>
+        missingCheckInIds.includes(player.checkInId)
+      );
+      console.log("Missing player details:", missingPlayers);
+
+      // Add missing players to existing cards
+      missingPlayers.forEach((player) => {
+        // Find a card with less than 4 players
+        const card = allCards.find((card) => card.player_check_ins.length < 4);
+        if (card) {
+          card.player_check_ins.push(player);
+        } else {
+          // If no card has less than 4 players, add to the card with the fewest players
+          const cardWithFewestPlayers = allCards.reduce((prev, curr) =>
+            prev.player_check_ins.length < curr.player_check_ins.length
+              ? prev
+              : curr
+          );
+          cardWithFewestPlayers.player_check_ins.push(player);
+        }
+      });
+    }
 
     return allCards;
   };
@@ -284,10 +340,35 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const handleCreateCards = async () => {
     try {
-      const response = await axios.post("/api/cards", { cards });
-      console.log("Cards created successfully:", response.data);
+      const response = await axios.post(`${TAGS_API_BASE_URL}/api/cards`, {
+        cards,
+      });
+      console.log("Response status:", response.status);
+      if (response.status >= 200 && response.status < 300) {
+        console.log("Cards created successfully:", response.data);
+        toast({
+          title: "Success",
+          description: "Cards have been successfully created.",
+          variant: "default",
+          duration: 3000,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create cards.",
+          variant: "destructive",
+          duration: 3000,
+        });
+        console.log("Failed to create cards:", response.data);
+      }
     } catch (error) {
       console.error("Error creating cards:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create cards.",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   };
 
@@ -672,6 +753,33 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   }, []);
 
   const [showCards, setShowCards] = useState(false);
+  const totalHoles = 18; // Total number of holes on the course
+  const usedHoles = new Set(cards.map((card) => card.starting_hole));
+
+  const availableHoles: number[] = [];
+  for (let i = 1; i <= totalHoles; i++) {
+    if (!usedHoles.has(i)) {
+      availableHoles.push(i);
+    }
+  }
+
+  const handleHoleChange = (card: CardModel, newHole: number) => {
+    const newHoleNumber = newHole;
+    setCards(
+      cards
+        .map((c) => {
+          if (c.starting_hole === card.starting_hole) {
+            return { ...c, starting_hole: newHoleNumber };
+          }
+          if (newHoleNumber !== null && c.starting_hole === newHoleNumber) {
+            return { ...c, starting_hole: card.starting_hole };
+          }
+          return c;
+        })
+        .sort((a, b) => a.starting_hole - b.starting_hole)
+    );
+    // Optionally, update the backend or state to persist changes
+  };
 
   if (!event) {
     return <div>Loading...</div>;
@@ -680,7 +788,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   return (
     <>
       {isAuthenticated && user ? (
-        <div className="grid gap-4 p-8">
+        <div className="grid gap-4 p-4">
           <Card className="text-left w-full" key={event.event_id}>
             <CardHeader className="p-4">
               <CardDescription
@@ -739,36 +847,92 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               </Button>
             </div>
             {showCards && (
-              <Card className="w-full">
+              <Card className="w-full relative">
                 <CardHeader>
                   <CardTitle>Cards</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 relative pb-24">
+                <CardContent className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 pt-8 md:pt-0 pb-6 md:pb-24">
                   {cards.map((card) => (
-                    <div
-                      className="flex items-center gap-4"
+                    <Card
+                      className="flex flex-col items-center gap-4"
                       key={card.starting_hole}
                     >
-                      <Avatar className="hidden h-9 w-9 sm:flex">
-                        <AvatarFallback>{card.starting_hole}</AvatarFallback>
-                      </Avatar>
-                      <div className="grid gap-1">
-                        {card.player_check_ins.map((player) => (
-                          <p
-                            key={player.checkInId}
-                            className="text-sm text-muted-foreground"
+                      <CardHeader className="w-full gap-4 flex flex-row justify-between items-center">
+                        <CardTitle>Card {card.starting_hole}</CardTitle>
+                        <CardDescription>
+                          <Select
+                            value={card.starting_hole.toString()}
+                            onValueChange={(e) =>
+                              handleHoleChange(card, parseInt(e))
+                            }
                           >
-                            {player.udisc_display_name} - {player.division_name}{" "}
-                            (#{player.tagIn})
-                            {/* <br /> {player.checkInId} &{" "}
-                            {player.division_id} */}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select a hole" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Holes</SelectLabel>
+                                {Array.from(
+                                  { length: totalHoles },
+                                  (_, index) => index + 1
+                                )
+                                  .sort((a, b) => a - b)
+                                  .map((hole) => (
+                                    <SelectItem
+                                      key={hole}
+                                      value={hole.toString()}
+                                    >
+                                      Hole {hole}
+                                    </SelectItem>
+                                  ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex flex-col gap-4 w-full text-left">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Player</TableHead>
+                              <TableHead>Division</TableHead>
+                              <TableHead>Tag In</TableHead>
+                              {/* <TableHeaderCell>Paid</TableHeaderCell> */}
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {card.player_check_ins.map((player) => (
+                              <TableRow key={player.checkInId}>
+                                <TableCell>
+                                  {player.udisc_display_name}
+                                </TableCell>
+                                <TableCell>{player.division_name}</TableCell>
+                                <TableCell>{player.tagIn}</TableCell>
+                                {/* <td>{player.paid ? "Paid" : "Not Paid"}</td> */}
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                        {/* <div className="grid gap-2">
+                          {card.player_check_ins.map((player) => (
+                            <p
+                              key={player.checkInId}
+                              className="text-sm text-muted-foreground"
+                            >
+                              {player.udisc_display_name} -{" "}
+                              {player.division_name} (#{player.tagIn})
+                            </p>
+                          ))}
+                        </div> */}
+                      </CardContent>
+                    </Card>
                   ))}
                   <Button
-                    className="absolute bottom-4 right-4 w-48"
+                    className={
+                      isMobile
+                        ? "absolute top-4 right-4 w-48"
+                        : "absolute bottom-4 right-4 w-48"
+                    }
                     onClick={startCardCreation}
                     variant="destructive"
                   >
@@ -778,7 +942,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               </Card>
             )}
           </div>
-          <DataTableManageEvent columns={columns} data={playersWithDivisions} />
+          {!showCards && (
+            <DataTableManageEvent
+              columns={columns}
+              data={playersWithDivisions}
+            />
+          )}
         </div>
       ) : (
         <>Unauthenticated. Redirecting to home page...</>

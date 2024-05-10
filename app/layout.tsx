@@ -63,7 +63,7 @@ export default async function RootLayout({
             <SideMenu />
             <div className="w-full">
               <MenuHeader />
-              <main className="p-2">{children}</main>
+              <main className="p-0 main-overflow">{children}</main>
             </div>
           </div>
           <UDiscDisplayNameDialog />
