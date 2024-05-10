@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { CheckInData, Division, TagsEvent } from "@/app/types";
+import { CheckInData, Division, HoleModel, TagsEvent } from "@/app/types";
 import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
@@ -80,6 +80,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -118,13 +119,58 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [event, setEvent] = useState<TagsEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const event_id = params.event_id;
-  const { isLoading, isAuthenticated, user } = useKindeBrowserClient();
+  const { isLoading, isAuthenticated, user, organization } =
+    useKindeBrowserClient();
 
   const [playersWithDivisions, setPlayersWithDivisions] = useState<
     PlayersWithDivisions[]
   >([]);
   const [cards, setCards] = useState<CardModel[]>([]);
-  const avoidHoles = [7, 8, 9, 10]; // Define holes to avoid for card creation
+  const [holesToAvoid, setHolesToAvoid] = useState<number[]>([]);
+
+  async function fetchSettingsData() {
+    if (!organization) {
+      console.error("Organization not found");
+      return null;
+    }
+
+    console.log("Fetching settings data...");
+    try {
+      const response = await fetch(
+        `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch settings data");
+      }
+      console.log("Settings data fetched successfully");
+      const data = await response.json();
+      console.log("Settings data:", data);
+      return data; // Return the fetched settings data
+    } catch (error) {
+      console.error("Error fetching settings data:", error);
+      return null;
+    }
+  }
+
+  // Use useEffect to fetch settings data when the component mounts
+  useEffect(() => {
+    // Fetch settings data
+    fetchSettingsData()
+      .then((settingsData) => {
+        // Extract relevant fields from settingsData to prepopulate the form
+        console.log("Settings data:", settingsData);
+        const holesToAvoidTmp = settingsData.holes.filter(
+          (hole: HoleModel) => !hole.active
+        );
+        console.log("Holes to avoid:", holesToAvoidTmp);
+        setHolesToAvoid(
+          holesToAvoidTmp.map((hole: HoleModel) => hole.hole_number)
+        );
+      })
+      .catch((error) => {
+        console.error("Error setting default values:", error);
+      });
+  }, [organization]); // Empty dependency array to run the effect only once when the component mounts
 
   useEffect(() => {
     const enrichedPlayers = enrichPlayersWithDivisionNames(
@@ -138,12 +184,44 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     setPlayersWithDivisions(enrichedPlayers);
   }, [event]);
 
-  useEffect(() => {
-    if (playersWithDivisions.length > 0) {
-      console.log("Players with divisions:", playersWithDivisions);
-      startCardCreation();
+  const fetchCurrentCards = async () => {
+    try {
+      const response = await axios.get(
+        `${TAGS_API_BASE_URL}/api/events/${event?.event_id}/cards`
+      );
+      console.log("Response status:", response.status);
+      if (response.status >= 200 && response.status < 300) {
+        console.log("Cards retrieved successfully:", response.data);
+        const cards = response.data as CardModel[];
+        setCards(cards);
+        return true;
+      } else {
+        console.log("Failed to retrieve cards:", response.data);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error retrieving cards:", error);
+      return false;
     }
-  }, [playersWithDivisions]);
+  };
+
+  useEffect(() => {
+    const checkForCurrentCards = async () => {
+      if (playersWithDivisions.length > 0 && holesToAvoid.length > 0) {
+        console.log("Players with divisions:", playersWithDivisions);
+        console.log("checking for card creation...");
+        const hasCards = await fetchCurrentCards();
+        console.log("Has cards:", hasCards);
+        if (!hasCards) {
+          console.log("No cards found. Creating new cards...");
+          startCardCreation();
+        } else {
+          console.log("Cards already exist. Skipping card creation...");
+        }
+      }
+    };
+    checkForCurrentCards();
+  }, [holesToAvoid, playersWithDivisions]);
 
   const startCardCreation = () => {
     const newCards = createCards(playersWithDivisions);
@@ -266,6 +344,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   ): { cards: CardModel[]; remaining: PlayersWithDivisions[] } => {
     const divisionCards: CardModel[] = [];
     let card: CardModel = {
+      card_id: null,
       starting_hole: 1,
       event_id: eventId,
       player_check_ins: [],
@@ -280,13 +359,23 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         (card.player_check_ins.length >= 3 && index === players.length - 1)
       ) {
         divisionCards.push(card);
-        card = { starting_hole: 1, event_id: eventId, player_check_ins: [] };
+        card = {
+          card_id: null,
+          starting_hole: 1,
+          event_id: eventId,
+          player_check_ins: [],
+        };
       } else if (
         card.player_check_ins.length === 3 &&
         players.length - index - 1 < 3
       ) {
         divisionCards.push(card);
-        card = { starting_hole: 1, event_id: eventId, player_check_ins: [] };
+        card = {
+          card_id: null,
+          starting_hole: 1,
+          event_id: eventId,
+          player_check_ins: [],
+        };
       }
     });
 
@@ -312,27 +401,33 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     const spacedCards: CardModel[] = [];
     const usedHoles = new Set<number>();
     const numCards = cards.length;
-    const spacing = Math.floor(totalHoles / numCards);
 
-    let startingHole = 1;
+    // Create an array of available holes, excluding the ones to avoid
+    let holes = Array.from({ length: totalHoles }, (_, i) => i + 1).filter(
+      (hole) => !holesToAvoid.includes(hole)
+    );
+
+    // Calculate initial spacing and leftover holes
+    const spacing = Math.floor(holes.length / numCards);
+    const leftoverHoles = holes.length - spacing * numCards;
+
+    let holeIndex = 0;
 
     for (let i = 0; i < numCards; i++) {
-      // Find the next starting hole that is not in the avoidHoles array and not already used
-      while (avoidHoles.includes(startingHole) || usedHoles.has(startingHole)) {
-        startingHole = (startingHole % totalHoles) + 1; // Increment and wrap around if necessary
+      // Ensure we skip any holes that are already used
+      while (usedHoles.has(holes[holeIndex])) {
+        holeIndex = (holeIndex + 1) % holes.length;
       }
 
+      // Assign the next available hole to the card
+      const startingHole = holes[holeIndex];
       cards[i].starting_hole = startingHole;
-      usedHoles.add(startingHole); // Mark the hole as used
+      usedHoles.add(startingHole);
       spacedCards.push(cards[i]);
 
-      // Calculate the next starting hole, considering the spacing
-      startingHole = ((startingHole + spacing - 1) % totalHoles) + 1;
-
-      // If the next starting hole is in the avoidHoles array or already used, find the next available hole
-      while (avoidHoles.includes(startingHole) || usedHoles.has(startingHole)) {
-        startingHole = (startingHole % totalHoles) + 1; // Increment and wrap around if necessary
-      }
+      // Adjust hole index for next card, adding extra spacing if possible
+      holeIndex =
+        (holeIndex + spacing + (i < leftoverHoles ? 1 : 0)) % holes.length;
     }
 
     return spacedCards.sort((a, b) => a.starting_hole - b.starting_hole); // Ensure the cards are sorted by starting hole
@@ -346,6 +441,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       console.log("Response status:", response.status);
       if (response.status >= 200 && response.status < 300) {
         console.log("Cards created successfully:", response.data);
+        const cardsCreated = response.data as CardModel[];
+        setCards(cardsCreated);
         toast({
           title: "Success",
           description: "Cards have been successfully created.",
@@ -786,7 +883,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   }
 
   return (
-    <>
+    <ScrollArea className="h-full w-full rounded-md border p-4">
       {isAuthenticated && user ? (
         <div className="grid gap-4 p-4">
           <Card className="text-left w-full" key={event.event_id}>
@@ -961,7 +1058,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           onClose={() => setEditCheckInStarted(false)}
         />
       )}
-    </>
+      <ScrollBar orientation="vertical" />
+    </ScrollArea>
   );
 };
 
