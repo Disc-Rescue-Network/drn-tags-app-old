@@ -193,8 +193,17 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       if (response.status >= 200 && response.status < 300) {
         console.log("Cards retrieved successfully:", response.data);
         const cards = response.data as CardModel[];
-        setCards(cards);
-        return true;
+        const numberOfPlayersInCards = cards.reduce(
+          (count, card) => count + card.player_check_ins.length,
+          0
+        );
+        if (numberOfPlayersInCards === playersWithDivisions.length) {
+          console.log("Cards already exist for all players");
+          setCards(cards);
+          return true;
+        }
+        console.log("Cards exist but not for all players");
+        return false;
       } else {
         console.log("Failed to retrieve cards:", response.data);
         return false;
@@ -225,9 +234,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const startCardCreation = () => {
     const newCards = createCards(playersWithDivisions);
+    console.log("New cards finalized:", newCards);
     const spacedCards = evenlySpaceCards(newCards, 18);
-    console.log("Spaced cards:", spacedCards);
+    console.log("Spaced cards finalized:", spacedCards);
     setCards(spacedCards);
+    console.log("Cards set:", spacedCards);
   };
 
   const createCards = (players: PlayersWithDivisions[]): CardModel[] => {
@@ -244,11 +255,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     // Log the total number of players
     const totalPlayersBeginning = players.length;
     console.log("BEGIN: Total number of players:", totalPlayersBeginning);
-
-    // Track all player checkInIds
-    const initialCheckInIds = new Set(
-      players.map((player) => player.checkInId)
-    );
 
     const allCards: CardModel[] = [];
     let remainingPlayers: PlayersWithDivisions[] = [];
@@ -290,7 +296,34 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     );
     console.log("Total number of players:", totalPlayers);
 
+    // Ensure no more than 18 cards
+    if (allCards.length > 18) {
+      const extraCards = allCards.splice(18);
+      extraCards.forEach((card) => {
+        card.player_check_ins.forEach((player) => {
+          // Find a card with less than 4 players
+          const targetCard = allCards.find(
+            (c) => c.player_check_ins.length < 4
+          );
+          if (targetCard) {
+            targetCard.player_check_ins.push(player);
+          } else {
+            // If no card has less than 4 players, add to the card with the fewest players
+            const cardWithFewestPlayers = allCards.reduce((prev, curr) =>
+              prev.player_check_ins.length < curr.player_check_ins.length
+                ? prev
+                : curr
+            );
+            cardWithFewestPlayers.player_check_ins.push(player);
+          }
+        });
+      });
+    }
+
     // Find missing player
+    const initialCheckInIds = new Set(
+      players.map((player) => player.checkInId)
+    );
     const assignedCheckInIds = new Set(
       allCards.flatMap((card) =>
         card.player_check_ins.map((player) => player.checkInId)
@@ -342,6 +375,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     players: PlayersWithDivisions[],
     eventId: number
   ): { cards: CardModel[]; remaining: PlayersWithDivisions[] } => {
+    console.log("Creating division cards...");
     const divisionCards: CardModel[] = [];
     let card: CardModel = {
       card_id: null,
@@ -391,6 +425,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       );
     }
 
+    console.log("Division cards:", divisionCards);
     return { cards: divisionCards, remaining: remainingPlayers };
   };
 
@@ -398,38 +433,64 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     cards: CardModel[],
     totalHoles: number
   ): CardModel[] => {
+    console.log("Evenly spacing cards...");
     const spacedCards: CardModel[] = [];
     const usedHoles = new Set<number>();
     const numCards = cards.length;
 
-    // Create an array of available holes, excluding the ones to avoid
-    let holes = Array.from({ length: totalHoles }, (_, i) => i + 1).filter(
-      (hole) => !holesToAvoid.includes(hole)
-    );
+    // Create an array of all holes
+    const allHoles = Array.from({ length: totalHoles }, (_, i) => i + 1);
 
     // Calculate initial spacing and leftover holes
-    const spacing = Math.floor(holes.length / numCards);
-    const leftoverHoles = holes.length - spacing * numCards;
+    const spacing = Math.floor(totalHoles / numCards);
+    const leftoverHoles = totalHoles - spacing * numCards;
 
     let holeIndex = 0;
+    let holesToUse = allHoles.filter((hole) => !holesToAvoid.includes(hole));
 
     for (let i = 0; i < numCards; i++) {
+      console.log("Card index:", i);
+      console.log("Holes to use:", holesToUse);
+      console.log("Used holes:", usedHoles);
+
+      // If we run out of preferred holes, reset to all holes
+      if (holesToUse.length === 0) {
+        holesToUse = allHoles;
+      }
+
+      // Find the next available hole
+      let startingHole = holesToUse[holeIndex];
+
       // Ensure we skip any holes that are already used
-      while (usedHoles.has(holes[holeIndex])) {
-        holeIndex = (holeIndex + 1) % holes.length;
+      while (usedHoles.has(startingHole)) {
+        console.log("Skipping hole:", startingHole);
+        holeIndex = (holeIndex + 1) % holesToUse.length;
+        startingHole = holesToUse[holeIndex];
+      }
+
+      // Check if startingHole is undefined and adjust accordingly
+      if (startingHole == null) {
+        console.log(
+          "Starting hole is undefined, resetting to first available hole."
+        );
+        startingHole =
+          holesToUse.find((hole) => !usedHoles.has(hole)) || holesToUse[0];
       }
 
       // Assign the next available hole to the card
-      const startingHole = holes[holeIndex];
       cards[i].starting_hole = startingHole;
       usedHoles.add(startingHole);
       spacedCards.push(cards[i]);
 
       // Adjust hole index for next card, adding extra spacing if possible
       holeIndex =
-        (holeIndex + spacing + (i < leftoverHoles ? 1 : 0)) % holes.length;
+        (holeIndex + spacing + (i < leftoverHoles ? 1 : 0)) % holesToUse.length;
+
+      // Remove the used hole from the list of holes to use
+      holesToUse = holesToUse.filter((hole) => hole !== startingHole);
     }
 
+    console.log("Spaced cards:", spacedCards);
     return spacedCards.sort((a, b) => a.starting_hole - b.starting_hole); // Ensure the cards are sorted by starting hole
   };
 
@@ -468,9 +529,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       });
     }
   };
-
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = React.useState("");
 
   const statuses = [
     {
