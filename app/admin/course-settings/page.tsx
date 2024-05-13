@@ -34,7 +34,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import { NextPage } from "next";
 import {
   Form,
@@ -48,6 +48,7 @@ import { toast } from "@/components/ui/use-toast";
 import { CourseSettingsData } from "@/app/types";
 import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs/types";
+import { Label } from "@/components/ui/label";
 
 const fetchCourseSettings = async (orgCode: KindeOrganization) => {
   console.log("Fetching course settings for orgCode:", orgCode);
@@ -348,32 +349,42 @@ const AdminTools: NextPage = () => {
           </Button>
 
           {/* Starting Holes */}
-          <div className="flex flex-col gap-2 justify-start items-start">
+          <div className="flex flex-col gap-2 text-left w-full">
             <h1>Preferred Starting Holes</h1>
-            <p className="text-sm text-gray-500">
+            <Label className="text-sm text-gray-500">
               Note: Each event may override this setting.
-            </p>
-            <div className="flex flex-row gap-2 justify-start items-start">
-              {form.watch("holes").map((hole, index) => (
-                <FormField
-                  key={hole.hole_id}
-                  control={form.control}
-                  name={`holes.${index}.active`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>{`Hole ${hole.hole_number}`}</FormLabel>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              ))}
+            </Label>
+            <div className="grid grid-cols-3 gap-2 justify-center items-center">
+              {form
+                .watch("holes")
+                .sort(
+                  (a: { hole_number: number }, b: { hole_number: number }) =>
+                    a.hole_number - b.hole_number
+                )
+                .map(
+                  (
+                    hole: { hole_id: Key | null | undefined; hole_number: any },
+                    index: any
+                  ) => (
+                    <FormField
+                      key={hole.hole_id}
+                      control={form.control}
+                      name={`holes.${index}.active`}
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-2 gap-2 w-full">
+                          <FormLabel className="min-w-fit text-sm items-center justify-center">{`Hole ${hole.hole_number}`}</FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="h-4 w-4 !mt-[2px] !mb-0 items-center justify-center"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  )
+                )}
             </div>
           </div>
 
@@ -406,27 +417,31 @@ const AdminTools: NextPage = () => {
           {/* Divisions */}
           <div className="flex flex-col gap-2 justify-start items-start">
             <h1>Divisions for Tags</h1>
-            <div className="flex flex-row gap-2 justify-start items-start">
-              {form.watch("divisions").map((division, index) => (
-                <FormField
-                  key={division.division_id}
-                  control={form.control}
-                  name={`divisions.${index}.active`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>{division.name}</FormLabel>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              ))}
+            <div className="grid grid-cols-4 gap-2 justify-center items-center">
+              {form
+                .watch("divisions")
+                .sort((a, b) => a.division_id - b.division_id)
+                .map((division, index) => (
+                  <FormField
+                    key={division.division_id}
+                    control={form.control}
+                    name={`divisions.${index}.active`}
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-2 gap-2 w-full">
+                        <FormLabel className="min-w-fit text-sm items-center justify-center">
+                          {division.name}
+                        </FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="h-4 w-4 !mt-[2px] !mb-0 items-center justify-center"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                ))}
             </div>
           </div>
 
