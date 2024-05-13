@@ -8,6 +8,7 @@ import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import MultiSelectFormField from "@/components/ui/multi-select";
 import { toast } from "@/components/ui/use-toast";
 import {
   Check,
@@ -23,6 +24,8 @@ import {
   User,
   Info,
   ListChecks,
+  ListFilter,
+  ChevronDown,
 } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 // import { columns } from "./columns";
@@ -72,6 +75,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { z } from "zod";
 import {
   Table,
   TableBody,
@@ -81,6 +85,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { FaRegCircle } from "react-icons/fa";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -128,6 +154,124 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   const [cards, setCards] = useState<CardModel[]>([]);
   const [holesToAvoid, setHolesToAvoid] = useState<number[]>([]);
 
+  interface FormData {
+    holesToAvoidForm: string[];
+  }
+
+  const holesToAvoidTmp = [
+    {
+      value: "1",
+      label: "Hole 1",
+      icon: null,
+    },
+    {
+      value: "2",
+      label: "Hole 2",
+      icon: null,
+    },
+    {
+      value: "3",
+      label: "Hole 3",
+      icon: null,
+    },
+    {
+      value: "4",
+      label: "Hole 4",
+      icon: null,
+    },
+    {
+      value: "5",
+      label: "Hole 5",
+      icon: null,
+    },
+    {
+      value: "6",
+      label: "Hole 6",
+      icon: null,
+    },
+    {
+      value: "7",
+      label: "Hole 7",
+      icon: null,
+    },
+    {
+      value: "8",
+      label: "Hole 8",
+      icon: null,
+    },
+    {
+      value: "9",
+      label: "Hole 9",
+      icon: null,
+    },
+    {
+      value: "10",
+      label: "Hole 10",
+      icon: null,
+    },
+    {
+      value: "11",
+      label: "Hole 11",
+      icon: null,
+    },
+    {
+      value: "12",
+      label: "Hole 12",
+      icon: null,
+    },
+    {
+      value: "13",
+      label: "Hole 13",
+      icon: null,
+    },
+    {
+      value: "14",
+      label: "Hole 14",
+      icon: null,
+    },
+    {
+      value: "15",
+      label: "Hole 15",
+      icon: null,
+    },
+    {
+      value: "16",
+      label: "Hole 16",
+      icon: null,
+    },
+    {
+      value: "17",
+      label: "Hole 17",
+      icon: null,
+    },
+    {
+      value: "18",
+      label: "Hole 18",
+      icon: null,
+    },
+  ];
+
+  const FormSchema = z.object({
+    holesToAvoidForm: z.array(z.string().min(1)),
+  });
+
+  const form = useForm({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      holesToAvoidForm: holesToAvoid.map((hole) => hole.toString()),
+    },
+  });
+
+  const onSubmit = (data: FormData) => {
+    setHolesToAvoid(data.holesToAvoidForm.map((hole) => parseInt(hole)));
+    toast({
+      title: "Success",
+      description: "Holes to avoid have been updated.",
+      variant: "default",
+      duration: 3000,
+    });
+  };
+
   async function fetchSettingsData() {
     if (!organization) {
       console.error("Organization not found");
@@ -166,11 +310,19 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         setHolesToAvoid(
           holesToAvoidTmp.map((hole: HoleModel) => hole.hole_number)
         );
+        const holesToAvoidNumbers = holesToAvoidTmp
+          .map((hole: HoleModel) => hole.hole_number)
+          .sort((a, b) => a - b);
+        form.reset({
+          holesToAvoidForm: holesToAvoidNumbers.map((hole: number) =>
+            hole.toString()
+          ),
+        });
       })
       .catch((error) => {
         console.error("Error setting default values:", error);
       });
-  }, [organization]); // Empty dependency array to run the effect only once when the component mounts
+  }, [organization]);
 
   useEffect(() => {
     const enrichedPlayers = enrichPlayersWithDivisionNames(
@@ -216,7 +368,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   useEffect(() => {
     const checkForCurrentCards = async () => {
-      if (playersWithDivisions.length > 0 && holesToAvoid.length > 0) {
+      if (playersWithDivisions.length > 0) {
         console.log("Players with divisions:", playersWithDivisions);
         console.log("checking for card creation...");
         const hasCards = await fetchCurrentCards();
@@ -230,7 +382,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       }
     };
     checkForCurrentCards();
-  }, [holesToAvoid, playersWithDivisions]);
+  }, [playersWithDivisions]);
+
+  useEffect(() => {
+    startCardCreation(); //create new cards when holestoAvoid changes
+  }, [holesToAvoid]);
 
   const startCardCreation = () => {
     const newCards = createCards(playersWithDivisions);
@@ -985,90 +1141,168 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             </CardContent>
           </Card>
           <div className="flex flex-col gap-4 mt-2 mb-2 items-left justify-start">
-            <div className="flex flex-row gap-4 items-center justify-between w-full">
-              <Button
-                variant="secondary"
-                className="w-48"
-                onClick={() => setShowCards(!showCards)}
+            <div className="flex flex-row justify-end items-center"></div>
+            <Sheet>
+              <SheetTrigger>
+                <Button className="flex flex-row gap-4 m-auto">
+                  Avoiding holes {holesToAvoid.sort((a, b) => a - b).join(", ")}
+                  <ChevronDown />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side={"right"}
+                className="w-[400px] sm:w-[540px] flex flex-col"
               >
-                {showCards ? "Hide Cards" : "Show Cards"}
-              </Button>
-              <Button
-                className="w-48"
-                onClick={handleCreateCards}
-                variant="default"
-              >
-                Submit Cards
-              </Button>
-            </div>
-            {showCards && (
-              <Card className="w-full relative">
-                <CardHeader>
-                  <CardTitle>Cards</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 pt-8 md:pt-0 pb-6 md:pb-24">
-                  {cards.map((card) => (
-                    <Card
-                      className="flex flex-col items-center gap-4"
-                      key={card.starting_hole}
+                <Card className="w-full max-w-2xl p-5">
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="space-y-8"
                     >
-                      <CardHeader className="w-full gap-4 flex flex-row justify-between items-center">
-                        <CardTitle>Card {card.starting_hole}</CardTitle>
-                        <CardDescription>
-                          <Select
-                            value={card.starting_hole.toString()}
-                            onValueChange={(e) =>
-                              handleHoleChange(card, parseInt(e))
-                            }
-                          >
-                            <SelectTrigger className="w-[180px]">
-                              <SelectValue placeholder="Select a hole" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectLabel>Holes</SelectLabel>
-                                {Array.from(
-                                  { length: totalHoles },
-                                  (_, index) => index + 1
-                                )
-                                  .sort((a, b) => a - b)
-                                  .map((hole) => (
-                                    <SelectItem
-                                      key={hole}
-                                      value={hole.toString()}
-                                    >
-                                      Hole {hole}
-                                    </SelectItem>
-                                  ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex flex-col gap-4 w-full text-left">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Player</TableHead>
-                              <TableHead>Division</TableHead>
-                              <TableHead>Tag In</TableHead>
-                              {/* <TableHeaderCell>Paid</TableHeaderCell> */}
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {card.player_check_ins.map((player) => (
-                              <TableRow key={player.checkInId}>
-                                <TableCell>
-                                  {player.udisc_display_name}
-                                </TableCell>
-                                <TableCell>{player.division_name}</TableCell>
-                                <TableCell>{player.tagIn}</TableCell>
-                                {/* <td>{player.paid ? "Paid" : "Not Paid"}</td> */}
+                      <FormField
+                        control={form.control}
+                        name="holesToAvoidForm"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Holes to Avoid</FormLabel>
+                            <FormControl>
+                              <MultiSelectFormField
+                                options={holesToAvoidTmp}
+                                defaultValue={field.value}
+                                onValueChange={field.onChange}
+                                placeholder="Select options"
+                                variant="inverted"
+                                animation={2}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Choose the holes you want to try to avoid. It is
+                              not always possible to avoid all of them.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button variant="outline" type="submit">
+                        Submit
+                      </Button>
+                    </form>
+                  </Form>
+                </Card>
+                {/* <Label>Holes to avoid:</Label>
+                <select
+                  multiple={true}
+                  className="text-left min-h-80 rounded-sm text-sm bg-transparent"
+                  onChange={(e) => toggleHole(Number(e.target.value))}
+                >
+                  {allHoles.map((hole) => (
+                    <option
+                      key={hole}
+                      value={hole}
+                      className="flex flex-row gap-2 items-center min-w-fit justify-start text-sm text-left"
+                    >
+                      {holesToAvoid.includes(hole) ? "✓" : ""} Hole {hole}
+                    </option>
+                  ))}
+                </select> */}
+
+                {/* <Label>
+                  Holes to avoid:
+                  <Select
+                    // multiple={true}
+                    onValueChange={(e) => toggleHole(Number(e))}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select holes to avoid" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Holes To Avoid</SelectLabel>
+                        <Separator />
+                        {allHoles.map((hole) => (
+                          <SelectItem key={hole} value={hole.toString()}>
+                            {holesToAvoid.includes(hole) ? "✓" : ""} Hole {hole}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Label> */}
+              </SheetContent>
+            </Sheet>
+            <Tabs defaultValue="CheckIns" className="w-full">
+              <TabsList className="grid grid-cols-2 w-[400px] m-auto justify-center">
+                <TabsTrigger value="CheckIns">Check ins</TabsTrigger>
+                <TabsTrigger value="cards">Cards</TabsTrigger>
+              </TabsList>
+              <TabsContent value="cards">
+                <Card className="w-full relative">
+                  <CardHeader>
+                    <CardTitle>Cards</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 pt-8 md:pt-0 pb-6 md:pb-24">
+                    {cards.map((card) => (
+                      <Card
+                        className="flex flex-col items-center gap-4"
+                        key={card.starting_hole}
+                      >
+                        <CardHeader className="w-full gap-4 flex flex-row justify-between items-center">
+                          <CardTitle>Card {card.starting_hole}</CardTitle>
+                          <CardDescription>
+                            <Select
+                              value={card.starting_hole.toString()}
+                              onValueChange={(e) =>
+                                handleHoleChange(card, parseInt(e))
+                              }
+                            >
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Select a hole" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Holes</SelectLabel>
+                                  {Array.from(
+                                    { length: totalHoles },
+                                    (_, index) => index + 1
+                                  )
+                                    .sort((a, b) => a - b)
+                                    .map((hole) => (
+                                      <SelectItem
+                                        key={hole}
+                                        value={hole.toString()}
+                                      >
+                                        Hole {hole}
+                                      </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-4 w-full text-left">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Player</TableHead>
+                                <TableHead>Division</TableHead>
+                                <TableHead>Tag In</TableHead>
+                                {/* <TableHeaderCell>Paid</TableHeaderCell> */}
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                        {/* <div className="grid gap-2">
+                            </TableHeader>
+                            <TableBody>
+                              {card.player_check_ins.map((player) => (
+                                <TableRow key={player.checkInId}>
+                                  <TableCell>
+                                    {player.udisc_display_name}
+                                  </TableCell>
+                                  <TableCell>{player.division_name}</TableCell>
+                                  <TableCell>{player.tagIn}</TableCell>
+                                  {/* <td>{player.paid ? "Paid" : "Not Paid"}</td> */}
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                          {/* <div className="grid gap-2">
                           {card.player_check_ins.map((player) => (
                             <p
                               key={player.checkInId}
@@ -1079,30 +1313,32 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                             </p>
                           ))}
                         </div> */}
-                      </CardContent>
-                    </Card>
-                  ))}
-                  <Button
-                    className={
-                      isMobile
-                        ? "absolute top-4 right-4 w-48"
-                        : "absolute bottom-4 right-4 w-48"
-                    }
-                    onClick={startCardCreation}
-                    variant="destructive"
-                  >
-                    Re-shuffle Cards
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                    <Button
+                      className={
+                        isMobile
+                          ? "absolute top-4 right-4 w-48"
+                          : "absolute bottom-4 right-4 w-48"
+                      }
+                      onClick={startCardCreation}
+                      variant="destructive"
+                    >
+                      Re-shuffle Cards
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="CheckIns">
+                <DataTableManageEvent
+                  columns={columns}
+                  data={playersWithDivisions}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
-          {!showCards && (
-            <DataTableManageEvent
-              columns={columns}
-              data={playersWithDivisions}
-            />
-          )}
         </div>
       ) : (
         <>Unauthenticated. Redirecting to home page...</>
