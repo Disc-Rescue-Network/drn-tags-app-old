@@ -90,7 +90,7 @@ export const DataTable: React.FC<DataTableProps> = ({
     <div className="space-y-4 px-4" style={{ maxWidth: "93dvw" }}>
       <DataTableToolbar searchName={"name"} table={table} />
       <div className="rounded-md border">
-        <Table>
+        <Table className="relative">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

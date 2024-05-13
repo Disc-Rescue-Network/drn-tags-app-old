@@ -1097,21 +1097,26 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   }
 
   return (
-    <ScrollArea className="h-full w-full rounded-md border p-4">
+    <ScrollArea className="h-full rounded-md border p-2 w-full">
       {isAuthenticated && user ? (
-        <div className="grid gap-4 p-4">
-          <Card className="text-left w-full" key={event.event_id}>
+        <div className="grid gap-4 p-4 w-[90dvw]">
+          <Card
+            className="text-left max-w-[1300px] items-center w-full m-auto"
+            key={event.event_id}
+          >
             <CardHeader className="p-4">
               <CardDescription
-                className="text-balance leading-relaxed items-center flex flex-row justify-between w-full"
+                className="text-balance leading-relaxed items-center flex flex-row justify-between"
                 style={{ gridTemplateColumns: "60% 40%" }}
               >
-                {format(
-                  new Date(event.dateTime),
-                  isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
-                )}{" "}
-                @ {format(new Date(event.dateTime), "h:mm a")}
-                <Label className="flex flex-row gap-2 justify-center items-center">
+                <Label className="flex flex-row min-w-fit justify-center items-center">
+                  {format(
+                    new Date(event.dateTime),
+                    isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
+                  )}{" "}
+                  @ {format(new Date(event.dateTime), "h:mm a")}
+                </Label>
+                <Label className="flex flex-row gap-2 min-w-fit justify-center items-center">
                   <MapPin className="h-4 w-4" />
                   {event.location}
                 </Label>
@@ -1230,32 +1235,34 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                 </Label> */}
               </SheetContent>
             </Sheet>
-            <Tabs defaultValue="CheckIns" className="w-full">
-              <TabsList className="grid grid-cols-2 w-[400px] m-auto justify-center">
-                <TabsTrigger value="CheckIns">Check ins</TabsTrigger>
+            <Tabs defaultValue="check-ins" className="w-[88dvw]">
+              <TabsList className="grid grid-cols-2 m-auto justify-center w-[88dvw] max-w-[400px]">
+                <TabsTrigger value="check-ins">Check ins</TabsTrigger>
                 <TabsTrigger value="cards">Cards</TabsTrigger>
               </TabsList>
-              <TabsContent value="cards">
-                <Card className="w-full relative">
+              <TabsContent value="cards" className="w-[88dvw]">
+                <Card className="w-full relative border-none">
                   <CardHeader>
                     <CardTitle>Cards</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 pt-8 md:pt-0 pb-6 md:pb-24">
+                  <CardContent className="grid grid-cols-1 w-full gap-8 md:grid-cols-2 lg:grid-cols-4 pt-8 md:pt-0 pb-6 md:pb-24">
                     {cards.map((card) => (
                       <Card
                         className="flex flex-col items-center gap-4"
                         key={card.starting_hole}
                       >
                         <CardHeader className="w-full gap-4 flex flex-row justify-between items-center">
-                          <CardTitle>Card {card.starting_hole}</CardTitle>
-                          <CardDescription>
+                          <CardTitle className="text-lg flex flex-row items-center justify-between gap-4 w-full p-0 m-0 ">
+                            <Label className="text-lg w-full">
+                              Card {card.starting_hole}
+                            </Label>
                             <Select
                               value={card.starting_hole.toString()}
                               onValueChange={(e) =>
                                 handleHoleChange(card, parseInt(e))
                               }
                             >
-                              <SelectTrigger className="w-[180px]">
+                              <SelectTrigger className="w-full min-w-[150px]">
                                 <SelectValue placeholder="Select a hole" />
                               </SelectTrigger>
                               <SelectContent>
@@ -1277,10 +1284,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                                 </SelectGroup>
                               </SelectContent>
                             </Select>
-                          </CardDescription>
+                          </CardTitle>
+                          <CardDescription></CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-4 w-full text-left">
-                          <Table>
+                          <Table className="relative">
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Player</TableHead>
@@ -1331,7 +1339,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="CheckIns">
+              <TabsContent value="check-ins" className="w-[88dvw]">
                 <DataTableManageEvent
                   columns={columns}
                   data={playersWithDivisions}

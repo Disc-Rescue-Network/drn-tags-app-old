@@ -167,7 +167,7 @@ const ManageEvents: NextPage = () => {
               {isLoading ? (
                 <Skeleton className="w-full h-24" />
               ) : (
-                <Table className="w-full text-left">
+                <Table className="w-full text-left relative">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Event Name</TableHead>
