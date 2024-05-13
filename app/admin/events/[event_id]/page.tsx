@@ -312,7 +312,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         );
         const holesToAvoidNumbers = holesToAvoidTmp
           .map((hole: HoleModel) => hole.hole_number)
-          .sort((a, b) => a - b);
+          .sort((a: number, b: number) => a - b);
         form.reset({
           holesToAvoidForm: holesToAvoidNumbers.map((hole: number) =>
             hole.toString()
