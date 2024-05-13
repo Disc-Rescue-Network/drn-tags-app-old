@@ -36,7 +36,7 @@
 
     height: 100dvh;
     width: 100dvw;
-    overflow: hidden;
+    /* overflow: hidden; */
   }
 
   .dark {
@@ -131,7 +131,7 @@ body {
 
 .main-overflow {
   overflow: auto !important;
-  height: calc(100vh - 4rem);
+  /* height: calc(100vh - 4rem); */
 }
 
 /* .legend div {

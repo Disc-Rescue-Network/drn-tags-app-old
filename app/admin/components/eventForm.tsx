@@ -660,7 +660,7 @@ export default function EventForm() {
                     Select the divisions you want to add for the event
                   </FormDescription>
                   <FormControl>
-                    <Table>
+                    <Table className="relative">
                       <TableHeader>
                         <TableRow>
                           <TableHead>Division Name</TableHead>

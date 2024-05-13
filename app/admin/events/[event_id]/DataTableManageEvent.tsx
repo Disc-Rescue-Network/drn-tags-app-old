@@ -82,7 +82,7 @@ export const DataTableManageEvent: React.FC<DataTableProps> = ({
     <div className="space-y-4">
       <DataTableToolbar searchName={"udisc_display_name"} table={table} />
       <div className="rounded-md border">
-        <Table>
+        <Table className="relative">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
