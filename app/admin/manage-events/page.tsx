@@ -143,6 +143,12 @@ const ManageEvents: NextPage = () => {
     };
   }
 
+  function editEvent(event: TagsEvent) {
+    return () => {
+      router.push(`/admin/events/edit/${event.event_id}`);
+    };
+  }
+
   return (
     <div className="grid min-h-screen w-full text-center items-start">
       <main className="flex flex-1 min-h-96 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
@@ -174,7 +180,7 @@ const ManageEvents: NextPage = () => {
                       <TableHead className="hidden md:table-cell">
                         Date
                       </TableHead>
-                      <TableHead>Action</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -184,13 +190,17 @@ const ManageEvents: NextPage = () => {
                         <TableCell className="hidden md:table-cell">
                           {format(new Date(event.dateTime), "MM/dd/yyyy")}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="grid grid-cols-3 gap-4">
+                          <Button variant="default" onClick={openEvent(event)}>
+                            Manage
+                          </Button>
                           <Button
                             variant="secondary"
-                            onClick={openEvent(event)}
+                            onClick={editEvent(event)}
                           >
-                            Edit
+                            Edit Details
                           </Button>
+
                           <Button variant="destructive">Delete</Button>
                         </TableCell>
                       </TableRow>
