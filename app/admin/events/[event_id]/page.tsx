@@ -699,16 +699,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     },
   ];
 
-  // const labels = [
-  //   {
-  //     value: "paid",
-  //     label: "Paid",
-  //   },
-  //   {
-  //     value: "unpaid",
-  //     label: "Not Paid",
-  //   },
-  // ];
+  const labels = [
+    {
+      value: "paid",
+      label: "Paid",
+    },
+    {
+      value: "unpaid",
+      label: "Not Paid",
+    },
+  ];
 
   const columns: ColumnDef<PlayersWithDivisions>[] = [
     {
@@ -716,53 +716,40 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Player" />
       ),
-      cell: (info) => info.getValue(),
+      // cell: (info) => info.getValue(),
       enableSorting: true,
-      // cell: ({ row }) => {
-      //   const label = labels.find(
-      //     (label) => label.value === row.original.label
-      //   );
+      cell: ({ row }) => {
+        const label = labels.find(
+          (label) => label.value === row.original.label
+        );
 
-      //   if (!label) {
-      //     return (
-      //       <div className="flex space-x-2">
-      //         <CircleDashed className="w-4 h-4" />
-      //         <span className="max-w-[500px] truncate font-medium">
-      //           {row.getValue("udisc_display_name")}
-      //         </span>
-      //       </div>
-      //     );
-      //   }
+        if (!label) {
+          return (
+            <div className="flex space-x-2">
+              <CircleDashed className="w-4 h-4" />
+              <span className="max-w-[500px] truncate font-medium">
+                {row.getValue("udisc_display_name")}
+              </span>
+            </div>
+          );
+        }
 
-      //   return (
-      //     <div className="flex space-x-2">
-      //       {label.label === "Paid" ? (
-      //         <span className="max-w-[500px] truncate font-medium flex flex-row gap-2">
-      //           <Check className="w-4 h-4" />{" "}
-      //           {row.getValue("udisc_display_name")}
-      //         </span>
-      //       ) : (
-      //         <Badge variant="destructive">{label.label}</Badge>
-      //       )}
-      //     </div>
-      //   );
-      // },
-    },
-    {
-      accessorKey: "division_name",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Division" />
-      ),
-      enableSorting: true,
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "tagIn",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tag In" />
-      ),
-      enableSorting: true,
-      cell: (info) => info.getValue(),
+        return (
+          <div className="flex space-x-2">
+            {label.label === "Paid" ? (
+              <span className="max-w-[500px] truncate font-medium flex flex-row gap-2">
+                {row.getValue("udisc_display_name")}
+                <Check className="w-4 h-4 bg-green-600 mt-[1.5px]" />{" "}
+              </span>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 items-center">
+                <Label>{row.getValue("udisc_display_name")}</Label>
+                <Badge variant="destructive">{label.label}</Badge>
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "paid",
@@ -798,6 +785,22 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         return value.includes(row.getValue(id));
       },
       enableSorting: true,
+    },
+    {
+      accessorKey: "division_name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Division" />
+      ),
+      enableSorting: true,
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "tagIn",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Tag In" />
+      ),
+      enableSorting: true,
+      cell: (info) => info.getValue(),
     },
     {
       id: "actions",
