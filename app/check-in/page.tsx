@@ -360,7 +360,7 @@ const CheckIn: NextPage = () => {
                               </TooltipProvider>
                             )}
                           </div>
-                          {isAuthenticated && (
+                          {isAuthenticated ? (
                             <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
                               {isCheckedIn(event, user!.id) ? (
                                 <Label className="text-xs flex flex-row gap-2">
@@ -375,6 +375,10 @@ const CheckIn: NextPage = () => {
                                   isLoading={isLoading}
                                 />
                               )}
+                            </div>
+                          ) : (
+                            <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
+                              <Label>Login before checking in</Label>
                             </div>
                           )}
                         </CardFooter>
