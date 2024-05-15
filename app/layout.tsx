@@ -14,9 +14,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Tranquility Tags Standings",
+  title: "The Tags App",
   description:
-    "Live standings for the Tranquility Tags League, updated bi-weekly.",
+    "Live Disc Golf standings for various Tags Leagues in South Jersey.",
 };
 
 export interface Course {
