@@ -369,11 +369,11 @@ const Leaderboard = () => {
                   (Top 16)
                 </div>
               </CardContent>
+              <CardFooter className="text-sm italic">
+                *Data as of {dataAsOf ? format(dataAsOf, "MM/dd/yyyy") : ""}
+              </CardFooter>
             </Card>
           </CardContent>
-          <CardFooter className="text-sm italic">
-            *Data as of {dataAsOf ? format(dataAsOf, "MM/dd/yyyy") : ""}
-          </CardFooter>
         </Card>
       </TabsContent>
       <TabsContent value="alcyon">
