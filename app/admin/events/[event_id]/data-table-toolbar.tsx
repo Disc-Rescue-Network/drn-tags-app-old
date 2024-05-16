@@ -29,17 +29,9 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const statuses = [
-    {
-      value: false,
-      label: "Not Paid",
-      icon: ShieldAlert,
-    },
-    {
-      value: true,
-      label: "Paid",
-      icon: Check,
-    },
+  const paidOptions = [
+    { value: true, label: "Paid" },
+    { value: false, label: "Unpaid" },
   ];
 
   return (
@@ -59,7 +51,7 @@ export function DataTableToolbar<TData>({
           <DataTableFacetedFilter
             column={table.getColumn("paid")}
             title="Paid"
-            options={statuses}
+            options={paidOptions}
           />
         )}
         {isFiltered && (
