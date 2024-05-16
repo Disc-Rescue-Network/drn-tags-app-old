@@ -356,43 +356,43 @@ export default function EditEventForm({
 
     console.log(JSON.stringify(data));
 
-    // Make POST request to API endpoint
-    fetch(`${TAGS_API_BASE_URL}/api/create-event`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(eventData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          setIsSubmitting(false);
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Handle successful response from API
-        console.log("Event created successfully:", data);
-        setIsSubmitting(false);
-        toast({
-          variant: "default",
-          title: "Event created successfully",
-          description: "Your event has been successfully created.",
-          duration: 3000,
-        });
-      })
-      .catch((error) => {
-        // Handle errors
-        console.error("Error creating event:", error);
-        setIsSubmitting(false);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to create event. Please try again later.",
-          duration: 3000,
-        });
-      });
+    //   // Make POST request to API endpoint
+    //   fetch(`${TAGS_API_BASE_URL}/api/edit-event/${event.event_id}`, {
+    //     method: "PUT",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(eventData),
+    //   })
+    //     .then((response) => {
+    //       if (!response.ok) {
+    //         setIsSubmitting(false);
+    //         throw new Error("Network response was not ok");
+    //       }
+    //       return response.json();
+    //     })
+    //     .then((data) => {
+    //       // Handle successful response from API
+    //       console.log("Event created successfully:", data);
+    //       setIsSubmitting(false);
+    //       toast({
+    //         variant: "default",
+    //         title: "Event created successfully",
+    //         description: "Your event has been successfully created.",
+    //         duration: 3000,
+    //       });
+    //     })
+    //     .catch((error) => {
+    //       // Handle errors
+    //       console.error("Error creating event:", error);
+    //       setIsSubmitting(false);
+    //       toast({
+    //         variant: "destructive",
+    //         title: "Error",
+    //         description: "Failed to create event. Please try again later.",
+    //         duration: 3000,
+    //       });
+    //     });
   }
 
   const layout = form.watch("layout");

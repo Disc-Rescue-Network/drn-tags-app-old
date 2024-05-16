@@ -45,10 +45,6 @@ const EditEvent = ({ params }: { params: { event_id: string } }) => {
 
   if (isLoading && !user) return <div>Loading...</div>;
 
-  const createEvent = () => {
-    router.push("/admin/create-event");
-  };
-
   return (
     <div className="grid h-full max-h-80 w-full text-center items-start">
       {isAuthenticated && user ? (
