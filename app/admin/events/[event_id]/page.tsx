@@ -718,38 +718,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       ),
       // cell: (info) => info.getValue(),
       enableSorting: true,
-      cell: ({ row }) => {
-        const label = labels.find(
-          (label) => label.value === row.original.label
-        );
-
-        if (!label) {
-          return (
-            <div className="flex space-x-2">
-              <CircleDashed className="w-4 h-4" />
-              <span className="max-w-[500px] truncate font-medium">
-                {row.getValue("udisc_display_name")}
-              </span>
-            </div>
-          );
-        }
-
-        return (
-          <div className="flex space-x-2">
-            {label.label === "Paid" ? (
-              <span className="max-w-[500px] truncate font-medium flex flex-row gap-2">
-                {row.getValue("udisc_display_name")}
-                <Check className="w-4 h-4 bg-green-600 mt-[1.5px]" />{" "}
-              </span>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 items-center">
-                <Label>{row.getValue("udisc_display_name")}</Label>
-                <Badge variant="destructive">{label.label}</Badge>
-              </div>
-            )}
-          </div>
-        );
-      },
+      cell: (info) => info.getValue(),
     },
     {
       accessorKey: "paid",
@@ -765,14 +734,15 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           return null;
         }
         return row.original.paid ? (
-          <div className="text-xs flex flex-row gap-2">
-            <Check className="w-4 h-4" />
-            <Label className="text-sm">Paid</Label>
-          </div>
+          <span className="max-w-[500px] truncate font-medium flex flex-row gap-2">
+            Paid
+            <Check className="w-4 h-4 mt-[1.5px]" />{" "}
+          </span>
         ) : (
-          <div className="text-xs flex flex-row gap-2">
-            <CircleDashed className="w-4 h-4" />
-            <Label className="text-sm">Not Paid</Label>
+          <div className="grid grid-cols-2 gap-2 items-center w-fit">
+            <Badge variant="destructive" className="w-fit">
+              Not Paid
+            </Badge>
           </div>
         );
       },

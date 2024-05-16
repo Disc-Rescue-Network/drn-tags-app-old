@@ -35,11 +35,11 @@ export function DataTableToolbar<TData>({
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {/* {table.getColumn("status") && (
+        {/* {table.getColumn("paid") && (
           <DataTableFacetedFilter
-            column={table.getColumn("status")}
-            title="Status"
-            options={statuses}
+            column={table.getColumn("paid")}
+            title="Paid"
+            options={paidOptions}
           />
         )} */}
         {isFiltered && (

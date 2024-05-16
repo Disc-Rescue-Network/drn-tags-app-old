@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Column } from "@tanstack/react-table";
@@ -39,9 +37,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
-  console.log("Facets:", facets);
   const selectedValues = new Set(column?.getFilterValue() as boolean[]);
-  console.log("Selected Values:", selectedValues);
 
   return (
     <Popover>
@@ -72,7 +68,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     .map((option) => (
                       <Badge
                         variant="secondary"
-                        key={option.value ? "true" : "false"}
+                        key={option.value.toString()}
                         className="rounded-sm px-1 font-normal"
                       >
                         {option.label}
@@ -94,7 +90,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 const isSelected = selectedValues.has(option.value);
                 return (
                   <CommandItem
-                    key={option.value ? "true" : "false"}
+                    key={option.value.toString()}
                     onSelect={() => {
                       if (isSelected) {
                         selectedValues.delete(option.value);
