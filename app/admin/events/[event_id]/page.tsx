@@ -1158,11 +1158,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   return (
     <ScrollArea className="h-full rounded-md border p-2 w-full">
       {isAuthenticated && user ? (
-        <div className="grid gap-4 p-4 w-[90dvw]">
-          <Card
-            className="text-left max-w-[1300px] items-center w-full m-auto"
-            key={event.event_id}
-          >
+        <div className="grid gap-4 p-4">
+          <Card className="w-11/12 ml-1 mr-1" key={event.event_id}>
             <CardHeader className="p-4">
               <CardDescription
                 className="text-balance leading-relaxed items-center flex flex-row justify-between"
@@ -1252,53 +1249,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                     </form>
                   </Form>
                 </Card>
-                {/* <Label>Holes to avoid:</Label>
-                <select
-                  multiple={true}
-                  className="text-left min-h-80 rounded-sm text-sm bg-transparent"
-                  onChange={(e) => toggleHole(Number(e.target.value))}
-                >
-                  {allHoles.map((hole) => (
-                    <option
-                      key={hole}
-                      value={hole}
-                      className="flex flex-row gap-2 items-center min-w-fit justify-start text-sm text-left"
-                    >
-                      {holesToAvoid.includes(hole) ? "✓" : ""} Hole {hole}
-                    </option>
-                  ))}
-                </select> */}
-
-                {/* <Label>
-                  Holes to avoid:
-                  <Select
-                    // multiple={true}
-                    onValueChange={(e) => toggleHole(Number(e))}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select holes to avoid" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Holes To Avoid</SelectLabel>
-                        <Separator />
-                        {allHoles.map((hole) => (
-                          <SelectItem key={hole} value={hole.toString()}>
-                            {holesToAvoid.includes(hole) ? "✓" : ""} Hole {hole}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Label> */}
               </SheetContent>
             </Sheet>
-            <Tabs defaultValue="check-ins" className="w-[88dvw]">
-              <TabsList className="grid grid-cols-2 m-auto justify-center w-[88dvw] max-w-[400px]">
+            <Tabs defaultValue="check-ins" className="w-full">
+              <TabsList className="grid grid-cols-2 m-auto justify-center w-80 max-w-[400px]">
                 <TabsTrigger value="check-ins">Check ins</TabsTrigger>
                 <TabsTrigger value="cards">Cards</TabsTrigger>
               </TabsList>
-              <TabsContent value="cards" className="w-[88dvw]">
+              <TabsContent value="cards" className="w-11/12">
                 <Card className="w-full relative border-none">
                   <CardHeader>
                     <CardTitle>Cards</CardTitle>
@@ -1397,7 +1355,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="check-ins" className="w-[88dvw]">
+              <TabsContent value="check-ins" className="w-11/12">
                 <DataTableManageEvent
                   columns={columns}
                   data={playersWithDivisions}
@@ -1418,7 +1376,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           onClose={() => setEditCheckInStarted(false)}
         />
       )}
-      <ScrollBar orientation="vertical" />
+      {/* <ScrollBar orientation="vertical" />
+      <ScrollBar orientation="horizontal" /> */}
     </ScrollArea>
   );
 };
