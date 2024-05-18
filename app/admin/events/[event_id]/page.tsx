@@ -964,7 +964,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       const data = (await response.json()) as PlayersWithDivisions;
       console.log("response", data);
       const updatedEvent = {
-        ...event,
+        ...event!,
         playerCheckIn: data,
       };
       setEvent(updatedEvent);
@@ -1205,7 +1205,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             </CardContent>
           </Card>
           <div className="flex flex-col gap-4 mt-2 mb-2 items-left justify-start">
-            <div className="flex flex-row justify-end items-center"></div>
             <Sheet>
               <SheetTrigger>
                 <Button className="flex flex-row gap-4 m-auto">
