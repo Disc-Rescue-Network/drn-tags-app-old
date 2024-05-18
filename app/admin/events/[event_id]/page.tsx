@@ -107,6 +107,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { FaRegCircle } from "react-icons/fa";
+import { ToastAction } from "@/components/ui/toast";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -817,9 +818,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => removeFromQueue(player.checkInId)}
-              >
+              <DropdownMenuItem onClick={() => removeFromQueue(player)}>
                 <div className="flex flex-row gap-2 justify-center items-center">
                   <X className="w-4 h-4" /> Delete Check In
                 </div>
@@ -897,6 +896,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               description: "Payment reverted to unpaid",
               variant: "default",
               duration: 3000,
+              action: (
+                <ToastAction
+                  altText="Undo"
+                  onClick={() => markAsPaid(checkInId)}
+                >
+                  Undo
+                </ToastAction>
+              ),
             });
           } else {
             toast({
@@ -904,6 +911,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               description: "Player marked as paid",
               variant: "default",
               duration: 3000,
+              action: (
+                <ToastAction
+                  altText="Undo"
+                  onClick={() => markAsPaid(checkInId)}
+                >
+                  Undo
+                </ToastAction>
+              ),
             });
           }
         })
@@ -925,8 +940,61 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     }
   }
 
-  async function removeFromQueue(checkInId: number) {
+  async function addtoQueue(player: PlayersWithDivisions) {
     try {
+      console.log("adding to queue", player);
+      setLoading(true);
+      const response = await fetch(`${TAGS_API_BASE_URL}/api/player-check-in`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(player),
+      });
+      if (!response.ok) {
+        setLoading(false);
+        toast({
+          title: "Error",
+          description: "Network response was not ok",
+          variant: "destructive",
+          duration: 3000,
+        });
+        throw new Error("Network response was not ok");
+      }
+      const data = (await response.json()) as PlayersWithDivisions;
+      console.log("response", data);
+      const updatedEvent = {
+        ...event,
+        playerCheckIn: data,
+      };
+      setEvent(updatedEvent);
+
+      toast({
+        title: "Success",
+        description: "Player added to event",
+        variant: "default",
+        duration: 3000,
+        action: (
+          <ToastAction altText="Undo" onClick={() => removeFromQueue(player)}>
+            Undo
+          </ToastAction>
+        ),
+      });
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: "Failed to add player to event",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  }
+
+  async function removeFromQueue(player: PlayersWithDivisions) {
+    try {
+      const checkInId = player.checkInId;
       console.log("removing from queue", checkInId);
       setLoading(true);
       fetch(`${TAGS_API_BASE_URL}/api/player-check-in/${checkInId}`, {
@@ -956,6 +1024,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             description: "Player removed from event",
             variant: "default",
             duration: 3000,
+            action: (
+              <ToastAction altText="Undo" onClick={() => addtoQueue(player)}>
+                Undo
+              </ToastAction>
+            ),
           });
           // Remove the player from the CheckedInPlayers array
           const updatedPlayers = event!.CheckedInPlayers!.filter(
