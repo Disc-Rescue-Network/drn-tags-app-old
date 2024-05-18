@@ -718,7 +718,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       ),
       // cell: (info) => info.getValue(),
       enableSorting: true,
-      cell: (info) => info.getValue(),
+      cell: ({ row }) => {
+        return (
+          <span className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+            {row.getValue("udisc_display_name")}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "paid",
@@ -734,13 +740,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           return null;
         }
         return row.original.paid ? (
-          <span className="max-w-[500px] truncate font-medium flex flex-row gap-2">
+          <span className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
             Paid
             <Check className="w-4 h-4 mt-[1.5px]" />{" "}
           </span>
         ) : (
-          <div className="grid grid-cols-2 gap-2 items-center w-fit">
-            <Badge variant="destructive" className="w-fit">
+          <div className="flex flex-row justify-start items-center min-w-fit text-nowrap">
+            <Badge variant="destructive" className="">
               Not Paid
             </Badge>
           </div>
@@ -763,6 +769,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       ),
       enableSorting: true,
       cell: (info) => info.getValue(),
+      filterFn: (row, id, value) => {
+        console.log("Filtering:", {
+          rowValue: row.getValue(id),
+          filterValue: value,
+        });
+        return value.includes(row.getValue(id));
+      },
     },
     {
       accessorKey: "tagIn",

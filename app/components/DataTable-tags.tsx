@@ -23,13 +23,13 @@ import {
   TableCell,
   TableFooter,
 } from "@/components/ui/table";
-import { LeaderboardEntry } from "../types";
+import { EnhancedLeaderboardEntry, LeaderboardEntry } from "../types";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps {
-  columns: ColumnDef<LeaderboardEntry>[];
-  data: LeaderboardEntry[];
+  columns: ColumnDef<EnhancedLeaderboardEntry>[];
+  data: EnhancedLeaderboardEntry[];
   sort?: string;
 }
 

@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "../../../components/data-table-view-options";
 
 // import { statuses } from "../data/data";
+import { DataTableFacetedFilterBoolean } from "./data-table-faceted-filter-boolean";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { Check, ShieldAlert } from "lucide-react";
+import { useMemo } from "react";
 // import { columnHeadersArray } from "./columns";
 
 interface DataTableToolbarProps<TData> {
@@ -34,6 +36,24 @@ export function DataTableToolbar<TData>({
     { value: false, label: "Unpaid" },
   ];
 
+  // Assuming `tableData` is the data fed into the table
+  const uniqueDivisions = useMemo(() => {
+    const values = table
+      .getCoreRowModel()
+      .flatRows.map((row) => row.getValue("division_name")) as string[];
+    return Array.from(new Set(values));
+  }, [table]);
+
+  console.log("uniqueDivisions", uniqueDivisions);
+
+  // Convert the Set to an array and map it to the format needed for the options
+  const divisionOptions = Array.from(uniqueDivisions).map((division) => ({
+    value: division,
+    label: division,
+  }));
+
+  console.log("divisionOptions", divisionOptions);
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -48,10 +68,17 @@ export function DataTableToolbar<TData>({
           className="h-8 w-[150px] lg:w-[250px]"
         />
         {table.getColumn("paid") && (
-          <DataTableFacetedFilter
+          <DataTableFacetedFilterBoolean
             column={table.getColumn("paid")}
             title="Paid"
             options={paidOptions}
+          />
+        )}
+        {table.getColumn("division_name") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("division_name")}
+            title="Division"
+            options={divisionOptions}
           />
         )}
         {isFiltered && (

@@ -41,6 +41,8 @@ export interface LeaderboardEntry {
 export interface EnhancedLeaderboardEntry extends LeaderboardEntry {
   roundsPlayed: number;
   averageScorePerRound: number;
+  change?: "up" | "down" | "steady"; // Indicating position change
+  previousPosition: number;
 }
 
 export interface RunningScoreEntry {
