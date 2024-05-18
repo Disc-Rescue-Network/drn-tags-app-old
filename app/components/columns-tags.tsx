@@ -1,13 +1,27 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { LeaderboardEntry } from "../types";
-import { Medal } from "lucide-react";
+import { EnhancedLeaderboardEntry, LeaderboardEntry } from "../types";
+import {
+  Medal,
+  Minus,
+  MoveUp,
+  MoveDown,
+  ChevronUp,
+  ChevronDown,
+  ChevronsLeftRight,
+  Dot,
+} from "lucide-react";
 import { DataTableColumnHeader } from "./data-table-column-header";
+import { Label } from "@/components/ui/label";
 
-export const columns: ColumnDef<LeaderboardEntry>[] = [
+export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
   {
     accessorKey: "position",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Position" />
+      <DataTableColumnHeader
+        column={column}
+        title="Position"
+        className="max-w-[50px]"
+      />
     ),
     cell: (info) => (
       <div className="flex flex-row gap-1">
@@ -21,9 +35,49 @@ export const columns: ColumnDef<LeaderboardEntry>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader
+        column={column}
+        title="Name"
+        className="min-w-[150px]"
+      />
     ),
-    cell: (info) => info.getValue(),
+    cell: (info) => {
+      return (
+        <div className="flex flex-row min-w-fit items-center justify-start gap-2">
+          <Label className="min-w-fit text-ellipsis">
+            {(info.getValue() as string).toString()}
+          </Label>
+          {info.row.original.change === "up" && (
+            <div className="flex flex-row gap-1 justify-center items-center">
+              <ChevronUp className="w-4 h-4 text-green-600" />
+              <Label className="text-xxs">
+                {info.row.original.previousPosition -
+                  info.row.original.position}
+              </Label>
+            </div>
+          )}
+          {info.row.original.change === "down" && (
+            <div className="flex flex-row gap-1 justify-center items-center">
+              <ChevronDown className="w-4 h-4 text-red-600" />
+              <Label className="text-xxs">
+                {Math.abs(
+                  info.row.original.previousPosition -
+                    info.row.original.position
+                )}
+              </Label>
+            </div>
+          )}
+          {info.row.original.change === "steady" && (
+            <div className="flex flex-row gap-0 justify-center items-center">
+              <Dot className="w-6 h-6" />
+              <Minus className="w-2 h-2" />
+            </div>
+          )}
+        </div>
+      );
+    },
+    enableSorting: true,
+    enableHiding: true,
   },
   {
     accessorKey: "points",
@@ -52,7 +106,7 @@ export const columns: ColumnDef<LeaderboardEntry>[] = [
   {
     accessorKey: "averageScorePerRound",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Average Score/Round" />
+      <DataTableColumnHeader column={column} title="Avg Score/Round" />
     ),
     cell: (info) => (info.getValue() as string).toString(),
   }, // Format to 1 decimal place

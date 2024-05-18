@@ -65,8 +65,14 @@ function SideMenu() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    console.log("window.innerWidth: ", window.innerWidth);
-    setIsMobile(window.innerWidth <= 1200);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1080);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const [belongsToOrg, setBelongsToOrg] = useState(false);

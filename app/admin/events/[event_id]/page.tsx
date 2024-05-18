@@ -107,6 +107,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { FaRegCircle } from "react-icons/fa";
+import { ToastAction } from "@/components/ui/toast";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -718,7 +719,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       ),
       // cell: (info) => info.getValue(),
       enableSorting: true,
-      cell: (info) => info.getValue(),
+      cell: ({ row }) => {
+        return (
+          <span className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+            {row.getValue("udisc_display_name")}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "paid",
@@ -734,13 +741,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           return null;
         }
         return row.original.paid ? (
-          <span className="max-w-[500px] truncate font-medium flex flex-row gap-2">
+          <span className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
             Paid
             <Check className="w-4 h-4 mt-[1.5px]" />{" "}
           </span>
         ) : (
-          <div className="grid grid-cols-2 gap-2 items-center w-fit">
-            <Badge variant="destructive" className="w-fit">
+          <div className="flex flex-row justify-start items-center min-w-fit text-nowrap">
+            <Badge variant="destructive" className="">
               Not Paid
             </Badge>
           </div>
@@ -763,6 +770,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       ),
       enableSorting: true,
       cell: (info) => info.getValue(),
+      filterFn: (row, id, value) => {
+        console.log("Filtering:", {
+          rowValue: row.getValue(id),
+          filterValue: value,
+        });
+        return value.includes(row.getValue(id));
+      },
     },
     {
       accessorKey: "tagIn",
@@ -804,9 +818,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => removeFromQueue(player.checkInId)}
-              >
+              <DropdownMenuItem onClick={() => removeFromQueue(player)}>
                 <div className="flex flex-row gap-2 justify-center items-center">
                   <X className="w-4 h-4" /> Delete Check In
                 </div>
@@ -884,6 +896,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               description: "Payment reverted to unpaid",
               variant: "default",
               duration: 3000,
+              action: (
+                <ToastAction
+                  altText="Undo"
+                  onClick={() => markAsPaid(checkInId)}
+                >
+                  Undo
+                </ToastAction>
+              ),
             });
           } else {
             toast({
@@ -891,6 +911,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
               description: "Player marked as paid",
               variant: "default",
               duration: 3000,
+              action: (
+                <ToastAction
+                  altText="Undo"
+                  onClick={() => markAsPaid(checkInId)}
+                >
+                  Undo
+                </ToastAction>
+              ),
             });
           }
         })
@@ -912,8 +940,61 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     }
   }
 
-  async function removeFromQueue(checkInId: number) {
+  async function addtoQueue(player: PlayersWithDivisions) {
     try {
+      console.log("adding to queue", player);
+      setLoading(true);
+      const response = await fetch(`${TAGS_API_BASE_URL}/api/player-check-in`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(player),
+      });
+      if (!response.ok) {
+        setLoading(false);
+        toast({
+          title: "Error",
+          description: "Network response was not ok",
+          variant: "destructive",
+          duration: 3000,
+        });
+        throw new Error("Network response was not ok");
+      }
+      const data = (await response.json()) as PlayersWithDivisions;
+      console.log("response", data);
+      const updatedEvent = {
+        ...event!,
+        playerCheckIn: data,
+      };
+      setEvent(updatedEvent);
+
+      toast({
+        title: "Success",
+        description: "Player added to event",
+        variant: "default",
+        duration: 3000,
+        action: (
+          <ToastAction altText="Undo" onClick={() => removeFromQueue(player)}>
+            Undo
+          </ToastAction>
+        ),
+      });
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: "Failed to add player to event",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  }
+
+  async function removeFromQueue(player: PlayersWithDivisions) {
+    try {
+      const checkInId = player.checkInId;
       console.log("removing from queue", checkInId);
       setLoading(true);
       fetch(`${TAGS_API_BASE_URL}/api/player-check-in/${checkInId}`, {
@@ -943,6 +1024,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             description: "Player removed from event",
             variant: "default",
             duration: 3000,
+            action: (
+              <ToastAction altText="Undo" onClick={() => addtoQueue(player)}>
+                Undo
+              </ToastAction>
+            ),
           });
           // Remove the player from the CheckedInPlayers array
           const updatedPlayers = event!.CheckedInPlayers!.filter(
@@ -1072,11 +1158,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   return (
     <ScrollArea className="h-full rounded-md border p-2 w-full">
       {isAuthenticated && user ? (
-        <div className="grid gap-4 p-4 w-[90dvw]">
-          <Card
-            className="text-left max-w-[1300px] items-center w-full m-auto"
-            key={event.event_id}
-          >
+        <div className="grid gap-4 p-4">
+          <Card className="w-11/12 ml-1 mr-1" key={event.event_id}>
             <CardHeader className="p-4">
               <CardDescription
                 className="text-balance leading-relaxed items-center flex flex-row justify-between"
@@ -1119,7 +1202,6 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             </CardContent>
           </Card>
           <div className="flex flex-col gap-4 mt-2 mb-2 items-left justify-start">
-            <div className="flex flex-row justify-end items-center"></div>
             <Sheet>
               <SheetTrigger>
                 <Button className="flex flex-row gap-4 m-auto">
@@ -1167,53 +1249,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                     </form>
                   </Form>
                 </Card>
-                {/* <Label>Holes to avoid:</Label>
-                <select
-                  multiple={true}
-                  className="text-left min-h-80 rounded-sm text-sm bg-transparent"
-                  onChange={(e) => toggleHole(Number(e.target.value))}
-                >
-                  {allHoles.map((hole) => (
-                    <option
-                      key={hole}
-                      value={hole}
-                      className="flex flex-row gap-2 items-center min-w-fit justify-start text-sm text-left"
-                    >
-                      {holesToAvoid.includes(hole) ? "✓" : ""} Hole {hole}
-                    </option>
-                  ))}
-                </select> */}
-
-                {/* <Label>
-                  Holes to avoid:
-                  <Select
-                    // multiple={true}
-                    onValueChange={(e) => toggleHole(Number(e))}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select holes to avoid" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Holes To Avoid</SelectLabel>
-                        <Separator />
-                        {allHoles.map((hole) => (
-                          <SelectItem key={hole} value={hole.toString()}>
-                            {holesToAvoid.includes(hole) ? "✓" : ""} Hole {hole}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Label> */}
               </SheetContent>
             </Sheet>
-            <Tabs defaultValue="check-ins" className="w-[88dvw]">
-              <TabsList className="grid grid-cols-2 m-auto justify-center w-[88dvw] max-w-[400px]">
+            <Tabs defaultValue="check-ins" className="w-full">
+              <TabsList className="grid grid-cols-2 m-auto justify-center w-80 max-w-[400px]">
                 <TabsTrigger value="check-ins">Check ins</TabsTrigger>
                 <TabsTrigger value="cards">Cards</TabsTrigger>
               </TabsList>
-              <TabsContent value="cards" className="w-[88dvw]">
+              <TabsContent value="cards" className="w-11/12">
                 <Card className="w-full relative border-none">
                   <CardHeader>
                     <CardTitle>Cards</CardTitle>
@@ -1312,7 +1355,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="check-ins" className="w-[88dvw]">
+              <TabsContent value="check-ins" className="w-11/12">
                 <DataTableManageEvent
                   columns={columns}
                   data={playersWithDivisions}
@@ -1333,7 +1376,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           onClose={() => setEditCheckInStarted(false)}
         />
       )}
-      <ScrollBar orientation="vertical" />
+      {/* <ScrollBar orientation="vertical" />
+      <ScrollBar orientation="horizontal" /> */}
     </ScrollArea>
   );
 };
