@@ -26,6 +26,7 @@ import {
   ListChecks,
   ListFilter,
   ChevronDown,
+  UserRoundPlus,
 } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 // import { columns } from "./columns";
@@ -108,6 +109,7 @@ import {
 } from "@/components/ui/form";
 import { FaRegCircle } from "react-icons/fa";
 import { ToastAction } from "@/components/ui/toast";
+import CheckInForm from "@/app/check-in/checkInForm";
 
 // Helper function to enrich players with division names
 function enrichPlayersWithDivisionNames(
@@ -1151,6 +1153,12 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     // Optionally, update the backend or state to persist changes
   };
 
+  const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
+
+  const addPlayer = () => {
+    setShowAddPlayerModal(true);
+  };
+
   if (!event) {
     return <div>Loading...</div>;
   }
@@ -1355,7 +1363,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="check-ins" className="w-11/12">
+              <TabsContent
+                value="check-ins"
+                className="w-11/12 flex flex-col gap-2"
+              >
+                {/* <UserRoundPlus
+                  className="w-6 h-6 ml-auto"
+                  onClick={addPlayer}
+                /> */}
                 <DataTableManageEvent
                   columns={columns}
                   data={playersWithDivisions}
@@ -1376,6 +1391,14 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           onClose={() => setEditCheckInStarted(false)}
         />
       )}
+      {/* <CheckInForm
+        userProfile={userProfile!}
+        event={event!}
+        kinde_id={userProfile!.kinde_id}
+        onSubmit={checkInPlayer} // Pass the function directly
+        setCheckInStarted={setCheckInStarted}
+        onClose={handleCheckInComplete}
+      /> */}
       {/* <ScrollBar orientation="vertical" />
       <ScrollBar orientation="horizontal" /> */}
     </ScrollArea>
