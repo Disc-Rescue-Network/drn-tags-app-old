@@ -20,7 +20,7 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
       <DataTableColumnHeader
         column={column}
         title="Position"
-        className="max-w-[50px]"
+        className="max-w-[70px]"
       />
     ),
     cell: (info) => (
