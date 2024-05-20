@@ -1,7 +1,4 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-app/networking/apiexports.tsx
-app/networking/apiExports.tsx
-
 
 # dependencies
 /node_modules
@@ -38,4 +35,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+app/networking/apiExports.tsx
 app/networking/apiExports.tsx
