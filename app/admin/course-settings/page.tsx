@@ -77,6 +77,7 @@ const courseSchema = z.object({
       z.object({
         name: z.string(),
         layout_id: z.number().optional(),
+        par: z.string(),
       })
     )
     .nonempty("At least one layout is required."),
@@ -108,7 +109,7 @@ const AdminTools: NextPage = () => {
       shortCode: "",
       city: "",
       state: "",
-      layouts: [{ name: "", layout_id: -1 }],
+      layouts: [{ name: "", layout_id: -1, par: "72" }],
       holes: Array.from({ length: 18 }, (_, index) => ({
         hole_id: index + 1,
         hole_number: index + 1,
@@ -162,6 +163,7 @@ const AdminTools: NextPage = () => {
   watch("divisions");
   //   watch("venmoUsername");
   //   watch("cashappUsername");
+
   console.log(getValues());
 
   console.log("Form State:", formState);
@@ -323,28 +325,42 @@ const AdminTools: NextPage = () => {
             )}
           />
 
-          {/* Dynamic Layouts */}
           {fields.map((field, index) => (
-            <FormField
-              key={field.id}
-              control={form.control}
-              name={`layouts.${index}.name`}
-              render={({ field }) => (
-                <div className="flex flex-row gap-1 items-end w-full">
-                  <FormItem>
-                    <FormLabel>Layout {index + 1}</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder={`Layout ${index + 1}`} />
-                    </FormControl>
-                  </FormItem>
-                  <Button type="button" onClick={() => remove(index)}>
-                    Remove
-                  </Button>
-                </div>
-              )}
-            />
+            <div key={field.id}>
+              <FormField
+                control={form.control}
+                name={`layouts.${index}.name`}
+                render={({ field }) => (
+                  <div className="flex flex-row gap-1 items-end w-full">
+                    <FormItem>
+                      <FormLabel>Layout {index + 1}</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder={`Layout ${index + 1}`} />
+                      </FormControl>
+                    </FormItem>
+                    <Button type="button" onClick={() => remove(index)}>
+                      Remove
+                    </Button>
+                  </div>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`layouts.${index}.par`}
+                render={({ field }) => (
+                  <div className="flex flex-row gap-1 items-end w-full">
+                    <FormItem>
+                      <FormLabel>Par {index + 1}</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder={`Par ${index + 1}`} />
+                      </FormControl>
+                    </FormItem>
+                  </div>
+                )}
+              />
+            </div>
           ))}
-          <Button type="button" onClick={() => append({ name: "" })}>
+          <Button type="button" onClick={() => append({ name: "", par: "-1" })}>
             + Add Layout
           </Button>
 
