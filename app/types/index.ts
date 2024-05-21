@@ -75,7 +75,7 @@ export interface TagsEvent {
   maxSignups: number;
   leagueName?: string;
   eventName: string;
-  layout: string;
+  layout: LayoutModel;
   checkInPeriod: number;
   courseId: string;
   divisions: Division[];
@@ -100,7 +100,7 @@ export interface EventPreview {
 
 export interface CourseSettingsData {
   courseName: string;
-  layouts: { name: string }[];
+  layouts: LayoutModel[];
   holes: { hole_id: number; active: boolean }[];
   divisions: { division_id: number; name: string; active: boolean }[];
   city: string;
@@ -108,6 +108,15 @@ export interface CourseSettingsData {
   shortCode: string;
   venmoUsername?: string;
   cashappUsername?: string;
+}
+
+export interface LayoutModel {
+  layout_id?: number; // Auto-increment primary key
+  name: string; // Can hold up to 255 characters
+  createdAt?: Date; // Stores date and time
+  updatedAt?: Date; // Stores date and time
+  orgCode?: string; // Can hold up to 255 characters
+  par: string; // The new field you added, assumed to be an integer
 }
 
 export interface Layout {
@@ -158,4 +167,24 @@ export interface HoleModel {
   hold_id: number;
   hole_number: number;
   active: boolean;
+}
+
+export interface PlayerRound {
+  checkInId: number;
+  udisc_display_name: string;
+  tagIn: number | null;
+  tagOut: number;
+  place: number;
+  pointsScored: number;
+  paid: boolean;
+  createdAt: string;
+  updatedAt: string;
+  kinde_id: string;
+  event_id: number;
+  division_id: number;
+  card_id: number | null;
+  score: number;
+  thru: number;
+  EventModel: TagsEvent;
+  division: Division;
 }

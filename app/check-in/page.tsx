@@ -311,7 +311,9 @@ const CheckIn: NextPage = () => {
                           <div className="flex flex-col gap-4 justify-start items-start p-0 m-0 w-full md:flex-col lg:flex-col">
                             <div className="flex flex-row gap-1 items-center justify-start">
                               <Map className="h-4 w-4" />
-                              <Label className="text-xs">{event.layout}</Label>
+                              <Label className="text-xs">
+                                {event.layout.name}
+                              </Label>
                             </div>
                             <div className="flex flex-row gap-1 items-center justify-start">
                               <User className="h-4 w-4" />

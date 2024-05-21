@@ -10,6 +10,8 @@ import { DataTableViewOptions } from "./data-table-view-options";
 // import { statuses } from "../data/data";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { columnHeadersArrayTags } from "./columns-tags";
+import { columnHeadersArrayRounds } from "../my-rounds/columns-myrounds";
+import { useMemo } from "react";
 
 interface DataTableToolbarProps<TData> {
   searchName: string;
@@ -35,11 +37,11 @@ export function DataTableToolbar<TData>({
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {/* {table.getColumn("paid") && (
+        {/* {table.getColumn("EventModel_location") && (
           <DataTableFacetedFilter
-            column={table.getColumn("paid")}
-            title="Paid"
-            options={paidOptions}
+            column={table.getColumn("EventModel_location")}
+            title="Location"
+            options={locationOptions}
           />
         )} */}
         {isFiltered && (

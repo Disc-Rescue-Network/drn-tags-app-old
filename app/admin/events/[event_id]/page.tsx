@@ -1191,7 +1191,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             <CardContent className="flex flex-col gap-4 w-full justify-between items-start p-4">
               <div className="flex flex-row gap-1 items-center justify-start">
                 <Map className="h-4 w-4" />
-                <Label className="text-xs">{event.layout}</Label>
+                <Label className="text-xs">{event.layout.name}</Label>
               </div>
               <div className="flex flex-row gap-1 items-center justify-start">
                 <User className="h-4 w-4" />

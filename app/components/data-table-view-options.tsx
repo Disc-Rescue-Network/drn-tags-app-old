@@ -26,6 +26,8 @@ export function DataTableViewOptions<TData>({
   table,
   columnHeaders,
 }: DataTableViewOptionsProps<TData>) {
+  console.log("table", table.getAllColumns());
+
   useEffect(() => {
     table.getAllColumns().forEach((column) => {
       const visibility = Cookies.get(`column-${column.id}-visibility`);
