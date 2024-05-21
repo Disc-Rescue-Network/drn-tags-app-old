@@ -160,7 +160,7 @@ const CheckInForm = (props: CheckInFormProps) => {
             <Label htmlFor="division_id" className="col-span-1">
               Division:
             </Label>
-            {event.Divisions.length > 0 ? (
+            {event.divisions.length > 0 ? (
               <Select
                 value={division_id}
                 onValueChange={(e) => setDivisionId(e)}
@@ -170,7 +170,7 @@ const CheckInForm = (props: CheckInFormProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {event.Divisions.map((division) => (
+                    {event.divisions.map((division) => (
                       <SelectItem
                         key={division.division_id}
                         value={division.division_id.toString()}

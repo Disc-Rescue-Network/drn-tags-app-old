@@ -117,7 +117,7 @@ const EditCheckInForm = (props: EditCheckInFormProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {event.Divisions.map((division) => (
+                    {event.divisions.map((division) => (
                       <SelectItem
                         key={division.division_id}
                         value={division.division_id.toString()}

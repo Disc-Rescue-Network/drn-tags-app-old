@@ -42,6 +42,16 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
       />
     ),
     cell: (info) => {
+      const value = info.getValue();
+      const name = info.row.original.name;
+      const movement = info.row.original.change;
+
+      console.log(value);
+      console.log(info.row.original);
+
+      console.log("Name: ", name);
+      console.log("Movement: ", movement);
+
       return (
         <div className="flex flex-row min-w-fit items-center justify-start gap-2">
           <Label className="min-w-fit text-ellipsis">

@@ -330,7 +330,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   useEffect(() => {
     const enrichedPlayers = enrichPlayersWithDivisionNames(
       event?.CheckedInPlayers || [], // Add null check and default value
-      event?.Divisions || [] // Add null check and default value
+      event?.divisions || [] // Add null check and default value
     ).map((player) => ({
       ...player,
       label: player.paid ? "paid" : "unpaid",

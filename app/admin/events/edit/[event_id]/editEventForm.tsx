@@ -143,20 +143,22 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
     setIsMobile(window.innerWidth <= 768);
   }, []);
 
-  //   let dateTime;
+  console.log("Event Date Time:", event.dateTime);
 
-  //   if (!event.date || !event.time) {
-  //     dateTime = "Invalid Date";
-  //   } else {
-  //     const date = new Date(event.date);
-  //     const localDate = new Date(
-  //       date.getTime() - date.getTimezoneOffset() * 60000
-  //     )
-  //       .toISOString()
-  //       .split("T")[0];
-  //     dateTime = new Date(`${localDate}T${event.time}`);
-  //     console.log("Event Date Time:", dateTime);
-  //   }
+  let dateTime;
+
+  if (!event.date || !event.time) {
+    dateTime = "Invalid Date";
+  } else {
+    const date = new Date(event.date);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    dateTime = new Date(`${localDate}T${event.time}`);
+    console.log("Event Date Time:", dateTime);
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -188,17 +190,10 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
             ) : (
               <span>&nbsp;</span>
             )} */}
-            {event.dateTime.toString() !== "Invalid Date" ? (
-              <>
-                {format(
-                  new Date(event.dateTime),
-                  isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
-                )}{" "}
-                @ {format(new Date(event.dateTime), "h:mm a")}
-              </>
-            ) : (
-              <span>&nbsp;</span>
-            )}
+            {format(
+              event.dateTime,
+              isMobile ? "EEE, MMM d, h:mm a" : "EEEE, MMMM do, h:mm a"
+            )}{" "}
           </div>
           <div className="flex flex-row gap-1 items-center justify-end text-xs text-right text-nowrap">
             <MapPin className="h-4 w-4" /> {event.location}
@@ -302,7 +297,7 @@ export default function EditEventForm({
       maxSignups: event.maxSignups,
       layout: event.layout,
       checkInPeriod: event.checkInPeriod,
-      divisions: event.Divisions,
+      divisions: event.divisions,
       courseId: event.courseId,
     },
   });
@@ -409,22 +404,22 @@ export default function EditEventForm({
   const uDiscEventURL = form.watch("uDiscEventURL");
   const divisionsWatch = form.watch("divisions");
 
-  //   const dateValue = form.getValues().date;
-  //   const timeValue = form.getValues().time;
+  const dateValue = form.getValues().date;
+  const timeValue = form.getValues().time;
 
-  //   if (!dateValue || !timeValue) {
-  //     console.error("Date or time is empty");
-  //   } else {
-  //     const dateTmp = new Date(dateValue);
-  //     const localDate = new Date(
-  //       dateTmp.getTime() - dateTmp.getTimezoneOffset() * 60000
-  //     )
-  //       .toISOString()
-  //       .split("T")[0];
-  //     const dateTime = new Date(`${localDate}T${timeValue}`);
-  //     console.log("FINAL DateTime:", dateTime);
-  //     form.setValue("dateTime", dateTime);
-  //   }
+  if (!dateValue || !timeValue) {
+    console.error("Date or time is empty");
+  } else {
+    const dateTmp = new Date(dateValue);
+    const localDate = new Date(
+      dateTmp.getTime() - dateTmp.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    const dateTime = new Date(`${localDate}T${timeValue}`);
+    console.log("FINAL DateTime:", dateTime);
+    form.setValue("dateTime", dateTime);
+  }
 
   console.log(form.getValues());
   console.log(form.formState.errors);
@@ -441,6 +436,28 @@ export default function EditEventForm({
       key === "updatedAt" ||
       key === "createdAt"
     ) {
+      console.log("Skipping key:", key);
+      return;
+    }
+
+    if (key === "divisions") {
+      const activeCurrentDivisions = currentEvent.divisions.filter(
+        (division: any) => division.active
+      );
+      console.log("event", event);
+      const activeEventDivisions = (event as TagsEvent).divisions;
+      console.log("Active Event Divisions:", activeEventDivisions);
+
+      if (
+        JSON.stringify(activeCurrentDivisions) !==
+        JSON.stringify(activeEventDivisions)
+      ) {
+        differences.push({
+          field: key,
+          previousValue: activeEventDivisions,
+          newValue: activeCurrentDivisions,
+        });
+      }
       return;
     }
 
@@ -515,18 +532,16 @@ export default function EditEventForm({
         setLayouts(settingsData.layouts);
         setDivisions(settingsData.divisions);
 
-        form.setValue("divisions", settingsData.divisions);
+        // form.setValue("divisions", settingsData.divisions);
 
         form.setValue(
           "divisions",
           settingsData.divisions.map((division: Division) => ({
             ...division,
-            active: event.Divisions.some(
-              (eventDivision) =>
+            active: event.divisions.some(
+              (eventDivision: any) =>
                 eventDivision.division_id === division.division_id
-            )
-              ? division.active
-              : false,
+            ),
           }))
         );
 
@@ -865,10 +880,24 @@ export default function EditEventForm({
                       className="text-sm"
                       style={{ textDecoration: "line-through" }}
                     >
-                      {item.previousValue}
+                      {item.previousValue instanceof Date
+                        ? item.previousValue.toLocaleString()
+                        : Array.isArray(item.previousValue)
+                        ? item.previousValue
+                            .map((division) => division.name)
+                            .join(", ")
+                        : item.previousValue}
                     </Label>
                     &nbsp;→&nbsp;
-                    <Label>{item.newValue}</Label>
+                    <Label className="text-sm">
+                      {item.newValue instanceof Date
+                        ? item.newValue.toLocaleString()
+                        : Array.isArray(item.newValue)
+                        ? item.newValue
+                            .map((division) => division.name)
+                            .join(", ")
+                        : item.newValue}
+                    </Label>
                   </div>
                 ))}
               </div>
@@ -901,13 +930,25 @@ export default function EditEventForm({
                   className="text-sm"
                   style={{ textDecoration: "line-through" }}
                 >
-                  {item.previousValue}
+                  {item.previousValue instanceof Date
+                    ? item.previousValue.toLocaleString()
+                    : Array.isArray(item.previousValue)
+                    ? item.previousValue
+                        .map((division) => division.name)
+                        .join(", ")
+                    : item.previousValue}
                 </Label>
                 &nbsp;→&nbsp;
-                <Label>{item.newValue}</Label>
+                <Label className="text-sm">
+                  {item.newValue instanceof Date
+                    ? item.newValue.toLocaleString()
+                    : Array.isArray(item.newValue)
+                    ? item.newValue.map((division) => division.name).join(", ")
+                    : item.newValue}
+                </Label>
               </div>
             ))}
-            <EventPreviewComponent data={event} />
+            <EventPreviewComponent data={form.getValues()} />
           </div>
         </CardContent>
       </Card>
