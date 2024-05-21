@@ -41,7 +41,7 @@ export interface LeaderboardEntry {
 export interface EnhancedLeaderboardEntry extends LeaderboardEntry {
   roundsPlayed: number;
   averageScorePerRound: number;
-  change?: "up" | "down" | "steady"; // Indicating position change
+  change: string;
   previousPosition: number;
 }
 
@@ -78,7 +78,7 @@ export interface TagsEvent {
   layout: string;
   checkInPeriod: number;
   courseId: string;
-  Divisions: Division[];
+  divisions: Division[];
   data?: DivisionResults[];
   CheckedInPlayers?: CheckInData[];
 }

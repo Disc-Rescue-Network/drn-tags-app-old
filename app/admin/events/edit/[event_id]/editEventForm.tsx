@@ -93,6 +93,7 @@ const formats = [
 
 // Define the form schema using Zod
 const eventSchema = z.object({
+  event_id: z.number().optional(),
   dateTime: z.date({
     required_error: "This field is required",
   }),
@@ -142,20 +143,22 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
     setIsMobile(window.innerWidth <= 768);
   }, []);
 
-  //   let dateTime;
+  console.log("Event Date Time:", event.dateTime);
 
-  //   if (!event.date || !event.time) {
-  //     dateTime = "Invalid Date";
-  //   } else {
-  //     const date = new Date(event.date);
-  //     const localDate = new Date(
-  //       date.getTime() - date.getTimezoneOffset() * 60000
-  //     )
-  //       .toISOString()
-  //       .split("T")[0];
-  //     dateTime = new Date(`${localDate}T${event.time}`);
-  //     console.log("Event Date Time:", dateTime);
-  //   }
+  let dateTime;
+
+  if (!event.date || !event.time) {
+    dateTime = "Invalid Date";
+  } else {
+    const date = new Date(event.date);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    dateTime = new Date(`${localDate}T${event.time}`);
+    console.log("Event Date Time:", dateTime);
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -187,17 +190,10 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
             ) : (
               <span>&nbsp;</span>
             )} */}
-            {event.dateTime.toString() !== "Invalid Date" ? (
-              <>
-                {format(
-                  new Date(event.dateTime),
-                  isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
-                )}{" "}
-                @ {format(new Date(event.dateTime), "h:mm a")}
-              </>
-            ) : (
-              <span>&nbsp;</span>
-            )}
+            {format(
+              event.dateTime,
+              isMobile ? "EEE, MMM d, h:mm a" : "EEEE, MMMM do, h:mm a"
+            )}{" "}
           </div>
           <div className="flex flex-row gap-1 items-center justify-end text-xs text-right text-nowrap">
             <MapPin className="h-4 w-4" /> {event.location}
@@ -275,8 +271,8 @@ export default function EditEventForm({
 }: {
   params: { event: TagsEvent };
 }) {
-  const event = params.event;
-  console.log("Event: ", event);
+  let event = params.event;
+  event.dateTime = new Date(event.dateTime);
 
   let eventDate = new Date(event.dateTime).toLocaleDateString();
   let eventTime = new Date(event.dateTime).toLocaleTimeString("en-GB", {
@@ -289,7 +285,8 @@ export default function EditEventForm({
   const form = useForm({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      dateTime: event.dateTime,
+      event_id: event.event_id,
+      dateTime: new Date(event.dateTime),
       date: new Date(eventDate),
       time: eventTime,
       location: event.location,
@@ -300,7 +297,7 @@ export default function EditEventForm({
       maxSignups: event.maxSignups,
       layout: event.layout,
       checkInPeriod: event.checkInPeriod,
-      divisions: event.Divisions,
+      divisions: event.divisions,
       courseId: event.courseId,
     },
   });
@@ -314,6 +311,7 @@ export default function EditEventForm({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   function onSubmit(data: z.infer<typeof eventSchema>) {
+    console.log("on submit called");
     setIsSubmitting(true);
     console.log(data);
 
@@ -356,43 +354,43 @@ export default function EditEventForm({
 
     console.log(JSON.stringify(data));
 
-    //   // Make POST request to API endpoint
-    //   fetch(`${TAGS_API_BASE_URL}/api/edit-event/${event.event_id}`, {
-    //     method: "PUT",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(eventData),
-    //   })
-    //     .then((response) => {
-    //       if (!response.ok) {
-    //         setIsSubmitting(false);
-    //         throw new Error("Network response was not ok");
-    //       }
-    //       return response.json();
-    //     })
-    //     .then((data) => {
-    //       // Handle successful response from API
-    //       console.log("Event created successfully:", data);
-    //       setIsSubmitting(false);
-    //       toast({
-    //         variant: "default",
-    //         title: "Event created successfully",
-    //         description: "Your event has been successfully created.",
-    //         duration: 3000,
-    //       });
-    //     })
-    //     .catch((error) => {
-    //       // Handle errors
-    //       console.error("Error creating event:", error);
-    //       setIsSubmitting(false);
-    //       toast({
-    //         variant: "destructive",
-    //         title: "Error",
-    //         description: "Failed to create event. Please try again later.",
-    //         duration: 3000,
-    //       });
-    //     });
+    //Make POST request to API endpoint
+    fetch(`${TAGS_API_BASE_URL}/api/events/${event.event_id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(eventData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          setIsSubmitting(false);
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Handle successful response from API
+        console.log("Event edited successfully:", data);
+        setIsSubmitting(false);
+        toast({
+          variant: "default",
+          title: "Event edited successfully",
+          description: "Your event has been successfully edited.",
+          duration: 3000,
+        });
+      })
+      .catch((error) => {
+        // Handle errors
+        console.error("Error editing event:", error);
+        setIsSubmitting(false);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to edit event. Please try again later.",
+          duration: 3000,
+        });
+      });
   }
 
   const layout = form.watch("layout");
@@ -406,25 +404,93 @@ export default function EditEventForm({
   const uDiscEventURL = form.watch("uDiscEventURL");
   const divisionsWatch = form.watch("divisions");
 
-  //   const dateValue = form.getValues().date;
-  //   const timeValue = form.getValues().time;
+  const dateValue = form.getValues().date;
+  const timeValue = form.getValues().time;
 
-  //   if (!dateValue || !timeValue) {
-  //     console.error("Date or time is empty");
-  //   } else {
-  //     const dateTmp = new Date(dateValue);
-  //     const localDate = new Date(
-  //       dateTmp.getTime() - dateTmp.getTimezoneOffset() * 60000
-  //     )
-  //       .toISOString()
-  //       .split("T")[0];
-  //     const dateTime = new Date(`${localDate}T${timeValue}`);
-  //     console.log("FINAL DateTime:", dateTime);
-  //     form.setValue("dateTime", dateTime);
-  //   }
+  if (!dateValue || !timeValue) {
+    console.error("Date or time is empty");
+  } else {
+    const dateTmp = new Date(dateValue);
+    const localDate = new Date(
+      dateTmp.getTime() - dateTmp.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+    const dateTime = new Date(`${localDate}T${timeValue}`);
+    console.log("FINAL DateTime:", dateTime);
+    form.setValue("dateTime", dateTime);
+  }
 
   console.log(form.getValues());
   console.log(form.formState.errors);
+
+  const currentEvent: any = form.getValues();
+  console.log("Current Event:", currentEvent);
+
+  let differences: { field: string; previousValue: any; newValue: any }[] = [];
+
+  Object.keys(event as any).forEach((key) => {
+    if (
+      key === "Divisions" ||
+      key === "CheckedInPlayers" ||
+      key === "updatedAt" ||
+      key === "createdAt"
+    ) {
+      console.log("Skipping key:", key);
+      return;
+    }
+
+    if (key === "divisions") {
+      const activeCurrentDivisions = currentEvent.divisions.filter(
+        (division: any) => division.active
+      );
+      console.log("event", event);
+      const activeEventDivisions = (event as TagsEvent).divisions;
+      console.log("Active Event Divisions:", activeEventDivisions);
+
+      if (
+        JSON.stringify(activeCurrentDivisions) !==
+        JSON.stringify(activeEventDivisions)
+      ) {
+        differences.push({
+          field: key,
+          previousValue: activeEventDivisions,
+          newValue: activeCurrentDivisions,
+        });
+      }
+      return;
+    }
+
+    if (key === "dateTime") {
+      if (currentEvent.date && currentEvent.time) {
+        const date = new Date(currentEvent.date);
+        const localDate = new Date(
+          date.getTime() - date.getTimezoneOffset() * 60000
+        )
+          .toISOString()
+          .split("T")[0];
+        const dateTime = new Date(`${localDate}T${currentEvent.time}`);
+        if (dateTime.getTime() !== event.dateTime.getTime()) {
+          differences.push({
+            field: key,
+            newValue: dateTime,
+            previousValue: event.dateTime,
+          });
+        }
+      }
+      return;
+    }
+
+    if ((event as any)[key] !== currentEvent[key]) {
+      differences.push({
+        field: key,
+        newValue: currentEvent[key],
+        previousValue: (event as any)[key],
+      });
+    }
+  });
+
+  console.log("Differences:", differences);
 
   console.log("Org Code:", organization);
 
@@ -466,18 +532,16 @@ export default function EditEventForm({
         setLayouts(settingsData.layouts);
         setDivisions(settingsData.divisions);
 
-        form.setValue("divisions", settingsData.divisions);
+        // form.setValue("divisions", settingsData.divisions);
 
         form.setValue(
           "divisions",
           settingsData.divisions.map((division: Division) => ({
             ...division,
-            active: event.Divisions.some(
-              (eventDivision) =>
+            active: event.divisions.some(
+              (eventDivision: any) =>
                 eventDivision.division_id === division.division_id
-            )
-              ? division.active
-              : false,
+            ),
           }))
         );
 
@@ -797,23 +861,54 @@ export default function EditEventForm({
                 <Label>Please wait</Label>
               </>
             ) : (
-              "Preview Event"
+              "Preview Changes"
             )}
           </Button>
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-            <DialogContent className="max-width-90">
+            <DialogContent className="max-w-[800px]">
               <DialogHeader>
-                <DialogTitle>Preview</DialogTitle>
+                <DialogTitle>Preview Changes</DialogTitle>
               </DialogHeader>
 
-              <EventPreviewComponent data={form.getValues()} />
+              <div className="grid grid-cols-1 gap-2">
+                {differences.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-row gap-2 items-center justify-start"
+                  >
+                    <Label
+                      className="text-sm"
+                      style={{ textDecoration: "line-through" }}
+                    >
+                      {item.previousValue instanceof Date
+                        ? item.previousValue.toLocaleString()
+                        : Array.isArray(item.previousValue)
+                        ? item.previousValue
+                            .map((division) => division.name)
+                            .join(", ")
+                        : item.previousValue}
+                    </Label>
+                    &nbsp;→&nbsp;
+                    <Label className="text-sm">
+                      {item.newValue instanceof Date
+                        ? item.newValue.toLocaleString()
+                        : Array.isArray(item.newValue)
+                        ? item.newValue
+                            .map((division) => division.name)
+                            .join(", ")
+                        : item.newValue}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+
               <DialogFooter>
                 <Button
                   type="submit"
                   className="bg-blue-500"
                   onClick={form.handleSubmit(onSubmit)}
                 >
-                  Create Event
+                  Submit Edits
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -822,10 +917,39 @@ export default function EditEventForm({
       </Form>
       <Card className="h-max bg-muted/20 hidden md:block">
         <CardHeader className="p-4">
-          <CardTitle>Preview</CardTitle>
+          <CardTitle>Preview Changes</CardTitle>
         </CardHeader>
         <CardContent>
-          <EventPreviewComponent data={form.getValues()} />
+          <div className="grid grid-cols-1 gap-4">
+            {differences.map((item, index) => (
+              <div
+                key={index}
+                className="flex flex-row gap-2 items-center justify-start"
+              >
+                <Label
+                  className="text-sm"
+                  style={{ textDecoration: "line-through" }}
+                >
+                  {item.previousValue instanceof Date
+                    ? item.previousValue.toLocaleString()
+                    : Array.isArray(item.previousValue)
+                    ? item.previousValue
+                        .map((division) => division.name)
+                        .join(", ")
+                    : item.previousValue}
+                </Label>
+                &nbsp;→&nbsp;
+                <Label className="text-sm">
+                  {item.newValue instanceof Date
+                    ? item.newValue.toLocaleString()
+                    : Array.isArray(item.newValue)
+                    ? item.newValue.map((division) => division.name).join(", ")
+                    : item.newValue}
+                </Label>
+              </div>
+            ))}
+            <EventPreviewComponent data={form.getValues()} />
+          </div>
         </CardContent>
       </Card>
     </div>

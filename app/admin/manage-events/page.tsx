@@ -143,6 +143,48 @@ const ManageEvents: NextPage = () => {
     };
   }
 
+  function deleteEvent(event: TagsEvent) {
+    console.log("Deleting event:", event.event_id);
+    fetch(`${TAGS_API_BASE_URL}/api/events/${event.event_id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        console.log(response.status);
+        if (response.status === 200) {
+          console.log("Event deleted successfully");
+          toast({
+            variant: "default",
+            title: "Event Deleted",
+            description: "The event has been deleted successfully",
+            duration: 3000,
+          });
+          const updatedEvents = events.filter(
+            (e) => e.event_id !== event.event_id
+          );
+          setEvents(updatedEvents);
+        } else {
+          console.error("Error deleting event:", response.status);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description:
+              "There was an error deleting the event. Please try again later",
+            duration: 3000,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting event:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description:
+            "There was an error deleting the event. Please try again later",
+          duration: 3000,
+        });
+      });
+  }
+
   function editEvent(event: TagsEvent) {
     return () => {
       router.push(`/admin/events/edit/${event.event_id}`);
@@ -201,7 +243,12 @@ const ManageEvents: NextPage = () => {
                             Edit Details
                           </Button>
 
-                          <Button variant="destructive">Delete</Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => deleteEvent(event)}
+                          >
+                            Delete
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
