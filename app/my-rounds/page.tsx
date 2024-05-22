@@ -125,7 +125,7 @@ const Home: NextPage = () => {
         setTagMovement(getTagMovementForMostRecentRound(data));
         setBestFinish(getBestFinish(data));
         setTagPerLeague(mapTagsToLeagues(data));
-        setBestRound(findBestScoreRound(playerRounds));
+        setBestRound(findBestScoreRound(data));
       } catch (error) {
         console.error("Failed to fetch player rounds:", error);
         toast({
@@ -329,7 +329,9 @@ const Home: NextPage = () => {
     location: string;
     layout: string;
   } | null => {
+    console.log("Rounds:", rounds);
     if (rounds.length === 0) {
+      console.log("No rounds found, can't find best score");
       return null; // No rounds available
     }
 
@@ -338,6 +340,7 @@ const Home: NextPage = () => {
       current.score < best.score ? current : best
     );
 
+    console.log("Best round:", bestRound);
     // Extract the details from the best round
     return {
       score: bestRound.score,
