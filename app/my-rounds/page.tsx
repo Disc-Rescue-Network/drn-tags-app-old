@@ -125,7 +125,7 @@ const Home: NextPage = () => {
         setTagMovement(getTagMovementForMostRecentRound(data));
         setBestFinish(getBestFinish(data));
         setTagPerLeague(mapTagsToLeagues(data));
-        setBestRound(findBestScoreRound(playerRounds));
+        setBestRound(findBestScoreRound(data));
       } catch (error) {
         console.error("Failed to fetch player rounds:", error);
         toast({
@@ -329,7 +329,9 @@ const Home: NextPage = () => {
     location: string;
     layout: string;
   } | null => {
+    console.log("Rounds:", rounds);
     if (rounds.length === 0) {
+      console.log("No rounds found, can't find best score");
       return null; // No rounds available
     }
 
@@ -338,6 +340,7 @@ const Home: NextPage = () => {
       current.score < best.score ? current : best
     );
 
+    console.log("Best round:", bestRound);
     // Extract the details from the best round
     return {
       score: bestRound.score,
@@ -408,8 +411,8 @@ const Home: NextPage = () => {
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 w-full gap-6">
                 {lowestTag !== null ? (
-                  <div className="grid grid-cols-1 gap-4 items-end">
-                    <Card className="flex flex-col h-fit items-center justify-center">
+                  <div className="grid grid-cols-1 gap-2 items-end">
+                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
                       <CardHeader className="pb-2">
                         <CardDescription>
                           Lowest Tag (Season Long)
@@ -441,7 +444,7 @@ const Home: NextPage = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="flex flex-col h-fit items-center justify-center">
+                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
                       <CardHeader className="pb-2">
                         <CardDescription>Best Round</CardDescription>
                         <CardTitle className="text-4xl relative">
@@ -466,8 +469,8 @@ const Home: NextPage = () => {
                   <Skeleton className="w-36 h-36" />
                 )}
                 {bestFinish !== null ? (
-                  <div className="grid grid-cols-1 gap-4 items-end">
-                    <Card className="flex flex-col h-fit items-center justify-center">
+                  <div className="grid grid-cols-1 gap-2 items-end">
+                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
                       <CardHeader className="pb-2">
                         <CardDescription>Best Finish</CardDescription>
                         <CardTitle className="text-4xl relative">
@@ -480,7 +483,7 @@ const Home: NextPage = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="flex flex-col h-fit items-center justify-center">
+                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
                       <CardHeader className="pb-2">
                         <CardDescription>Best Current Tag</CardDescription>
                         <CardTitle className="text-4xl relative">
