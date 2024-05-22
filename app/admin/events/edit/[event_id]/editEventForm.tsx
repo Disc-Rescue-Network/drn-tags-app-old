@@ -53,7 +53,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
-import { Division, EventPreview, Layout, TagsEvent } from "@/app/types";
+import { Division, EventPreview, LayoutModel, TagsEvent } from "@/app/types";
 import {
   Dialog,
   DialogContent,
@@ -91,6 +91,12 @@ const formats = [
 //   "Mullet",
 // ]; // Array of layout options
 
+const layoutSchema = z.object({
+  layout_id: z.number().optional(),
+  name: z.string(),
+  par: z.string(),
+});
+
 // Define the form schema using Zod
 const eventSchema = z.object({
   event_id: z.number().optional(),
@@ -119,7 +125,7 @@ const eventSchema = z.object({
     message: "Invalid uDisc URL. Must end with '?tab=scores'.",
   }),
   maxSignups: z.number().min(1),
-  layout: z.string().min(1),
+  layout: layoutSchema,
   checkInPeriod: z.number().min(1),
   divisions: z.array(
     z.object({ division_id: z.number(), name: z.string(), active: z.boolean() })
@@ -206,7 +212,7 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
         <div className="flex flex-col gap-4 justify-start items-start p-0 m-0 md:flex-col lg:flex-col w-[60%]">
           <div className="flex flex-row gap-1 items-center justify-start">
             <Map className="h-4 w-4" />
-            <Label className="text-xs">{event.layout}</Label>
+            <Label className="text-xs">{event.layout.name}</Label>
           </div>
           <div className="flex flex-row gap-1 items-center justify-start">
             <User className="h-4 w-4" />
@@ -272,6 +278,7 @@ export default function EditEventForm({
   params: { event: TagsEvent };
 }) {
   let event = params.event;
+  console.log("EVENT IN:", event);
   event.dateTime = new Date(event.dateTime);
 
   let eventDate = new Date(event.dateTime).toLocaleDateString();
@@ -295,12 +302,21 @@ export default function EditEventForm({
       eventName: event.eventName,
       uDiscEventURL: event.uDiscEventURL,
       maxSignups: event.maxSignups,
-      layout: event.layout,
+      layout: event.layout || null,
       checkInPeriod: event.checkInPeriod,
       divisions: event.divisions,
       courseId: event.courseId,
     },
   });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+    getValues,
+  } = form;
 
   const { toast } = useToast();
 
@@ -393,19 +409,19 @@ export default function EditEventForm({
       });
   }
 
-  const layout = form.watch("layout");
-  const checkInPeriod = form.watch("checkInPeriod");
-  const maxSignups = form.watch("maxSignups");
-  const date = form.watch("date");
-  const time = form.watch("time");
-  const location = form.watch("location");
-  const format = form.watch("format");
-  const eventName = form.watch("eventName");
-  const uDiscEventURL = form.watch("uDiscEventURL");
-  const divisionsWatch = form.watch("divisions");
+  const layout = watch("layout");
+  const checkInPeriod = watch("checkInPeriod");
+  const maxSignups = watch("maxSignups");
+  const date = watch("date");
+  const time = watch("time");
+  const location = watch("location");
+  const format = watch("format");
+  const eventName = watch("eventName");
+  const uDiscEventURL = watch("uDiscEventURL");
+  const divisionsWatch = watch("divisions");
 
-  const dateValue = form.getValues().date;
-  const timeValue = form.getValues().time;
+  const dateValue = getValues().date;
+  const timeValue = getValues().time;
 
   if (!dateValue || !timeValue) {
     console.error("Date or time is empty");
@@ -418,13 +434,13 @@ export default function EditEventForm({
       .split("T")[0];
     const dateTime = new Date(`${localDate}T${timeValue}`);
     console.log("FINAL DateTime:", dateTime);
-    form.setValue("dateTime", dateTime);
+    setValue("dateTime", dateTime);
   }
 
-  console.log(form.getValues());
-  console.log(form.formState.errors);
+  console.log(getValues());
+  console.log(errors);
 
-  const currentEvent: any = form.getValues();
+  const currentEvent: any = getValues();
   console.log("Current Event:", currentEvent);
 
   let differences: { field: string; previousValue: any; newValue: any }[] = [];
@@ -456,6 +472,21 @@ export default function EditEventForm({
           field: key,
           previousValue: activeEventDivisions,
           newValue: activeCurrentDivisions,
+        });
+      }
+      return;
+    }
+
+    if (key === "layout_id") {
+      return;
+    }
+
+    if (key === "layout") {
+      if (currentEvent.layout.layout_id !== event.layout.layout_id) {
+        differences.push({
+          field: key,
+          newValue: currentEvent.layout,
+          previousValue: event.layout,
         });
       }
       return;
@@ -494,7 +525,7 @@ export default function EditEventForm({
 
   console.log("Org Code:", organization);
 
-  const [layouts, setLayouts] = React.useState<Layout[]>([]);
+  const [layouts, setLayouts] = React.useState<LayoutModel[]>([]);
   const [divisions, setDivisions] = React.useState<Division[]>([]);
 
   async function fetchSettingsData() {
@@ -530,11 +561,13 @@ export default function EditEventForm({
         console.log("Divisions data:", settingsData.divisions);
 
         setLayouts(settingsData.layouts);
+        setValue("layout", event.layout || settingsData.layouts[0]); // Set default or first layout
+
         setDivisions(settingsData.divisions);
 
         // form.setValue("divisions", settingsData.divisions);
 
-        form.setValue(
+        setValue(
           "divisions",
           settingsData.divisions.map((division: Division) => ({
             ...division,
@@ -551,6 +584,22 @@ export default function EditEventForm({
         console.error("Error setting default values:", error);
       });
   }, [organization]); // Empty dependency array to run the effect only once when the component mounts
+
+  function isLayoutModel(value: any): value is LayoutModel {
+    return value && typeof value.name === "string";
+  }
+
+  function formatValue(value: any) {
+    if (value instanceof Date) {
+      return value.toLocaleString();
+    } else if (isLayoutModel(value)) {
+      return value.name;
+    } else if (Array.isArray(value)) {
+      return value.map((division) => division.name).join(", ");
+    } else {
+      return value;
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -705,7 +754,7 @@ export default function EditEventForm({
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a layout" />
+                        <SelectValue placeholder="Select a format" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -746,7 +795,7 @@ export default function EditEventForm({
                       <TableBody>
                         {field.value
                           .filter(
-                            (division) =>
+                            (division: Division) =>
                               division.name.startsWith("M") ||
                               division.name.startsWith("F")
                           )
@@ -759,7 +808,7 @@ export default function EditEventForm({
                             // If both start with the same letter, sort by division_id
                             return a.division_id - b.division_id;
                           })
-                          .map((division) => (
+                          .map((division: Division) => (
                             <TableRow key={division.division_id}>
                               <TableCell>{division.name}</TableCell>
                               <TableCell>
@@ -771,10 +820,11 @@ export default function EditEventForm({
                                       : "secondary"
                                   }
                                   onClick={() => {
-                                    const newValue = field.value.map((div) =>
-                                      div.division_id === division.division_id
-                                        ? { ...div, active: !div.active }
-                                        : div
+                                    const newValue = field.value.map(
+                                      (div: Division) =>
+                                        div.division_id === division.division_id
+                                          ? { ...div, active: !div.active }
+                                          : div
                                     );
                                     field.onChange(newValue);
                                   }}
@@ -792,22 +842,27 @@ export default function EditEventForm({
               )}
             />
 
-            <FormField
+            <Controller
               control={form.control}
               name="layout"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Layout</FormLabel>
                   <FormDescription>
-                    The layout for the event. Add layouts in &apos;Course
-                    Settings&apos;.
+                    The layout of the course for the event.
                   </FormDescription>
                   <FormControl>
                     <Select
                       {...field}
                       onValueChange={(value) => {
-                        field.onChange(value);
+                        // Assuming onChange from Select gives us an object we need
+                        field.onChange(
+                          layouts.find(
+                            (layout) => layout.layout_id?.toString() === value
+                          )
+                        );
                       }}
+                      value={field.value?.layout_id?.toString()}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a layout" />
@@ -817,19 +872,20 @@ export default function EditEventForm({
                           {layouts.map((layout) => (
                             <SelectItem
                               key={layout.layout_id}
-                              value={layout.name}
+                              value={layout.layout_id!.toString()} // or layout.layout_id if using IDs
                             >
-                              {layout.name}
+                              {layout.name} (Par {layout.par})
                             </SelectItem>
                           ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>{errors.layout?.message}</FormMessage>
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="uDiscEventURL"
@@ -880,23 +936,11 @@ export default function EditEventForm({
                       className="text-sm"
                       style={{ textDecoration: "line-through" }}
                     >
-                      {item.previousValue instanceof Date
-                        ? item.previousValue.toLocaleString()
-                        : Array.isArray(item.previousValue)
-                        ? item.previousValue
-                            .map((division) => division.name)
-                            .join(", ")
-                        : item.previousValue}
+                      {formatValue(item.previousValue)}
                     </Label>
                     &nbsp;→&nbsp;
                     <Label className="text-sm">
-                      {item.newValue instanceof Date
-                        ? item.newValue.toLocaleString()
-                        : Array.isArray(item.newValue)
-                        ? item.newValue
-                            .map((division) => division.name)
-                            .join(", ")
-                        : item.newValue}
+                      {formatValue(item.newValue)}
                     </Label>
                   </div>
                 ))}
@@ -930,22 +974,10 @@ export default function EditEventForm({
                   className="text-sm"
                   style={{ textDecoration: "line-through" }}
                 >
-                  {item.previousValue instanceof Date
-                    ? item.previousValue.toLocaleString()
-                    : Array.isArray(item.previousValue)
-                    ? item.previousValue
-                        .map((division) => division.name)
-                        .join(", ")
-                    : item.previousValue}
+                  {formatValue(item.previousValue)}
                 </Label>
                 &nbsp;→&nbsp;
-                <Label className="text-sm">
-                  {item.newValue instanceof Date
-                    ? item.newValue.toLocaleString()
-                    : Array.isArray(item.newValue)
-                    ? item.newValue.map((division) => division.name).join(", ")
-                    : item.newValue}
-                </Label>
+                <Label className="text-sm">{formatValue(item.newValue)}</Label>
               </div>
             ))}
             <EventPreviewComponent data={form.getValues()} />

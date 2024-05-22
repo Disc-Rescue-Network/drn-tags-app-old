@@ -93,7 +93,7 @@ export interface EventPreview {
   maxSignups: number;
   leagueName?: string;
   eventName: string;
-  layout: string;
+  layout: LayoutModel;
   checkInPeriod: number;
   // CheckedInPlayers?: string[];
 }
@@ -119,13 +119,13 @@ export interface LayoutModel {
   par: string; // The new field you added, assumed to be an integer
 }
 
-export interface Layout {
-  layout_id: number;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  orgCode: string;
-}
+// export interface Layout {
+//   layout_id: number;
+//   name: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   orgCode: string;
+// }
 
 export type SuggestionFormData = {
   suggestion: string;
