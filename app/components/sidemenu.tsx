@@ -119,12 +119,12 @@ function SideMenu() {
       // console.log("fetching course for orgCode", orgCode);
       if (!orgCode || orgCode === "" || orgCode === "org_6c3b341e563") {
         console.error("Organization code is required");
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Organization code is required.",
-          duration: 3000,
-        });
+        // toast({
+        //   variant: "destructive",
+        //   title: "Error",
+        //   description: "Organization code is required.",
+        //   duration: 3000,
+        // });
         setBelongsToOrg(false);
         return;
       }
