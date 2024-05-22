@@ -53,7 +53,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import * as React from "react";
-import { Division, EventPreview, Layout } from "@/app/types";
+import { Division, EventPreview, LayoutModel } from "@/app/types";
 import {
   Dialog,
   DialogContent,
@@ -91,6 +91,12 @@ const formats = [
 //   "Mullet",
 // ]; // Array of layout options
 
+const layoutSchema = z.object({
+  layout_id: z.number().optional(),
+  name: z.string(),
+  par: z.string(),
+});
+
 // Define the form schema using Zod
 const eventSchema = z.object({
   dateTime: z.date({
@@ -118,7 +124,7 @@ const eventSchema = z.object({
     message: "Invalid uDisc URL. Must end with '?tab=scores'.",
   }),
   maxSignups: z.number().min(1),
-  layout: z.string().min(1),
+  layout: layoutSchema,
   checkInPeriod: z.number().min(1),
   divisions: z.array(
     z.object({ division_id: z.number(), name: z.string(), active: z.boolean() })
@@ -199,7 +205,7 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
         <div className="flex flex-col gap-4 justify-start items-start p-0 m-0 md:flex-col lg:flex-col w-[60%]">
           <div className="flex flex-row gap-1 items-center justify-start">
             <Map className="h-4 w-4" />
-            <Label className="text-xs">{event.layout}</Label>
+            <Label className="text-xs">{event.layout?.name || ""}</Label>
           </div>
           <div className="flex flex-row gap-1 items-center justify-start">
             <User className="h-4 w-4" />
@@ -266,14 +272,14 @@ export default function EventForm() {
     defaultValues: {
       dateTime: new Date(),
       date: new Date(),
-      time: "",
+      time: "17:00",
       location: "Tranquility Trails",
       format: "Singles",
       leagueName: "",
       eventName: "Tags Event",
       uDiscEventURL: "",
       maxSignups: 72,
-      layout: "Short Tees",
+      layout: { layout_id: 1, name: "Short Tees", par: "54" },
       checkInPeriod: 30,
       divisions: [
         { division_id: 1, name: "MPO (Open)", active: true },
@@ -375,6 +381,10 @@ export default function EventForm() {
       });
   }
 
+  const [layouts, setLayouts] = React.useState<LayoutModel[]>([]);
+  const [divisions, setDivisions] = React.useState<Division[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
   const layout = form.watch("layout");
   const checkInPeriod = form.watch("checkInPeriod");
   const maxSignups = form.watch("maxSignups");
@@ -390,8 +400,12 @@ export default function EventForm() {
   const timeValue = form.getValues().time;
 
   if (!dateValue || !timeValue) {
-    console.error("Date or time is empty");
-  } else {
+    console.log("Date or time is empty");
+    form.setValue("date", new Date());
+    form.setValue("time", "17:00");
+  }
+
+  try {
     const dateTmp = new Date(dateValue);
     const localDate = new Date(
       dateTmp.getTime() - dateTmp.getTimezoneOffset() * 60000
@@ -401,15 +415,9 @@ export default function EventForm() {
     const dateTime = new Date(`${localDate}T${timeValue}`);
     console.log("FINAL DateTime:", dateTime);
     form.setValue("dateTime", dateTime);
+  } catch (error) {
+    console.error("Invalid time value:", dateValue, timeValue);
   }
-
-  console.log(form.getValues());
-  console.log(form.formState.errors);
-
-  console.log("Org Code:", organization);
-
-  const [layouts, setLayouts] = React.useState<Layout[]>([]);
-  const [divisions, setDivisions] = React.useState<Division[]>([]);
 
   async function fetchSettingsData() {
     if (!organization) {
@@ -437,11 +445,13 @@ export default function EventForm() {
 
   // Use useEffect to fetch settings data when the component mounts
   useEffect(() => {
+    setLoading(true); // Set loading state to true (optional
     // Fetch settings data
     fetchSettingsData()
       .then((settingsData) => {
         // Extract relevant fields from settingsData to prepopulate the form
         console.log("Divisions data:", settingsData.divisions);
+        console.log("Layouts data:", settingsData.layouts);
         const defaultValues = {
           dateTime: new Date(),
           date: "",
@@ -452,7 +462,7 @@ export default function EventForm() {
           eventName: "Tags Event", // Default value
           uDiscEventURL: "", // Default value
           maxSignups: 72, // Default value
-          layout: settingsData.layouts[0]?.name || "", // Assuming 'layouts' is an array and you want to use the first layout
+          layout: settingsData.layouts[0], // Default value
           checkInPeriod: 30, // Default value
           divisions: settingsData.divisions,
           courseId: organization,
@@ -461,6 +471,7 @@ export default function EventForm() {
         console.log("Default values:", defaultValues);
 
         setLayouts(settingsData.layouts);
+
         setDivisions(settingsData.divisions);
 
         // Set the default values of the form fields
@@ -468,12 +479,22 @@ export default function EventForm() {
           form.setValue(key as keyof typeof defaultValues, value);
         });
 
+        console.log("default layout", settingsData.layouts[0]);
+        form.setValue("layout", settingsData.layouts[0]); // Set default or first layout
+        console.log("form values", form.getValues());
         console.log("Form default values set successfully");
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error setting default values:", error);
+        setLoading(false);
       });
   }, [organization]); // Empty dependency array to run the effect only once when the component mounts
+
+  console.log(form.getValues());
+  console.log(form.formState.errors);
+
+  console.log("Org Code:", organization);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -715,23 +736,27 @@ export default function EventForm() {
                 </FormItem>
               )}
             />
-
-            <FormField
+            <Controller
               control={form.control}
               name="layout"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Layout</FormLabel>
                   <FormDescription>
-                    The layout for the event. Add layouts in &apos;Course
-                    Settings&apos;.
+                    The layout of the course for the event.
                   </FormDescription>
                   <FormControl>
                     <Select
                       {...field}
                       onValueChange={(value) => {
-                        field.onChange(value);
+                        const layout = layouts.find(
+                          (layout) => layout.layout_id!.toString() === value
+                        );
+                        if (layout) {
+                          field.onChange(layout); // Ensure the whole object is set to the form
+                        }
                       }}
+                      value={field.value?.layout_id?.toString() || ""}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a layout" />
@@ -741,19 +766,22 @@ export default function EventForm() {
                           {layouts.map((layout) => (
                             <SelectItem
                               key={layout.layout_id}
-                              value={layout.name}
+                              value={layout.layout_id!.toString()}
                             >
-                              {layout.name}
+                              {layout.name} (Par {layout.par})
                             </SelectItem>
                           ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>
+                    {form.formState.errors.layout?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="uDiscEventURL"
@@ -808,14 +836,16 @@ export default function EventForm() {
           </Dialog>
         </form>
       </Form>
-      <Card className="h-max bg-muted/20 hidden md:block">
-        <CardHeader className="p-4">
-          <CardTitle>Preview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EventPreviewComponent data={form.getValues()} />
-        </CardContent>
-      </Card>
+      {!loading && (
+        <Card className="h-max bg-muted/20 hidden md:block">
+          <CardHeader className="p-4">
+            <CardTitle>Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <EventPreviewComponent data={form.getValues()} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
