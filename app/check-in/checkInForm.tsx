@@ -193,13 +193,13 @@ const CheckInForm = (props: CheckInFormProps) => {
               />
             )}
           </div>
-          <DialogFooter>
-            <Button type="submit">Save changes</Button>
-            <DialogClose asChild>
+          <DialogFooter className=" gap-2">
+            <Button type="submit">Check In</Button>
+            {/* <DialogClose asChild>
               <Button type="button" variant="secondary">
                 Dismiss
               </Button>
-            </DialogClose>
+            </DialogClose> */}
           </DialogFooter>
         </form>
       </DialogContent>
