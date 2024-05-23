@@ -23,23 +23,61 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
         className="max-w-[70px]"
       />
     ),
-    cell: (info) => (
-      <div className="flex flex-row gap-1">
-        {getPodiumIcon(info.row.original.position)}
-        {(info.getValue() as string).toString()}
-      </div>
-    ),
+    cell: (info) => {
+      const value = info.getValue();
+      const name = info.row.original.name;
+      const movement = info.row.original.change;
+
+      console.log(value);
+      console.log(info.row.original);
+
+      console.log("Name: ", name);
+      console.log("Movement: ", movement);
+
+      return (
+        <div className="flex flex-row gap-1 text-sm">
+          <div className="h-full mt-auto mb-auto flex flex-row justify-center items-center">
+            {getPodiumIcon(info.row.original.position)}
+          </div>
+          <div className="flex flex-col gap-1 min-w-fit items-center justify-center">
+            {(info.getValue() as string).toString()}
+            {info.row.original.change === "up" && (
+              <div className="flex flex-row gap-1 justify-center items-center">
+                <ChevronUp className="w-3 h-3 text-green-600" />
+                <Label className="text-xxs">
+                  {info.row.original.previousPosition -
+                    info.row.original.position}
+                </Label>
+              </div>
+            )}
+            {info.row.original.change === "down" && (
+              <div className="flex flex-row gap-1 justify-center items-center">
+                <ChevronDown className="w-3 h-3 text-red-600" />
+                <Label className="text-xxs">
+                  {Math.abs(
+                    info.row.original.previousPosition -
+                      info.row.original.position
+                  )}
+                </Label>
+              </div>
+            )}
+            {info.row.original.change === "steady" && (
+              <div className="flex flex-row gap-0 justify-center items-center">
+                <Dot className="w-3 h-3" />
+                <Minus className="w-2 h-2" />
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    },
     enableSorting: true,
     enableHiding: true,
   },
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Name"
-        className="min-w-[150px]"
-      />
+      <DataTableColumnHeader column={column} title="Name" />
     ),
     cell: (info) => {
       const value = info.getValue();
@@ -57,7 +95,7 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
           <Label className="min-w-fit text-ellipsis">
             {(info.getValue() as string).toString()}
           </Label>
-          {info.row.original.change === "up" && (
+          {/* {info.row.original.change === "up" && (
             <div className="flex flex-row gap-1 justify-center items-center">
               <ChevronUp className="w-4 h-4 text-green-600" />
               <Label className="text-xxs">
@@ -82,7 +120,7 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
               <Dot className="w-6 h-6" />
               <Minus className="w-2 h-2" />
             </div>
-          )}
+          )} */}
         </div>
       );
     },
@@ -126,14 +164,22 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
 const getPodiumIcon = (position: number) => {
   switch (position) {
     case 1:
-      return <Medal color="gold" size={18} style={{ marginRight: "0.5rem" }} />;
+      return (
+        <Medal
+          color="gold"
+          size={20}
+          style={{
+            marginRight: "0.5rem",
+          }}
+        />
+      );
     case 2:
       return (
-        <Medal color="silver" size={18} style={{ marginRight: "0.5rem" }} />
+        <Medal color="silver" size={20} style={{ marginRight: "0.5rem" }} />
       );
     case 3:
       return (
-        <Medal color="#cd7f32" size={18} style={{ marginRight: "0.5rem" }} />
+        <Medal color="#cd7f32" size={20} style={{ marginRight: "0.5rem" }} />
       );
     default:
       return null;
