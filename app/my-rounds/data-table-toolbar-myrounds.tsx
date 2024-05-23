@@ -8,6 +8,7 @@ import { columnHeadersArrayRounds } from "./columns-myrounds";
 import { useMemo } from "react";
 import { DataTableFacetedFilter } from "../components/data-table-faceted-filter";
 import DataTableViewOptions from "../components/data-table-view-options";
+import React from "react";
 
 interface DataTableToolbarProps<TData> {
   searchName: string;
@@ -56,9 +57,20 @@ export function DataTableToolbar<TData>({
 
   console.log("layoutOptions", layoutOptions);
 
+  const [isMobile, setIsMobile] = React.useState(false);
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 1024);
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-2">
+    <div className="flex flex-row items-start justify-between">
+      <div className="flex flex-1 flex-col lg:flex-row justify-center items-start space-x-2 gap-4 w-full">
         <Input
           placeholder="Filter by event..."
           value={
@@ -67,23 +79,35 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn(searchName)?.setFilterValue(event.target.value)
           }
-          className="h-8 w-[150px] lg:w-[250px]"
+          className="h-8 w-full max-w-[200px] lg:max-w-[250px]"
         />
-        {table.getColumn("EventModel_location") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("EventModel_location")}
-            title="Location"
-            options={locationOptions}
-          />
-        )}
-        {table.getColumn("EventModel_layout.name") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("EventModel_layout.name")}
-            title="Layout"
-            options={layoutOptions}
-          />
-        )}
-        {isFiltered && (
+        <div className="flex flex-row gap-1 w-full !ml-0">
+          {table.getColumn("EventModel_location") && (
+            <DataTableFacetedFilter
+              column={table.getColumn("EventModel_location")}
+              title="Location"
+              options={locationOptions}
+            />
+          )}
+          {table.getColumn("EventModel_layout.name") && (
+            <DataTableFacetedFilter
+              column={table.getColumn("EventModel_layout.name")}
+              title="Layout"
+              options={layoutOptions}
+            />
+          )}
+          {isFiltered && !isMobile && (
+            <Button
+              variant="ghost"
+              onClick={() => table.resetColumnFilters()}
+              className="h-8 px-2 lg:px-3"
+            >
+              Reset
+              <Cross2Icon className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        {isFiltered && isMobile && (
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}

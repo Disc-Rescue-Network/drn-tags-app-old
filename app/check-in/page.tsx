@@ -294,13 +294,15 @@ const CheckIn: NextPage = () => {
                             className="text-balance leading-relaxed items-center flex flex-row justify-between w-full"
                             style={{ gridTemplateColumns: "60% 40%" }}
                           >
-                            {format(
-                              new Date(event.dateTime),
-                              isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
-                            )}{" "}
-                            @ {format(new Date(event.dateTime), "h:mm a")}
-                            <Label className="flex flex-row gap-2 justify-center items-center">
-                              <MapPin className="h-4 w-4" />
+                            <Label className="min-w-fit text-xs">
+                              {format(
+                                new Date(event.dateTime),
+                                isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
+                              )}{" "}
+                              @ {format(new Date(event.dateTime), "h:mm a")}
+                            </Label>
+                            <Label className="flex flex-row text-xs min-w-fit gap-1 justify-end items-center">
+                              <MapPin className="h-3 w-3" />
                               {event.location}
                             </Label>
                           </CardDescription>

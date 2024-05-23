@@ -402,19 +402,19 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className="grid min-h-screen w-full text-center items-start">
-      <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    <div className="container mx-auto p-2 gap-4">
+      <main className="flex flex-1 flex-col gap-4 p-1 lg:gap-6 lg:p-6">
         <div className="flex">
           <h1 className="text-lg font-semibold md:text-2xl">My Rounds</h1>
         </div>
 
         <div
-          className="flex flex-col w-full m-auto h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-8 bg-muted/20"
+          className="flex flex-col items-center justify-center rounded-lg border border-dashed shadow-sm p-2 lg:p-6 bg-muted/20"
           x-chunk="dashboard-02-chunk-1"
         >
           {user ? (
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 w-full gap-6">
+            <div className="flex flex-col items-center gap-4 p-0 w-full text-center">
+              <div className="lg:grid lg:grid-cols-2 xl:grid-cols-4 p-0 w-full gap-6">
                 {!loading ? (
                   <div className="grid grid-cols-1 gap-2 items-end">
                     {lowestLeague != null && (
@@ -479,7 +479,7 @@ const Home: NextPage = () => {
                   <Skeleton className="w-36 h-36" />
                 )}
                 {!loading ? (
-                  <div className="grid grid-cols-1 gap-2 items-end">
+                  <div className="grid grid-cols-1 gap-2 items-end mt-2 lg:mt-0">
                     {bestFinish != null && (
                       <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
                         <CardHeader className="pb-2">
@@ -518,7 +518,10 @@ const Home: NextPage = () => {
                 {!loading ? (
                   <>
                     {hasChartData(allChartData) && (
-                      <Tabs defaultValue="all" className="col-span-2">
+                      <Tabs
+                        defaultValue="all"
+                        className="col-span-2 mt-2 lg:mt-0"
+                      >
                         <TabsList className="grid w-full grid-cols-4">
                           <TabsTrigger value="all">All</TabsTrigger>
                           <TabsTrigger value="last5">Last 5</TabsTrigger>
