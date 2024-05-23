@@ -139,16 +139,20 @@ const UDiscDisplayNameDialog = () => {
       open={isUDiscNameMissing && !loading && !isDialogDismissed}
       onOpenChange={handleDialogDismiss}
     >
-      <DialogContent className="max-width-90">
+      <DialogContent className="max-w-[325px] lg:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>UDisc Display Name Missing</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Please enter your UDisc display name to continue, as it is needed to
-            track your rounds.
+            track your rounds. <br />
+            <br />
+            This is NOT your username. You can find your display name by going
+            to any previous event leaderboard and copying the name you see
+            displayed in the standings.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
+          <div className="grid grid-cols-1 items-center gap-4">
             {/* <Label htmlFor="name" className="text-right">
               UDisc Display Name
             </Label> */}
@@ -156,8 +160,8 @@ const UDiscDisplayNameDialog = () => {
               id="udiscDisplayName"
               value={udiscDisplayName}
               onChange={handleDisplayNameChange}
-              className="w-80"
-              placeholder="Enter your UDisc display name"
+              className="min-w-[150px]"
+              placeholder="Enter your UDisc Display Name"
             />
           </div>
         </div>

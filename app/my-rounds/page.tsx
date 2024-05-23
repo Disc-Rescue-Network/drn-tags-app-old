@@ -59,6 +59,8 @@ const Home: NextPage = () => {
   const { isLoading, isAuthenticated, user } = useKindeBrowserClient();
   console.log("User:", user);
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   const [allChartData, setAllChartData] = useState<any>({});
   const [last5ChartData, setLast5ChartData] = useState<any>({});
   const [last10ChartData, setLast10ChartData] = useState<any>({});
@@ -87,6 +89,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const fetchPlayerRounds = async (kindeId: string) => {
+      setLoading(true);
       console.log("Fetching player rounds for user:", kindeId);
       try {
         const response = await fetch(
@@ -126,7 +129,9 @@ const Home: NextPage = () => {
         setBestFinish(getBestFinish(data));
         setTagPerLeague(mapTagsToLeagues(data));
         setBestRound(findBestScoreRound(data));
+        setLoading(false);
       } catch (error) {
+        setLoading(false);
         console.error("Failed to fetch player rounds:", error);
         toast({
           title: "Failed to fetch player rounds",
@@ -410,16 +415,17 @@ const Home: NextPage = () => {
           {user ? (
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 w-full gap-6">
-                {lowestTag !== null ? (
+                {!loading ? (
                   <div className="grid grid-cols-1 gap-2 items-end">
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>
-                          Lowest Tag (Season Long)
-                        </CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {lowestTag ? lowestTag : "-"}
-                          {/* {tagMovement! < 0 ? (
+                    {lowestLeague != null && (
+                      <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
+                        <CardHeader className="pb-2">
+                          <CardDescription>
+                            Lowest Tag (Season Long)
+                          </CardDescription>
+                          <CardTitle className="text-4xl relative">
+                            {lowestTag ? lowestTag : "-"}
+                            {/* {tagMovement! < 0 ? (
                           <div className="absolute right-8 bottom-5 flex flex-row gap-1 justify-center items-center">
                             <ChevronUp className="w-4 h-4 text-green-600" />
                             <Label className="text-xxs">{tagMovement}</Label>
@@ -432,124 +438,156 @@ const Home: NextPage = () => {
                             </Label>
                           </div>
                         )} */}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {/* <div className="text-xs text-muted-foreground">
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {/* <div className="text-xs text-muted-foreground">
                         {tagMovement! >= 0 ? "+" : ""}
                         {tagMovement} from last round
                       </div> */}
-                        <div className="text-xs text-muted-foreground">
-                          {lowestLeague ? lowestLeague : "-"}
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>Best Round</CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {bestRound?.score}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {/* <div className="text-xs text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
+                            {lowestLeague ? lowestLeague : "-"}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {bestRound != null && (
+                      <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
+                        <CardHeader className="pb-2">
+                          <CardDescription>Best Round</CardDescription>
+                          <CardTitle className="text-4xl relative">
+                            {bestRound?.score}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {/* <div className="text-xs text-muted-foreground">
                         {tagMovement! >= 0 ? "+" : ""}
                         {tagMovement} from last round
                       </div> */}
-                        <div className="text-xs text-muted-foreground">
-                          {bestRound?.location} - {bestRound?.layout} (
-                          {bestRound && bestRound.date
-                            ? format(bestRound.date, "MM/dd/yyyy")
-                            : "Loading..."}
-                        </div>
-                      </CardContent>
-                    </Card>
+                          <div className="text-xs text-muted-foreground">
+                            {bestRound?.location} - {bestRound?.layout} (
+                            {bestRound && bestRound.date
+                              ? format(bestRound.date, "MM/dd/yyyy")
+                              : "Loading..."}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 ) : (
                   <Skeleton className="w-36 h-36" />
                 )}
-                {bestFinish !== null ? (
+                {!loading ? (
                   <div className="grid grid-cols-1 gap-2 items-end">
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>Best Finish</CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {getOrdinalSuffix(bestFinish.place)}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-xs text-muted-foreground">
-                          {bestFinish.EventModel.eventName}{" "}
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>Best Current Tag</CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {lowestCurrentTag ? lowestCurrentTag : "-"}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-xs text-muted-foreground">
-                          {lowestCurrentLeague}
-                        </div>
-                      </CardContent>
-                    </Card>
+                    {bestFinish != null && (
+                      <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
+                        <CardHeader className="pb-2">
+                          <CardDescription>Best Finish</CardDescription>
+                          <CardTitle className="text-4xl relative">
+                            {getOrdinalSuffix(bestFinish.place)}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-xs text-muted-foreground">
+                            {bestFinish.EventModel.leagueName}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                    {lowestCurrentLeague != null && (
+                      <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
+                        <CardHeader className="pb-2">
+                          <CardDescription>Best Current Tag</CardDescription>
+                          <CardTitle className="text-4xl relative">
+                            {lowestCurrentTag ? lowestCurrentTag : "-"}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-xs text-muted-foreground">
+                            {lowestCurrentLeague}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 ) : (
                   <Skeleton className="w-36 h-36" />
                 )}
 
-                {hasChartData(allChartData) ? (
-                  <Tabs defaultValue="all" className="col-span-2">
-                    <TabsList className="grid w-full grid-cols-4">
-                      <TabsTrigger value="all">All</TabsTrigger>
-                      <TabsTrigger value="last5">Last 5</TabsTrigger>
-                      <TabsTrigger value="last10">Last 10</TabsTrigger>
-                      <TabsTrigger value="last20">Last 20</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="all">
-                      <Card>
-                        <CardHeader>
-                          <CardDescription>Recent Placements</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Line data={allChartData} options={chartOptions} />
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                    <TabsContent value="last5">
-                      <Card>
-                        <CardHeader>
-                          <CardDescription>Recent Placements</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Line data={last5ChartData} options={chartOptions} />
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                    <TabsContent value="last10">
-                      <Card>
-                        <CardHeader>
-                          <CardDescription>Recent Placements</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Line data={last10ChartData} options={chartOptions} />
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                    <TabsContent value="last20">
-                      <Card>
-                        <CardHeader>
-                          <CardDescription>Recent Placements</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Line data={last20ChartData} options={chartOptions} />
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-                  </Tabs>
+                {!loading ? (
+                  <>
+                    {hasChartData(allChartData) && (
+                      <Tabs defaultValue="all" className="col-span-2">
+                        <TabsList className="grid w-full grid-cols-4">
+                          <TabsTrigger value="all">All</TabsTrigger>
+                          <TabsTrigger value="last5">Last 5</TabsTrigger>
+                          <TabsTrigger value="last10">Last 10</TabsTrigger>
+                          <TabsTrigger value="last20">Last 20</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="all">
+                          <Card>
+                            <CardHeader>
+                              <CardDescription>
+                                Recent Placements
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <Line
+                                data={allChartData}
+                                options={chartOptions}
+                              />
+                            </CardContent>
+                          </Card>
+                        </TabsContent>
+                        <TabsContent value="last5">
+                          <Card>
+                            <CardHeader>
+                              <CardDescription>
+                                Recent Placements
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <Line
+                                data={last5ChartData}
+                                options={chartOptions}
+                              />
+                            </CardContent>
+                          </Card>
+                        </TabsContent>
+                        <TabsContent value="last10">
+                          <Card>
+                            <CardHeader>
+                              <CardDescription>
+                                Recent Placements
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <Line
+                                data={last10ChartData}
+                                options={chartOptions}
+                              />
+                            </CardContent>
+                          </Card>
+                        </TabsContent>
+                        <TabsContent value="last20">
+                          <Card>
+                            <CardHeader>
+                              <CardDescription>
+                                Recent Placements
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <Line
+                                data={last20ChartData}
+                                options={chartOptions}
+                              />
+                            </CardContent>
+                          </Card>
+                        </TabsContent>
+                      </Tabs>
+                    )}
+                  </>
                 ) : (
                   <Skeleton className="w-36 h-36" />
                 )}
@@ -558,7 +596,7 @@ const Home: NextPage = () => {
               {playerRounds.length > 0 ? (
                 <DataTable columns={columns} data={playerRounds} />
               ) : (
-                <div className="flex flex-col items-center gap-1 text-center">
+                <div className="flex flex-col min-h-[300px] items-center justify-center gap-1 text-center">
                   <h3 className="text-2xl font-bold tracking-tight">
                     No data to show yet
                   </h3>
