@@ -40,7 +40,9 @@ export const metadata: Metadata = {
   //   ],
   // },
   icons: {
-    icon: "48x48.jpg",
+    icon: ["/48x48.jpg"],
+    apple: ["/192x192.jpg"],
+    // shortcut: ["/apple-touch-icon.png"],
   },
   appleWebApp: {
     capable: true,
