@@ -3,6 +3,8 @@ name: Auto Assign Reviewer and Notify
 on:
   pull_request:
     types: [opened, reopened]
+    branches:
+      - master
 
 jobs:
   assign-reviewer:
@@ -14,7 +16,7 @@ jobs:
 
       - name: Assign Trey as a reviewer
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           PR_NUMBER=$(jq -r .number < "$GITHUB_EVENT_PATH")
           curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
@@ -24,7 +26,7 @@ jobs:
 
       - name: Notify Trey
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           PR_NUMBER=$(jq -r .number < "$GITHUB_EVENT_PATH")
           curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
