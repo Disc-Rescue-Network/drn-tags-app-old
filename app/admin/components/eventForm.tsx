@@ -501,7 +501,7 @@ export default function EventForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <fieldset className="grid gap-6 rounded-lg border p-4">
-            <legend className="-ml-1 px-1 text-sm font-medium text-center ">
+            <legend className="-ml-1 px-1 text-sm font-medium text-center">
               Create Event
             </legend>
 
@@ -509,7 +509,7 @@ export default function EventForm() {
               control={form.control}
               name="date"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem>
                   <FormLabel>Date</FormLabel>
                   <FormDescription>Day of the event.</FormDescription>
                   <FormControl>
