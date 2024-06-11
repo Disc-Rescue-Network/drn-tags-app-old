@@ -26,6 +26,22 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
+  //You can also change favicon by color scheme:
+  // icons: {
+  //   icon: [
+  //     {
+  //       url: "/light-icon.png",
+  //       media: "(prefers-color-scheme: light)",
+  //     },
+  //     {
+  //       url: "/dark-icon.png",
+  //       media: "(prefers-color-scheme: dark)",
+  //     },
+  //   ],
+  // },
+  icons: {
+    icon: "48x48.jpg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
