@@ -3,6 +3,8 @@ name: Auto Assign Reviewer and Notify
 on:
   pull_request:
     types: [opened, reopened]
+    branches:
+      - master
 
 jobs:
   assign-reviewer:
