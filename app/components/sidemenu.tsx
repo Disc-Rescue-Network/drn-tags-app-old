@@ -31,8 +31,8 @@ import {
   Settings,
   ShieldCheck,
 } from "lucide-react";
-import DRNIconLogo from "@/public/assets/icon_logo_transparent_fullsize.png";
-import DRNFullLogo from "@/public/assets/full_logo_transparent_1740x300.png";
+import DRNLightLogo from "@/public/tags_logo_lightmode_long.png";
+import DRNDarkLogo from "@/public/tags_logo_darkmode_long.png";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { Course, KindeOrganization } from "../layout";
@@ -57,12 +57,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { register } from "module";
 import { SuggestionFormData } from "../types";
 import { useForm } from "react-hook-form";
+import { useTheme } from "next-themes";
 
 function SideMenu() {
   const pathname = usePathname();
   // console.log("pathname: ", pathname);
 
   const [isMobile, setIsMobile] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const handleResize = () => {
@@ -233,11 +235,11 @@ function SideMenu() {
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <div className="flex items-center gap-2 font-semibold tracking-tight">
             <Image
-              src={DRNFullLogo}
+              src={theme === "dark" ? DRNDarkLogo : DRNLightLogo}
               width={0}
               height={0}
               alt="Disc Rescue Network"
-              style={{ width: "auto", height: "auto" }} // optional
+              style={{ width: "auto", height: "auto", maxHeight: "50px" }}
             />
           </div>
         </div>

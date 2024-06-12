@@ -56,7 +56,8 @@ import { useEffect, useRef, useState } from "react";
 import { Course } from "../layout";
 import { useToast } from "@/components/ui/use-toast";
 import { API_BASE_URL, TAGS_API_BASE_URL } from "../networking/apiExports";
-import DRNFullLogo from "@/public/assets/full_logo_transparent_1740x300.png";
+import DRNFullLogo from "@/public/Tags_Logo_TallTransparent.png";
+import DRNFullLogoDarkMode from "@/public/Tags_Logo_TallTransparent_DARKMODE.png";
 import axios from "axios";
 import { DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -226,7 +227,7 @@ function MenuHeader() {
                 width={0}
                 height={0}
                 alt="Disc Rescue Network"
-                style={{ width: "auto", height: "auto" }} // optional
+                style={{ width: "auto", height: "auto" }}
               />
             </div>
           </div>
