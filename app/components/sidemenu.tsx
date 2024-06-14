@@ -229,13 +229,33 @@ function SideMenu() {
   // console.log("isAuthenticated: ", isAuthenticated);
   // console.log("user: ", user);
 
+  let systemTheme = "light"; // Default to light theme
+
+  // Check if system theme is dark
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    systemTheme = "dark";
+  }
+
+  // Use system theme when theme is set to "system"
+  let logo =
+    theme === "system"
+      ? systemTheme === "dark"
+        ? DRNDarkLogo
+        : DRNLightLogo
+      : theme === "dark"
+      ? DRNDarkLogo
+      : DRNLightLogo;
+
   return (
     <div className="hidden border-r bg-muted/40 md:block md:w-3/7 lg:w-1/5">
       <div className="flex max-h-screen flex-col gap-2 ">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <div className="flex items-center gap-2 font-semibold tracking-tight">
             <Image
-              src={theme === "dark" ? DRNDarkLogo : DRNLightLogo}
+              src={logo}
               width={0}
               height={0}
               alt="Disc Rescue Network"
