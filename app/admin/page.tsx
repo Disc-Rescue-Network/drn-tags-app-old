@@ -73,6 +73,9 @@ const AdminTools: NextPage = () => {
       data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
     );
 
+    if (typeof window === "undefined")
+      return console.log("Window is undefined");
+
     if (isMobile) {
       window.location.href = `mailto:support@discrescuenetwork.com?subject=${subject}&body=${body}`;
     } else {

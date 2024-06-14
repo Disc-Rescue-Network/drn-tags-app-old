@@ -189,15 +189,20 @@ function MenuHeader() {
     fetchCourses();
   }, [orgCode, orgCodes]);
 
-  let systemTheme = "light"; // Default to light theme
+  const [systemTheme, setSystemTheme] = useState("light"); // Default to light theme
 
-  // Check if system theme is dark
-  if (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
-    systemTheme = "dark";
-  }
+  useEffect(() => {
+    // Check if window object is available
+    if (typeof window !== "undefined") {
+      // Check if system theme is dark
+      if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        setSystemTheme("dark");
+      }
+    }
+  }, []); // Empty dependency array means this effect runs once on mount
 
   // Use system theme when theme is set to "system"
   let logo =
