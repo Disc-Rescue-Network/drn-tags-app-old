@@ -231,6 +231,8 @@ function SideMenu() {
 
   let systemTheme = "light"; // Default to light theme
 
+  if (!window) return null;
+
   // Check if system theme is dark
   if (
     window.matchMedia &&
