@@ -12,7 +12,19 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Info, Map, MapPin, User } from "lucide-react";
+import {
+  Check,
+  Handshake,
+  Info,
+  Map,
+  MapPin,
+  MoreHorizontal,
+  Pencil,
+  ShieldAlert,
+  Undo,
+  User,
+  X,
+} from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -43,11 +55,170 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
+import { DataTableColumnHeader } from "@/app/components/data-table-column-header";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DataTableAllEvents } from "./DataTableAllEvents";
 
 const ManageEvents: NextPage = () => {
   const [events, setEvents] = useState<TagsEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  const statuses = [
+    {
+      value: false,
+      label: "Not Paid",
+      icon: ShieldAlert,
+    },
+    {
+      value: true,
+      label: "Paid",
+      icon: Check,
+    },
+  ];
+
+  const labels = [
+    {
+      value: "paid",
+      label: "Paid",
+    },
+    {
+      value: "unpaid",
+      label: "Not Paid",
+    },
+  ];
+
+  const columns: ColumnDef<TagsEvent>[] = [
+    // {
+    //   accessorKey: "event_id",
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader column={column} title="Event ID" />
+    //   ),
+    //   enableSorting: true,
+    //   cell: ({ row }) => {
+    //     return (
+    //       <Label className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+    //         {row.original.event_id}
+    //       </Label>
+    //     );
+    //   },
+    // },
+    {
+      accessorKey: "eventName",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Event Name" />
+      ),
+      enableSorting: true,
+      cell: ({ row }) => {
+        return (
+          <Label className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+            {row.original.eventName}
+          </Label>
+        );
+      },
+    },
+    {
+      accessorKey: "dateTime",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Event Date" />
+      ),
+      enableSorting: true,
+      cell: ({ row }) => {
+        const eventDate = new Date(row.original.dateTime);
+        return (
+          <Label className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+            {format(eventDate, "MM/dd/yyyy h:mm a")}
+          </Label>
+        );
+      },
+    },
+    {
+      accessorKey: "location",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Location" />
+      ),
+      enableSorting: true,
+      cell: ({ row }) => {
+        return (
+          <Label className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+            {row.original.location}
+          </Label>
+        );
+      },
+    },
+    {
+      accessorKey: "layout",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Layout" />
+      ),
+      enableSorting: true,
+      cell: ({ row }) => {
+        return (
+          <Label className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+            {row.original.layout.name}
+          </Label>
+        );
+      },
+    },
+    {
+      accessorKey: "checkedInPlayers",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Check Ins" />
+      ),
+      enableSorting: true,
+      cell: ({ row }) => {
+        return (
+          <Label className="max-w-[500px] truncate font-medium flex flex-row gap-2 min-w-fit">
+            {row.original.CheckedInPlayers?.length} / {row.original.maxSignups}
+          </Label>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const event = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => openEvent(event)}>
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <Info className="w-4 h-4" /> Manage Event
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => editEvent(event)}>
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <Pencil className="w-4 h-4" /> Edit Event Details
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => deleteEvent(event)}>
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <X className="w-4 h-4" /> Delete Event
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const { isAuthenticated, user, getAccessToken } = useKindeBrowserClient();
   const { loading: loginLoading, doesAccountExist } = useLogin(
@@ -138,9 +309,8 @@ const ManageEvents: NextPage = () => {
   }, []);
 
   function openEvent(event: TagsEvent) {
-    return () => {
-      router.push(`/admin/events/${event.event_id}`);
-    };
+    console.log("Opening event:", event.event_id);
+    router.push(`/admin/events/${event.event_id}`);
   }
 
   function deleteEvent(event: TagsEvent) {
@@ -186,9 +356,7 @@ const ManageEvents: NextPage = () => {
   }
 
   function editEvent(event: TagsEvent) {
-    return () => {
-      router.push(`/admin/events/edit/${event.event_id}`);
-    };
+    router.push(`/admin/events/edit/${event.event_id}`);
   }
 
   return (
@@ -211,49 +379,11 @@ const ManageEvents: NextPage = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-8">
               {isLoading ? (
                 <Skeleton className="w-full h-24" />
               ) : (
-                <Table className="w-full text-left relative">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Event Name</TableHead>
-                      <TableHead className="hidden md:table-cell">
-                        Date
-                      </TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {events.map((event) => (
-                      <TableRow key={event.event_id}>
-                        <TableCell>{event.eventName}</TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {format(new Date(event.dateTime), "MM/dd/yyyy")}
-                        </TableCell>
-                        <TableCell className="grid grid-cols-3 gap-4">
-                          <Button variant="default" onClick={openEvent(event)}>
-                            Manage
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={editEvent(event)}
-                          >
-                            Edit Details
-                          </Button>
-
-                          <Button
-                            variant="destructive"
-                            onClick={() => deleteEvent(event)}
-                          >
-                            Delete
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <DataTableAllEvents columns={columns} data={events} />
               )}
             </div>
           )}

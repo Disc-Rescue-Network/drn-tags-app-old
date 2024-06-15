@@ -254,15 +254,16 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
 
 function isValidUDiscURL(url: string): boolean {
   const uDiscDomain = "udisc.com"; // Define uDisc domain
-  const uDiscTabParam = "?tab=scores"; // Define required tab parameter
+  const leaderboardParam = "/leaderboard?round="; // Define required leaderboard parameter
 
-  // Check if URL is valid and ends with "?tab=scores"
+  // Check if URL is valid and ends with "/leaderboard?round=<number>"
   return (
     url.startsWith("http://") ||
     (url.startsWith("https://") && // Check if URL starts with http:// or https://
       url.includes(uDiscDomain) && // Check if URL contains uDisc domain
-      url.endsWith(uDiscTabParam))
-  ); // Check if URL ends with "?tab=scores"
+      url.includes(leaderboardParam) && // Check if URL contains leaderboard parameter
+      !isNaN(Number(url.split(leaderboardParam)[1]))) // Check if the round number is a valid number
+  );
 }
 
 export default function EventForm() {

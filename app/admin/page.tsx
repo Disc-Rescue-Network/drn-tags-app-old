@@ -73,6 +73,9 @@ const AdminTools: NextPage = () => {
       data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
     );
 
+    if (typeof window === "undefined")
+      return console.log("Window is undefined");
+
     if (isMobile) {
       window.location.href = `mailto:support@discrescuenetwork.com?subject=${subject}&body=${body}`;
     } else {
@@ -86,12 +89,12 @@ const AdminTools: NextPage = () => {
     <div className="grid min-h-screen w-full text-center items-start">
       {isAuthenticated && user ? (
         <div className="flex flex-1 flex-col h-3/5 gap-4 p-4 lg:gap-6 lg:p-6">
-          {/* <div className="flex flex-col w-full mt-4 mb-4 gap-4 text-left">
+          <div className="flex flex-col w-full mt-4 mb-4 gap-4 text-left">
             <Button onClick={toggleShowLiveScores} className="w-[200px]">
               {showLiveScores ? "Hide Live Scores" : "Show Live Scores"}
             </Button>
             {showLiveScores && <LiveStandings />}
-          </div> */}
+          </div>
           <div className="flex">
             <h1 className="text-lg font-semibold md:text-2xl">
               Admin Dashboard

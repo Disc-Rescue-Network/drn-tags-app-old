@@ -1,7 +1,8 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-
+import DRNLightLogo from "@/public/tags_logo_lightmode_long.png";
+import DRNDarkLogo from "@/public/tags_logo_darkmode_long.png";
 import Link from "next/link";
 import {
   CircleUser,
@@ -51,29 +52,14 @@ import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import DRNIconLogo from "@/public/assets/icon_logo_transparent_fullsize.png";
 import { useEffect, useRef, useState } from "react";
 import { Course } from "../layout";
 import { useToast } from "@/components/ui/use-toast";
 import { API_BASE_URL, TAGS_API_BASE_URL } from "../networking/apiExports";
-import DRNFullLogo from "@/public/assets/full_logo_transparent_1740x300.png";
 import axios from "axios";
 import { DialogTrigger } from "@/components/ui/dialog";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { ComboBox } from "./comboBox";
-import { UserProfile } from "../types";
-import { Label } from "@/components/ui/label";
+import { useTheme } from "next-themes";
 
 interface KindeUser {
   family_name: string;
@@ -85,19 +71,12 @@ interface KindeUser {
 
 function MenuHeader() {
   const {
-    permissions,
     isLoading,
     isAuthenticated,
     user,
-    accessToken,
-    organization,
-    userOrganizations,
-    getPermission,
     getAccessToken,
     getToken,
-    getIdToken,
     getOrganization,
-    getPermissions,
     getUserOrganizations,
   } = useKindeBrowserClient();
 
@@ -110,6 +89,7 @@ function MenuHeader() {
   });
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [belongsToOrg, setBelongsToOrg] = useState(false);
+  const { theme } = useTheme();
 
   const pathname = usePathname();
 
@@ -209,6 +189,31 @@ function MenuHeader() {
     fetchCourses();
   }, [orgCode, orgCodes]);
 
+  const [systemTheme, setSystemTheme] = useState("light"); // Default to light theme
+
+  useEffect(() => {
+    // Check if window object is available
+    if (typeof window !== "undefined") {
+      // Check if system theme is dark
+      if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        setSystemTheme("dark");
+      }
+    }
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  // Use system theme when theme is set to "system"
+  let logo =
+    theme === "system"
+      ? systemTheme === "dark"
+        ? DRNDarkLogo
+        : DRNLightLogo
+      : theme === "dark"
+      ? DRNDarkLogo
+      : DRNLightLogo;
+
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
       <Sheet>
@@ -222,11 +227,11 @@ function MenuHeader() {
           <div className="flex h-14 items-center border-b px-1 mr-2 lg:h-[60px] lg:px-6 pb-2 gap-2">
             <div className="flex items-center gap-2 font-semibold tracking-tight">
               <Image
-                src={DRNFullLogo}
+                src={logo}
                 width={0}
                 height={0}
                 alt="Disc Rescue Network"
-                style={{ width: "auto", height: "auto" }} // optional
+                style={{ width: "auto", height: "auto", maxHeight: "50px" }}
               />
             </div>
           </div>
