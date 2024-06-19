@@ -5,8 +5,10 @@ import Leaderboard from "./components/Leaderboard";
 
 const Home: NextPage = () => {
   return (
-    <div className="container mx-auto p-4 gap-4">
-      <Leaderboard />
+    <div className="grid min-h-screen w-full text-left items-start">
+      <main className="flex flex-1 min-h-96 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <Leaderboard />
+      </main>
     </div>
   );
 };

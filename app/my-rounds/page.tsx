@@ -402,14 +402,13 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-2 gap-4">
-      <main className="flex flex-1 flex-col gap-4 p-1 lg:gap-6 lg:p-6">
+    <div className="grid min-h-screen w-full text-center items-start">
+      <main className="flex flex-1 min-h-96 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
         <div className="flex">
           <h1 className="text-lg font-semibold md:text-2xl">My Rounds</h1>
         </div>
-
         <div
-          className="flex flex-col items-center justify-center rounded-lg border border-dashed shadow-sm p-2 lg:p-6 bg-muted/20"
+          className="flex flex-1 w-full m-auto h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
           x-chunk="dashboard-02-chunk-1"
         >
           {user ? (
@@ -599,7 +598,7 @@ const Home: NextPage = () => {
               {playerRounds.length > 0 ? (
                 <DataTable columns={columns} data={playerRounds} />
               ) : (
-                <div className="flex flex-col min-h-[300px] items-center justify-center gap-1 text-center">
+                <div className="flex flex-col items-center gap-1 text-center">
                   <h3 className="text-2xl font-bold tracking-tight">
                     No data to show yet
                   </h3>
@@ -610,7 +609,7 @@ const Home: NextPage = () => {
               )}
             </div>
           ) : (
-            <div className="min-h-[400px] max-h-[90dvh] flex flex-col justify-center items-center gap-1 text-center">
+            <div className="flex flex-col items-center gap-1 text-center">
               <h3 className="text-2xl font-bold tracking-tight">
                 Please login to view your rounds
               </h3>
