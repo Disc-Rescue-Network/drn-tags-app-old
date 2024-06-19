@@ -26,17 +26,20 @@ import {
 import { EnhancedLeaderboardEntry, LeaderboardEntry } from "../types";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DataTableProps {
   columns: ColumnDef<EnhancedLeaderboardEntry>[];
   data: EnhancedLeaderboardEntry[];
   sort?: string;
+  loading: boolean;
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
   columns,
   data,
   sort,
+  loading,
 }) => {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -105,8 +108,20 @@ export const DataTable: React.FC<DataTableProps> = ({
               </TableRow>
             ))}
           </TableHeader>
+          {/* {loading ? (
+            <Skeleton className="h-80 w-full p-4 m-4" />
+          ) : ( */}
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-80 w-full p-4 m-4"
+                >
+                  <Skeleton className="h-80 p-4 m-4" />
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -133,6 +148,7 @@ export const DataTable: React.FC<DataTableProps> = ({
               </TableRow>
             )}
           </TableBody>
+          {/* )} */}
         </Table>
       </div>
       <DataTablePagination table={table} />
