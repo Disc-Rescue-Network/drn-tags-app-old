@@ -143,12 +143,11 @@ const UDiscDisplayNameDialog = () => {
         <DialogHeader>
           <DialogTitle>UDisc Display Name Missing</DialogTitle>
           <DialogDescription className="text-sm">
-            Please enter your UDisc display name to continue, as it is needed to
-            track your rounds. <br />
-            <br />
-            This is NOT your username. You can find your display name by going
-            to any previous event leaderboard and copying the name you see
-            displayed in the standings.
+            This is used to identify your scores on UDisc Live for the tags
+            season. Enter this exactly as it appears on UDisc. You can find this
+            in your UDisc settings under{" "}
+            <strong>&quot;Full Name (for league/event scorecards)&quot;</strong>{" "}
+            or copy your name as it appears in the league leaderboard.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

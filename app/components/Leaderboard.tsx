@@ -43,7 +43,7 @@ const Leaderboard = () => {
       setLoading(false);
       return await response.json();
     } catch (error) {
-      setLoading(false);
+      // setLoading(false);
       toast({
         variant: "destructive",
         title: "Error",
@@ -119,9 +119,13 @@ const Leaderboard = () => {
             <CardTitle>Tranquility Tags Standings</CardTitle>
           </CardHeader>
           <CardContent className="p-0 grid gap-8 w-full">
-            {loading && <Skeleton className="h-80 p-4 m-4" />}
+            {/* {loading && <Skeleton className="h-80 p-4 m-4" />} */}
             {leaderboardData && (
-              <DataTable columns={columns} data={leaderboardData} />
+              <DataTable
+                columns={columns}
+                data={leaderboardData}
+                loading={loading}
+              />
             )}
             <Card className="legend m-6">
               <CardHeader>
@@ -155,9 +159,13 @@ const Leaderboard = () => {
             <CardTitle>Alcyon Woods Tags Standings</CardTitle>
           </CardHeader>
           <CardContent className="p-0 grid gap-8 w-full">
-            {loading && <Skeleton className="h-80 p-4 m-4" />}
+            {/* {loading && <Skeleton className="h-80 p-4 m-4" />} */}
             {alcyonLeaderboardData && (
-              <DataTable columns={columns} data={alcyonLeaderboardData} />
+              <DataTable
+                columns={columns}
+                data={alcyonLeaderboardData}
+                loading={loading}
+              />
             )}
             <Card className="legend m-6">
               <CardHeader>

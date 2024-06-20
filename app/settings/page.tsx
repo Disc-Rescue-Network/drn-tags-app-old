@@ -54,7 +54,7 @@ export default function Settings() {
 
   const { toast } = useToast();
 
-  const saveDisplayName = () => {
+  const saveDisplayName = async () => {
     if (!user) {
       console.error("User is not defined");
       return;
@@ -64,32 +64,55 @@ export default function Settings() {
 
     const accessToken = getAccessToken(); // Assume getAccessToken is defined elsewhere and is synchronous or handled accordingly
 
-    fetch(`${TAGS_API_BASE_URL}/api/update-udisc-display-name`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        kinde_id: user.id,
-        udisc_display_name: userProfile?.udisc_display_name,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-        setLoading(false);
-        toast({
-          variant: "default",
-          title: "Success",
-          description: "User settings successfully updated.",
-          duration: 3000,
-        });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setLoading(false);
+    try {
+      const response = await fetch(
+        `${TAGS_API_BASE_URL}/api/update-udisc-display-name`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            kinde_id: user.id,
+            udisc_display_name: userProfile?.udisc_display_name,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          // Handle 400 error specifically
+          const errorData = await response.json();
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: errorData.message || "An error occurred",
+            duration: 3000,
+          });
+          setLoading(false);
+          return;
+        }
+      }
+      const data = await response.json();
+      console.log("Success:", data);
+      setLoading(false);
+      toast({
+        variant: "default",
+        title: "Success",
+        description: "User settings successfully updated.",
+        duration: 3000,
       });
+    } catch (error) {
+      console.error("Error:", error);
+      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An error occurred",
+        duration: 3000,
+      });
+    }
   };
 
   if (!userProfile) return null;
@@ -102,9 +125,15 @@ export default function Settings() {
         </div>
         <Card className="mr-4">
           <CardHeader>
-            <CardTitle>UDisc Display Name</CardTitle>
+            <CardTitle>UDisc Full Name</CardTitle>
             <CardDescription>
               Used to identify your scores on UDisc Live for the tags season.
+              Enter this exactly as it appears on UDisc. You can find this in
+              your UDisc settings under{" "}
+              <strong>
+                &quot;Full Name (for league/event scorecards)&quot;
+              </strong>{" "}
+              or copy your name as it appears in the league leaderboard.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -123,7 +152,7 @@ export default function Settings() {
               />
             </form>
           </CardContent>
-          <CardFooter className="border-t px-6 py-4">
+          <CardFooter className="px-6 py-4">
             <Button onClick={saveDisplayName}>Save</Button>
           </CardFooter>
         </Card>
