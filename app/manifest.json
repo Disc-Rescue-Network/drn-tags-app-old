@@ -23,7 +23,7 @@
       "type": "image/jpeg"
     },
     {
-      "src": "@/public/144x144.jpg",
+      "src": "144x144.jpg",
       "sizes": "144x144",
       "type": "image/jpeg"
     },

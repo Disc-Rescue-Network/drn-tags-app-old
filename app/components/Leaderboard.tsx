@@ -32,7 +32,7 @@ const Leaderboard = () => {
         `${TAGS_API_BASE_URL}/api/leaderboard/${courseId}`
       );
       if (!response.ok) {
-        // setLoading(false);
+        setLoading(false);
         toast({
           variant: "destructive",
           title: "Error",
@@ -40,7 +40,7 @@ const Leaderboard = () => {
         });
         throw new Error("Failed to fetch leaderboard data");
       }
-      // setLoading(false);
+      setLoading(false);
       return await response.json();
     } catch (error) {
       // setLoading(false);
@@ -75,7 +75,7 @@ const Leaderboard = () => {
         setDataAsOf(data.data.lastRoundPlayedOverall);
         setLeaderboardData(data.data.leaderboard);
       } catch (error) {
-        // setLoading(false);
+        setLoading(false);
         toast({
           variant: "destructive",
           title: "Error",
@@ -95,7 +95,7 @@ const Leaderboard = () => {
         setAlcyonDataAsOf(data.data.lastRoundPlayedOverall);
         setAlcyonLeaderboardData(data.data.leaderboard);
       } catch (error) {
-        // setLoading(false);
+        setLoading(false);
         toast({
           variant: "destructive",
           title: "Error",
