@@ -2,6 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { PlayerRound } from "../types"; // Ensure this import points to where your PlayerRound type is defined
 import { ChevronUp, ChevronDown } from "lucide-react"; // Assuming you're using Lucide icons for visual indicators
 import { DataTableColumnHeader } from "../components/data-table-column-header";
+import { Label } from "@/components/ui/label";
 
 export const columns: ColumnDef<PlayerRound>[] = [
   // {
@@ -13,6 +14,13 @@ export const columns: ColumnDef<PlayerRound>[] = [
   //   enableSorting: true,
   //   enableHiding: true,
   // },
+  {
+    accessorKey: "EventModel.dateTime",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Event Date" />
+    ),
+    cell: (info) => new Date(info.getValue() as string).toLocaleDateString(),
+  },
   {
     accessorKey: "EventModel.location",
     header: ({ column }) => (
@@ -44,18 +52,47 @@ export const columns: ColumnDef<PlayerRound>[] = [
     },
   },
   {
-    accessorKey: "EventModel.eventName",
+    accessorKey: "place",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Event" />
+      <DataTableColumnHeader column={column} title="Place" />
     ),
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue()?.toString() ?? "",
+    enableSorting: true,
   },
   {
-    accessorKey: "EventModel.dateTime",
+    accessorKey: "pointsScored",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Event Date" />
+      <DataTableColumnHeader column={column} title="Points Scored" />
     ),
-    cell: (info) => new Date(info.getValue() as string).toLocaleDateString(),
+    cell: (info) => info.getValue()?.toString() ?? "",
+  },
+  {
+    accessorKey: "score",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Score" />
+    ),
+    cell: (info) => {
+      const score = info.getValue()?.toString() ?? "";
+      const par = info.row.original.EventModel.layout.par;
+      const relativeScore = parseInt(score) - parseInt(par);
+      const relativeScoreText = `${
+        relativeScore > 0 ? "+" : ""
+      }${relativeScore}`;
+      const color =
+        relativeScore < 0
+          ? "text-green-500"
+          : relativeScore > 0
+          ? "text-red-500"
+          : "";
+
+      return (
+        <div className="flex flex-row min-w-fit items-center justify-start gap-2">
+          <Label className={`min-w-fit text-ellipsis ${color}`}>
+            {score} ({relativeScoreText})
+          </Label>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "division.name",
@@ -79,19 +116,11 @@ export const columns: ColumnDef<PlayerRound>[] = [
     cell: (info) => info.getValue()?.toString() ?? "",
   },
   {
-    accessorKey: "place",
+    accessorKey: "EventModel.eventName",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Place" />
+      <DataTableColumnHeader column={column} title="Event" />
     ),
-    cell: (info) => info.getValue()?.toString() ?? "",
-    enableSorting: true,
-  },
-  {
-    accessorKey: "pointsScored",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Points Scored" />
-    ),
-    cell: (info) => info.getValue()?.toString() ?? "",
+    cell: (info) => info.getValue(),
   },
 ];
 
@@ -106,4 +135,5 @@ export const columnHeadersArrayRounds: { [key: string]: string } = {
   tagOut: "Tag Out",
   place: "Place",
   pointsScored: "Points Scored",
+  score: "Score",
 };

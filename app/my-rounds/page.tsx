@@ -596,7 +596,9 @@ const Home: NextPage = () => {
               </div>
 
               {playerRounds.length > 0 ? (
-                <DataTable columns={columns} data={playerRounds} />
+                <div className="grid grid-cols-1 gap-8">
+                  <DataTable columns={columns} data={playerRounds} />
+                </div>
               ) : (
                 <div className="flex flex-col items-center gap-1 text-center">
                   <h3 className="text-2xl font-bold tracking-tight">
