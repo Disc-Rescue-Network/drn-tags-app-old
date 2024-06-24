@@ -40,10 +40,9 @@ const Leaderboard = () => {
         });
         throw new Error("Failed to fetch leaderboard data");
       }
-      setLoading(false);
       return await response.json();
     } catch (error) {
-      // setLoading(false);
+      setLoading(false);
       toast({
         variant: "destructive",
         title: "Error",
@@ -74,6 +73,7 @@ const Leaderboard = () => {
         console.log("Leaderboard data", data);
         setDataAsOf(data.data.lastRoundPlayedOverall);
         setLeaderboardData(data.data.leaderboard);
+        setLoading(false);
       } catch (error) {
         setLoading(false);
         toast({
@@ -94,6 +94,7 @@ const Leaderboard = () => {
         console.log("Leaderboard data", data);
         setAlcyonDataAsOf(data.data.lastRoundPlayedOverall);
         setAlcyonLeaderboardData(data.data.leaderboard);
+        setLoading(false);
       } catch (error) {
         setLoading(false);
         toast({
