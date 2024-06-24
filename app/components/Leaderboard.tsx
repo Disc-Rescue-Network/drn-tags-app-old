@@ -94,6 +94,7 @@ const Leaderboard = () => {
         console.log("Leaderboard data", data);
         setAlcyonDataAsOf(data.data.lastRoundPlayedOverall);
         setAlcyonLeaderboardData(data.data.leaderboard);
+        setLoading(false);
       } catch (error) {
         setLoading(false);
         toast({
