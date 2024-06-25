@@ -231,28 +231,35 @@ function SideMenu() {
 
   const [systemTheme, setSystemTheme] = useState("light"); // Default to light theme
 
+  // Step 1: Declare a state variable for the logo
+  const [logo, setLogo] = useState(DRNLightLogo);
+
   useEffect(() => {
-    // Check if window object is available
+    // Existing logic to determine if the system theme is dark
     if (typeof window !== "undefined") {
-      // Check if system theme is dark
       if (
         window.matchMedia &&
         window.matchMedia("(prefers-color-scheme: dark)").matches
       ) {
         setSystemTheme("dark");
+      } else {
+        setSystemTheme("light");
       }
     }
-  }, []); // Empty dependency array means this effect runs once on mount
 
-  // Use system theme when theme is set to "system"
-  let logo =
-    theme === "system"
-      ? systemTheme === "dark"
+    // Step 2 & 3: Move the logo determination logic into the useEffect
+    const currentLogo =
+      theme === "system"
+        ? systemTheme === "dark"
+          ? DRNDarkLogo
+          : DRNLightLogo
+        : theme === "dark"
         ? DRNDarkLogo
-        : DRNLightLogo
-      : theme === "dark"
-      ? DRNDarkLogo
-      : DRNLightLogo;
+        : DRNLightLogo;
+
+    // Update the logo state
+    setLogo(currentLogo);
+  }, [theme, systemTheme]);
 
   return (
     <div className="hidden border-r bg-muted/40 md:block md:w-3/7 lg:w-1/5">
