@@ -35,6 +35,7 @@ interface DataTableProps {
   data: EnhancedLeaderboardEntry[];
   sort?: string;
   loading: boolean;
+  qualiferCount: number;
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
@@ -42,6 +43,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   data,
   sort,
   loading,
+  qualiferCount,
 }) => {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -85,7 +87,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   const getRowClassName = (position: number) => {
     if (position >= 1 && position <= 3) {
       return `podium-${position}`; // existing podium classes
-    } else if (position <= 16) {
+    } else if (position <= qualiferCount) {
       return "qualifier"; // new qualifier class for positions 4 to 16
     }
     return ""; // default, no additional class
