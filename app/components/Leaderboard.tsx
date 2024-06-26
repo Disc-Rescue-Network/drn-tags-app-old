@@ -126,6 +126,7 @@ const Leaderboard = () => {
                 columns={columns}
                 data={leaderboardData}
                 loading={loading}
+                qualiferCount={16}
               />
             )}
             <Card className="legend m-6">
@@ -166,6 +167,7 @@ const Leaderboard = () => {
                 columns={columns}
                 data={alcyonLeaderboardData}
                 loading={loading}
+                qualiferCount={32}
               />
             )}
             <Card className="legend m-6">
@@ -184,7 +186,7 @@ const Leaderboard = () => {
                 </div>
                 <div className="flex flex-row gap-4">
                   <span className="qualifier"></span> Qualifies for Invitational
-                  (Top 16)
+                  (Top 32)
                 </div>
               </CardContent>
               <CardFooter className="text-sm italic">
