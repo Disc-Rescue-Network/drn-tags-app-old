@@ -256,176 +256,172 @@ const CheckIn: NextPage = () => {
   };
 
   return (
-    <div className="grid min-h-screen w-full text-center items-start">
-      <main className="flex flex-1 min-h-96 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        <div className="flex">
-          <h1 className="text-lg font-semibold md:text-2xl">Check In</h1>
-        </div>
-        <div
-          className="flex flex-1 w-full m-auto h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
-          x-chunk="dashboard-02-chunk-1"
-        >
-          {events.length === 0 ? (
-            <div className="flex flex-col items-center gap-1 text-center">
-              <h3 className="text-2xl font-bold tracking-tight">
-                No events running right now
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Check back later when the admin has started an event.
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4 w-full h-full justify-start items-start mb-auto">
-              {isLoading ? (
-                <Skeleton className="w-full h-24" />
-              ) : (
-                <div className="flex flex-col gap-4 w-full justify-start items-start">
-                  {events
-                    .filter((event) => new Date(event.dateTime) > new Date())
-                    .sort(
-                      (a, b) =>
-                        new Date(a.dateTime).getTime() -
-                        new Date(b.dateTime).getTime()
-                    )
-                    .map((event) => (
-                      <Card className="text-left w-full" key={event.event_id}>
-                        <CardHeader className="p-4">
-                          <CardDescription
-                            className="text-balance leading-relaxed items-center flex flex-row justify-between w-full"
-                            style={{ gridTemplateColumns: "60% 40%" }}
-                          >
-                            <Label className="min-w-fit text-xs">
-                              {format(
-                                new Date(event.dateTime),
-                                isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
-                              )}{" "}
-                              @ {format(new Date(event.dateTime), "h:mm a")}
-                            </Label>
-                            <Label className="flex flex-row text-xs min-w-fit gap-1 justify-end items-center">
-                              <MapPin className="h-3 w-3" />
-                              {event.location}
-                            </Label>
-                          </CardDescription>
+    <div className="flex flex-col p-4 lg:p-6 gap-4 h-full w-full text-center items-start">
+      <h1 className="text-lg text-left font-semibold md:text-2xl">Check In</h1>
 
-                          <CardTitle>{event.eventName}</CardTitle>
-                        </CardHeader>
-                        <CardFooter className="flex flex-row gap-4 w-full justify-between items-end md:flex-row lg:flex-row p-4">
-                          <div className="flex flex-col gap-4 justify-start items-start p-0 m-0 w-full md:flex-col lg:flex-col">
-                            <div className="flex flex-row gap-1 items-center justify-start">
-                              <Map className="h-4 w-4" />
-                              <Label className="text-xs">
-                                {event.layout.name}
-                              </Label>
-                            </div>
-                            <div className="flex flex-row gap-1 items-center justify-start">
-                              <User className="h-4 w-4" />
-                              <Label className="text-xs">{event.format}</Label>
-                            </div>
-                            {isMobile ? (
-                              <div className="flex flex-row w-full gap-1 items-center justify-start">
-                                <Progress
-                                  value={
-                                    (event.CheckedInPlayers!.length /
-                                      event.maxSignups) *
-                                    100
-                                  }
-                                  max={event.maxSignups}
-                                  aria-label="Sign ups"
-                                />
-                                <Popover>
-                                  <PopoverTrigger>
-                                    <Info className="w-4 h-4" />{" "}
-                                  </PopoverTrigger>
-                                  <PopoverContent className="text-xs">
-                                    {event.CheckedInPlayers!.length} /{" "}
-                                    {event.maxSignups} Total Signups
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
-                            ) : (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Progress
-                                      value={
-                                        (event.CheckedInPlayers!.length /
-                                          event.maxSignups) *
-                                        100
-                                      }
-                                      max={event.maxSignups}
-                                      aria-label="Sign ups"
-                                    />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    {event.CheckedInPlayers!.length} /{" "}
-                                    {event.maxSignups} Total Signups
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
+      <div
+        className="grid grid-cols-1 w-full h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
+        x-chunk="dashboard-02-chunk-1"
+      >
+        {events.length === 0 ? (
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h3 className="text-2xl font-bold tracking-tight">
+              No events running right now
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Check back later when the admin has started an event.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 w-full h-full justify-start items-start mb-auto">
+            {isLoading ? (
+              <Skeleton className="w-full h-24" />
+            ) : (
+              <div className="flex flex-col gap-4 w-full justify-start items-start">
+                {events
+                  .filter((event) => new Date(event.dateTime) > new Date())
+                  .sort(
+                    (a, b) =>
+                      new Date(a.dateTime).getTime() -
+                      new Date(b.dateTime).getTime()
+                  )
+                  .map((event) => (
+                    <Card className="text-left w-full" key={event.event_id}>
+                      <CardHeader className="p-4">
+                        <CardDescription
+                          className="text-balance leading-relaxed items-center flex flex-row justify-between w-full"
+                          style={{ gridTemplateColumns: "60% 40%" }}
+                        >
+                          <Label className="min-w-fit text-xs">
+                            {format(
+                              new Date(event.dateTime),
+                              isMobile ? "EEE, MMM d" : "EEEE, MMMM do"
+                            )}{" "}
+                            @ {format(new Date(event.dateTime), "h:mm a")}
+                          </Label>
+                          <Label className="flex flex-row text-xs min-w-fit gap-1 justify-end items-center">
+                            <MapPin className="h-3 w-3" />
+                            {event.location}
+                          </Label>
+                        </CardDescription>
+
+                        <CardTitle>{event.eventName}</CardTitle>
+                      </CardHeader>
+                      <CardFooter className="flex flex-row gap-4 w-full justify-between items-end md:flex-row lg:flex-row p-4">
+                        <div className="flex flex-col gap-4 justify-start items-start p-0 m-0 w-full md:flex-col lg:flex-col">
+                          <div className="flex flex-row gap-1 items-center justify-start">
+                            <Map className="h-4 w-4" />
+                            <Label className="text-xs">
+                              {event.layout.name}
+                            </Label>
                           </div>
-                          {isAuthenticated ? (
-                            <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
-                              {isCheckedIn(event, user!.id) ? (
-                                <Label className="text-xs flex flex-row gap-2">
-                                  <Check className="w-4 h-4" />
-                                  Checked In!
-                                </Label>
-                              ) : (
-                                <CheckInButton
-                                  event={event}
-                                  checkIn={() => checkIn(event)}
-                                  isMobile={isMobile}
-                                  isLoading={isLoading}
-                                />
-                              )}
+                          <div className="flex flex-row gap-1 items-center justify-start">
+                            <User className="h-4 w-4" />
+                            <Label className="text-xs">{event.format}</Label>
+                          </div>
+                          {isMobile ? (
+                            <div className="flex flex-row w-full gap-1 items-center justify-start">
+                              <Progress
+                                value={
+                                  (event.CheckedInPlayers!.length /
+                                    event.maxSignups) *
+                                  100
+                                }
+                                max={event.maxSignups}
+                                aria-label="Sign ups"
+                              />
+                              <Popover>
+                                <PopoverTrigger>
+                                  <Info className="w-4 h-4" />{" "}
+                                </PopoverTrigger>
+                                <PopoverContent className="text-xs">
+                                  {event.CheckedInPlayers!.length} /{" "}
+                                  {event.maxSignups} Total Signups
+                                </PopoverContent>
+                              </Popover>
                             </div>
                           ) : (
-                            <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
-                              <Label>Login before checking in</Label>
-                            </div>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Progress
+                                    value={
+                                      (event.CheckedInPlayers!.length /
+                                        event.maxSignups) *
+                                      100
+                                    }
+                                    max={event.maxSignups}
+                                    aria-label="Sign ups"
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {event.CheckedInPlayers!.length} /{" "}
+                                  {event.maxSignups} Total Signups
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           )}
-                        </CardFooter>
-                      </Card>
-                    ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        <AlertDialog
-          open={showLoginDisclaimer}
-          onOpenChange={handleAlertDialogDismiss}
-        >
-          <AlertDialogContent className="w-80">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-left">
-                You are not logged in
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-sm text-left">
-                In order to continue, you will need to log in. If you do not
-                have an account, you will need to create one. <br></br>{" "}
-                <br></br>Please close this dialog and click the
-                &apos;Login&apos; or &apos;Sign up&apos; button (top right) to
-                continue.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction>Sounds good!</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        {checkInStarted && eventForCheckIn && (
-          <CheckInForm
-            userProfile={userProfile!}
-            event={eventForCheckIn!}
-            kinde_id={userProfile!.kinde_id}
-            onSubmit={checkInPlayer} // Pass the function directly
-            setCheckInStarted={setCheckInStarted}
-            onClose={handleCheckInComplete}
-          />
+                        </div>
+                        {isAuthenticated ? (
+                          <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
+                            {isCheckedIn(event, user!.id) ? (
+                              <Label className="text-xs flex flex-row gap-2">
+                                <Check className="w-4 h-4" />
+                                Checked In!
+                              </Label>
+                            ) : (
+                              <CheckInButton
+                                event={event}
+                                checkIn={() => checkIn(event)}
+                                isMobile={isMobile}
+                                isLoading={isLoading}
+                              />
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex flex-row gap-1 h-full w-full items-end justify-end">
+                            <Label>Login before checking in</Label>
+                          </div>
+                        )}
+                      </CardFooter>
+                    </Card>
+                  ))}
+              </div>
+            )}
+          </div>
         )}
-      </main>
+      </div>
+      <AlertDialog
+        open={showLoginDisclaimer}
+        onOpenChange={handleAlertDialogDismiss}
+      >
+        <AlertDialogContent className="w-80">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-left">
+              You are not logged in
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-left">
+              In order to continue, you will need to log in. If you do not have
+              an account, you will need to create one. <br></br> <br></br>Please
+              close this dialog and click the &apos;Login&apos; or &apos;Sign
+              up&apos; button (top right) to continue.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Sounds good!</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {checkInStarted && eventForCheckIn && (
+        <CheckInForm
+          userProfile={userProfile!}
+          event={eventForCheckIn!}
+          kinde_id={userProfile!.kinde_id}
+          onSubmit={checkInPlayer} // Pass the function directly
+          setCheckInStarted={setCheckInStarted}
+          onClose={handleCheckInComplete}
+        />
+      )}
     </div>
   );
 };
