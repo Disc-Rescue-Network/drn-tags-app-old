@@ -19,7 +19,6 @@ import { columns } from "./columns-tags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
 import { toast } from "@/components/ui/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 
 const Leaderboard = () => {
@@ -120,15 +119,14 @@ const Leaderboard = () => {
             <CardTitle>Tranquility Tags Standings</CardTitle>
           </CardHeader>
           <CardContent className="p-0 grid gap-8 w-full">
-            {/* {loading && <Skeleton className="h-80 p-4 m-4" />} */}
-            {leaderboardData && (
+            <div className="grid grid-cols-1 gap-4">
               <DataTable
                 columns={columns}
-                data={leaderboardData}
+                data={leaderboardData || []}
                 loading={loading}
                 qualiferCount={16}
               />
-            )}
+            </div>
             <Card className="legend m-6">
               <CardHeader>
                 <CardTitle>Legend</CardTitle>

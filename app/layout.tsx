@@ -9,41 +9,24 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import UDiscDisplayNameDialog from "./components/UDiscDisplayNameDialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const APP_NAME = "Tge Tags App";
-const APP_DEFAULT_TITLE = "The Tags App";
+const APP_NAME = "The Tags App";
+const APP_DEFAULT_TITLE =
+  "Digitize Your Tournaments with Tags App by Disc Rescue Network";
 const APP_TITLE_TEMPLATE = "%s - The Tags App";
 const APP_DESCRIPTION =
-  "Live Disc Golf standings for various Tags Leagues in South Jersey.";
+  "Let's be honest, manually tracking your tags tournaments is getting old. We've fixed all that with our Udisc integration and fully digitally tracked Tags App. Digitize your tags with the Tags App.";
 
 export const metadata: Metadata = {
+  applicationName: APP_NAME,
   title: {
     default: APP_DEFAULT_TITLE,
     template: APP_TITLE_TEMPLATE,
   },
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
-  //You can also change favicon by color scheme:
-  // icons: {
-  //   icon: [
-  //     {
-  //       url: "/light-icon.png",
-  //       media: "(prefers-color-scheme: light)",
-  //     },
-  //     {
-  //       url: "/dark-icon.png",
-  //       media: "(prefers-color-scheme: dark)",
-  //     },
-  //   ],
-  // },
-  icons: {
-    icon: ["/icon.ico"],
-    apple: ["/icon.ico"],
-    // shortcut: ["/apple-touch-icon.png"],
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -61,6 +44,15 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
+    url: "https://tags.discrescuenetwork.com",
+    images: [
+      {
+        url: "/opengraph_tagsapp.jpg", // Update with the correct path to your image
+        width: 1200,
+        height: 630,
+        alt: "The Tags App OpenGraph Image - by Disc Rescue Network",
+      },
+    ],
   },
   twitter: {
     card: "summary",
@@ -69,11 +61,19 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
+    images: [
+      {
+        url: "/opengraph_tagsapp.jpg", // Update with the correct path to your image
+        width: 1200,
+        height: 630,
+        alt: "The Tags App OpenGraph Image - by Disc Rescue Network",
+      },
+    ],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#FFFFFF",
 };
 
 export interface Course {
