@@ -12,11 +12,12 @@ import UDiscDisplayNameDialog from "./components/UDiscDisplayNameDialog";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const APP_NAME = "Tge Tags App";
-const APP_DEFAULT_TITLE = "The Tags App";
+const APP_NAME = "The Tags App";
+const APP_DEFAULT_TITLE =
+  "Digitize Your Tournaments with Tags App by Disc Rescue Network";
 const APP_TITLE_TEMPLATE = "%s - The Tags App";
 const APP_DESCRIPTION =
-  "Live Disc Golf standings for various Tags Leagues in South Jersey.";
+  "Let's be honest, manually tracking your tags tournaments is getting old. We've fixed all that with our Udisc integration and fully digitally tracked Tags App. Digitize your tags with the Tags App.";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
@@ -43,6 +44,15 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
+    url: "https://tags.discrescuenetwork.com",
+    images: [
+      {
+        url: "/opengraph_tagsapp.jpg", // Update with the correct path to your image
+        width: 1200,
+        height: 630,
+        alt: "The Tags App OpenGraph Image - by Disc Rescue Network",
+      },
+    ],
   },
   twitter: {
     card: "summary",
@@ -51,6 +61,14 @@ export const metadata: Metadata = {
       template: APP_TITLE_TEMPLATE,
     },
     description: APP_DESCRIPTION,
+    images: [
+      {
+        url: "/opengraph_tagsapp.jpg", // Update with the correct path to your image
+        width: 1200,
+        height: 630,
+        alt: "The Tags App OpenGraph Image - by Disc Rescue Network",
+      },
+    ],
   },
 };
 
