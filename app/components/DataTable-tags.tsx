@@ -93,6 +93,8 @@ export const DataTable: React.FC<DataTableProps> = ({
     return ""; // default, no additional class
   };
 
+  const SKELETON_ROWS = 10;
+
   return (
     <div className="space-y-4 px-4" style={{ maxWidth: "93dvw" }}>
       <DataTableToolbar searchName={"name"} table={table} />
@@ -112,19 +114,20 @@ export const DataTable: React.FC<DataTableProps> = ({
               </TableRow>
             ))}
           </TableHeader>
-          {/* {loading ? (
-            <Skeleton className="h-80 w-full p-4 m-4" />
-          ) : ( */}
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-80 w-full p-4 m-4"
-                >
-                  <Skeleton className="h-80 p-4 m-4" />
-                </TableCell>
-              </TableRow>
+              Array.from({ length: SKELETON_ROWS }).map((_, rowIndex) => (
+                <TableRow key={`skeleton-row-${rowIndex}`}>
+                  {columns.map((_, colIndex) => (
+                    <TableCell
+                      key={`skeleton-cell-${rowIndex}-${colIndex}`}
+                      className="h-10 w-full p-4"
+                    >
+                      <Skeleton className="h-10 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
