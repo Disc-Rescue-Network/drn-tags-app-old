@@ -9,7 +9,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import UDiscDisplayNameDialog from "./components/UDiscDisplayNameDialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,30 +19,13 @@ const APP_DESCRIPTION =
   "Live Disc Golf standings for various Tags Leagues in South Jersey.";
 
 export const metadata: Metadata = {
+  applicationName: APP_NAME,
   title: {
     default: APP_DEFAULT_TITLE,
     template: APP_TITLE_TEMPLATE,
   },
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
-  //You can also change favicon by color scheme:
-  // icons: {
-  //   icon: [
-  //     {
-  //       url: "/light-icon.png",
-  //       media: "(prefers-color-scheme: light)",
-  //     },
-  //     {
-  //       url: "/dark-icon.png",
-  //       media: "(prefers-color-scheme: dark)",
-  //     },
-  //   ],
-  // },
-  icons: {
-    icon: ["/icon.ico"],
-    apple: ["/icon.ico"],
-    // shortcut: ["/apple-touch-icon.png"],
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -73,7 +55,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#FFFFFF",
 };
 
 export interface Course {
