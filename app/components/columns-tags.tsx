@@ -28,11 +28,11 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
       const name = info.row.original.name;
       const movement = info.row.original.change;
 
-      console.log(value);
-      console.log(info.row.original);
+      // console.log(value);
+      // console.log(info.row.original);
 
-      console.log("Name: ", name);
-      console.log("Movement: ", movement);
+      // console.log("Name: ", name);
+      // console.log("Movement: ", movement);
 
       return (
         <div className="flex flex-row gap-1 text-sm">
@@ -84,11 +84,11 @@ export const columns: ColumnDef<EnhancedLeaderboardEntry>[] = [
       const name = info.row.original.name;
       const movement = info.row.original.change;
 
-      console.log(value);
-      console.log(info.row.original);
+      // console.log(value);
+      // console.log(info.row.original);
 
-      console.log("Name: ", name);
-      console.log("Movement: ", movement);
+      // console.log("Name: ", name);
+      // console.log("Movement: ", movement);
 
       return (
         <div className="flex flex-row min-w-fit items-center justify-start gap-2">

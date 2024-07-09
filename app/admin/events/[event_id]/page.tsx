@@ -281,7 +281,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       return null;
     }
 
-    console.log("Fetching settings data...");
+    // console.log("Fetching settings data...");
     try {
       const response = await fetch(
         `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization}`
@@ -289,9 +289,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       if (!response.ok) {
         throw new Error("Failed to fetch settings data");
       }
-      console.log("Settings data fetched successfully");
+      // console.log("Settings data fetched successfully");
       const data = await response.json();
-      console.log("Settings data:", data);
+      // console.log("Settings data:", data);
       return data; // Return the fetched settings data
     } catch (error) {
       console.error("Error fetching settings data:", error);
@@ -305,11 +305,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     fetchSettingsData()
       .then((settingsData) => {
         // Extract relevant fields from settingsData to prepopulate the form
-        console.log("Settings data:", settingsData);
+        // console.log("Settings data:", settingsData);
         const holesToAvoidTmp = settingsData.holes.filter(
           (hole: HoleModel) => !hole.active
         );
-        console.log("Holes to avoid:", holesToAvoidTmp);
+        // console.log("Holes to avoid:", holesToAvoidTmp);
         setHolesToAvoid(
           holesToAvoidTmp.map((hole: HoleModel) => hole.hole_number)
         );
@@ -344,23 +344,23 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       const response = await axios.get(
         `${TAGS_API_BASE_URL}/api/events/${event?.event_id}/cards`
       );
-      console.log("Response status:", response.status);
+      // console.log("Response status:", response.status);
       if (response.status >= 200 && response.status < 300) {
-        console.log("Cards retrieved successfully:", response.data);
+        // console.log("Cards retrieved successfully:", response.data);
         const cards = response.data as CardModel[];
         const numberOfPlayersInCards = cards.reduce(
           (count, card) => count + card.player_check_ins.length,
           0
         );
         if (numberOfPlayersInCards === playersWithDivisions.length) {
-          console.log("Cards already exist for all players");
+          // console.log("Cards already exist for all players");
           setCards(cards);
           return true;
         }
-        console.log("Cards exist but not for all players");
+        // console.log("Cards exist but not for all players");
         return false;
       } else {
-        console.log("Failed to retrieve cards:", response.data);
+        // console.log("Failed to retrieve cards:", response.data);
         return false;
       }
     } catch (error) {
@@ -372,15 +372,15 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   useEffect(() => {
     const checkForCurrentCards = async () => {
       if (playersWithDivisions.length > 0) {
-        console.log("Players with divisions:", playersWithDivisions);
-        console.log("checking for card creation...");
+        // console.log("Players with divisions:", playersWithDivisions);
+        // console.log("checking for card creation...");
         const hasCards = await fetchCurrentCards();
-        console.log("Has cards:", hasCards);
+        // console.log("Has cards:", hasCards);
         if (!hasCards) {
-          console.log("No cards found. Creating new cards...");
+          // console.log("No cards found. Creating new cards...");
           startCardCreation();
         } else {
-          console.log("Cards already exist. Skipping card creation...");
+          // console.log("Cards already exist. Skipping card creation...");
         }
       }
     };
@@ -393,11 +393,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const startCardCreation = () => {
     const newCards = createCards(playersWithDivisions);
-    console.log("New cards finalized:", newCards);
+    // console.log("New cards finalized:", newCards);
     const spacedCards = evenlySpaceCards(newCards, 18);
-    console.log("Spaced cards finalized:", spacedCards);
+    // console.log("Spaced cards finalized:", spacedCards);
     setCards(spacedCards);
-    console.log("Cards set:", spacedCards);
+    // console.log("Cards set:", spacedCards);
   };
 
   const createCards = (players: PlayersWithDivisions[]): CardModel[] => {
@@ -413,7 +413,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
     // Log the total number of players
     const totalPlayersBeginning = players.length;
-    console.log("BEGIN: Total number of players:", totalPlayersBeginning);
+    // console.log("BEGIN: Total number of players:", totalPlayersBeginning);
 
     const allCards: CardModel[] = [];
     let remainingPlayers: PlayersWithDivisions[] = [];
@@ -428,8 +428,8 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         divisionPlayers[0].event_id
       );
 
-      console.log("Division cards:", cards);
-      console.log("Remaining players:", remaining);
+      // console.log("Division cards:", cards);
+      // console.log("Remaining players:", remaining);
 
       allCards.push(...cards);
       remainingPlayers.push(...remaining);
@@ -453,7 +453,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       (count, card) => count + card.player_check_ins.length,
       0
     );
-    console.log("Total number of players:", totalPlayers);
+    // console.log("Total number of players:", totalPlayers);
 
     // Ensure no more than 18 cards
     if (allCards.length > 18) {
@@ -492,13 +492,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       (id) => !assignedCheckInIds.has(id)
     );
 
-    console.log("Missing player checkInIds:", missingCheckInIds);
+    // console.log("Missing player checkInIds:", missingCheckInIds);
 
     if (missingCheckInIds.length > 0) {
       const missingPlayers = players.filter((player) =>
         missingCheckInIds.includes(player.checkInId)
       );
-      console.log("Missing player details:", missingPlayers);
+      // console.log("Missing player details:", missingPlayers);
 
       // Add missing players to existing cards
       missingPlayers.forEach((player) => {
@@ -534,7 +534,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     players: PlayersWithDivisions[],
     eventId: number
   ): { cards: CardModel[]; remaining: PlayersWithDivisions[] } => {
-    console.log("Creating division cards...");
+    // console.log("Creating division cards...");
     const divisionCards: CardModel[] = [];
     let card: CardModel = {
       card_id: null,
@@ -584,7 +584,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       );
     }
 
-    console.log("Division cards:", divisionCards);
+    // console.log("Division cards:", divisionCards);
     return { cards: divisionCards, remaining: remainingPlayers };
   };
 
@@ -592,7 +592,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     cards: CardModel[],
     totalHoles: number
   ): CardModel[] => {
-    console.log("Evenly spacing cards...");
+    // console.log("Evenly spacing cards...");
     const spacedCards: CardModel[] = [];
     const usedHoles = new Set<number>();
     const numCards = cards.length;
@@ -608,9 +608,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     let holesToUse = allHoles.filter((hole) => !holesToAvoid.includes(hole));
 
     for (let i = 0; i < numCards; i++) {
-      console.log("Card index:", i);
-      console.log("Holes to use:", holesToUse);
-      console.log("Used holes:", usedHoles);
+      // console.log("Card index:", i);
+      // console.log("Holes to use:", holesToUse);
+      // console.log("Used holes:", usedHoles);
 
       // If we run out of preferred holes, reset to all holes
       if (holesToUse.length === 0) {
@@ -622,16 +622,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
       // Ensure we skip any holes that are already used
       while (usedHoles.has(startingHole)) {
-        console.log("Skipping hole:", startingHole);
+        // console.log("Skipping hole:", startingHole);
         holeIndex = (holeIndex + 1) % holesToUse.length;
         startingHole = holesToUse[holeIndex];
       }
 
       // Check if startingHole is undefined and adjust accordingly
       if (startingHole == null) {
-        console.log(
-          "Starting hole is undefined, resetting to first available hole."
-        );
+        // console.log(
+        //   "Starting hole is undefined, resetting to first available hole."
+        // );
         startingHole =
           holesToUse.find((hole) => !usedHoles.has(hole)) || holesToUse[0];
       }
@@ -649,7 +649,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       holesToUse = holesToUse.filter((hole) => hole !== startingHole);
     }
 
-    console.log("Spaced cards:", spacedCards);
+    // console.log("Spaced cards:", spacedCards);
     return spacedCards.sort((a, b) => a.starting_hole - b.starting_hole); // Ensure the cards are sorted by starting hole
   };
 
@@ -658,9 +658,9 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       const response = await axios.post(`${TAGS_API_BASE_URL}/api/cards`, {
         cards,
       });
-      console.log("Response status:", response.status);
+      // console.log("Response status:", response.status);
       if (response.status >= 200 && response.status < 300) {
-        console.log("Cards created successfully:", response.data);
+        // console.log("Cards created successfully:", response.data);
         const cardsCreated = response.data as CardModel[];
         setCards(cardsCreated);
         toast({
@@ -676,7 +676,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
           variant: "destructive",
           duration: 3000,
         });
-        console.log("Failed to create cards:", response.data);
+        // console.log("Failed to create cards:", response.data);
       }
     } catch (error) {
       console.error("Error creating cards:", error);
@@ -757,10 +757,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       },
 
       filterFn: (row, id, value) => {
-        console.log("Filtering:", {
-          rowValue: row.getValue(id),
-          filterValue: value,
-        });
+        // console.log("Filtering:", {
+        //   rowValue: row.getValue(id),
+        //   filterValue: value,
+        // });
         return value.includes(row.getValue(id));
       },
       enableSorting: true,
@@ -773,10 +773,10 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       enableSorting: true,
       cell: (info) => info.getValue(),
       filterFn: (row, id, value) => {
-        console.log("Filtering:", {
-          rowValue: row.getValue(id),
-          filterValue: value,
-        });
+        // console.log("Filtering:", {
+        //   rowValue: row.getValue(id),
+        //   filterValue: value,
+        // });
         return value.includes(row.getValue(id));
       },
     },
@@ -844,11 +844,11 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   const fetchEvent = async () => {
     setLoading(true);
-    console.log("fetching event", event_id);
+    // console.log("fetching event", event_id);
     const response = await axios.get(
       `${TAGS_API_BASE_URL}/api/events/${event_id}`
     );
-    console.log("response", response.data);
+    // console.log("response", response.data);
     setEvent(response.data);
     setLoading(false);
     //TODO: add check for whether the event is live
@@ -861,7 +861,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   async function markAsPaid(checkInId: number) {
     try {
       setLoading(true);
-      console.log("marking as paid", checkInId);
+      // console.log("marking as paid", checkInId);
       fetch(`${TAGS_API_BASE_URL}/api/player-check-in/pay/${checkInId}`, {
         method: "PUT",
         headers: {
@@ -877,7 +877,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         })
         .then((data) => {
           // Handle successful response from API
-          console.log("response", data);
+          // console.log("response", data);
           const result = data as PlayersWithDivisions;
           // Update the "paid" variable in the CheckedInPlayers array
           const updatedPlayers = event!.CheckedInPlayers!.map((player) =>
@@ -932,7 +932,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
             variant: "destructive",
             duration: 3000,
           });
-          console.log("Failed to mark as paid", error);
+          // console.log("Failed to mark as paid", error);
           setLoading(false);
           return;
         });
@@ -944,7 +944,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   async function addtoQueue(player: PlayersWithDivisions) {
     try {
-      console.log("adding to queue", player);
+      // console.log("adding to queue", player);
       setLoading(true);
       const response = await fetch(`${TAGS_API_BASE_URL}/api/player-check-in`, {
         method: "POST",
@@ -964,7 +964,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         throw new Error("Network response was not ok");
       }
       const data = (await response.json()) as PlayersWithDivisions;
-      console.log("response", data);
+      // console.log("response", data);
       const updatedEvent = {
         ...event!,
         playerCheckIn: data,
@@ -997,7 +997,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
   async function removeFromQueue(player: PlayersWithDivisions) {
     try {
       const checkInId = player.checkInId;
-      console.log("removing from queue", checkInId);
+      // console.log("removing from queue", checkInId);
       setLoading(true);
       fetch(`${TAGS_API_BASE_URL}/api/player-check-in/${checkInId}`, {
         method: "DELETE",
@@ -1020,7 +1020,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
         })
         .then((data) => {
           // Handle successful response from API
-          console.log("response", data);
+          // console.log("response", data);
           toast({
             title: "Success",
             description: "Player removed from event",
@@ -1053,16 +1053,16 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     useState<PlayersWithDivisions>();
 
   async function editCheckIn(player: PlayersWithDivisions) {
-    console.log("would edit record for player: ", player);
+    // console.log("would edit record for player: ", player);
     setEditCheckInStarted(true);
     setEditedPlayerDetails(player);
     setIdToEdit(player.checkInId);
   }
 
   const submitEditedCheckIn = async (formData: PlayersWithDivisions) => {
-    console.log("Editing check-in player...");
-    console.log("before: ", editedPlayerDetails);
-    console.log("after: ", formData);
+    // console.log("Editing check-in player...");
+    // console.log("before: ", editedPlayerDetails);
+    // console.log("after: ", formData);
 
     try {
       const response = await fetch(
@@ -1081,7 +1081,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
       }
 
       const data = await response.json();
-      console.log("Edit of Check-in successful:", data);
+      // console.log("Edit of Check-in successful:", data);
       toast({
         variant: "default",
         title: "Edit successful",
@@ -1106,13 +1106,13 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      console.log("Window width:", window.innerWidth);
+      // console.log("Window width:", window.innerWidth);
       if (window.innerWidth <= 768) {
         setIsMobile(true);
-        console.log("isMobile is true");
+        // console.log("isMobile is true");
       } else {
         setIsMobile(false);
-        console.log("isMobile is false");
+        // console.log("isMobile is false");
       }
     };
 

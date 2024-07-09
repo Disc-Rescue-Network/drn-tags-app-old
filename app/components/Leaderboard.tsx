@@ -69,7 +69,7 @@ const Leaderboard = () => {
     const fetchLeaderboard = async () => {
       try {
         const data = await fetchLeaderboardData("org_155e4b351474");
-        console.log("Leaderboard data", data);
+        // console.log("Leaderboard data", data);
         setDataAsOf(data.data.lastRoundPlayedOverall);
         setLeaderboardData(data.data.leaderboard);
         setLoading(false);
@@ -90,7 +90,7 @@ const Leaderboard = () => {
     const fetchAlcyonLeaderboard = async () => {
       try {
         const data = await fetchLeaderboardData("org_1aa61d133053a");
-        console.log("Leaderboard data", data);
+        // console.log("Leaderboard data", data);
         setAlcyonDataAsOf(data.data.lastRoundPlayedOverall);
         setAlcyonLeaderboardData(data.data.leaderboard);
         setLoading(false);

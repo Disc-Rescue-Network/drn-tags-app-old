@@ -149,7 +149,7 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
     setIsMobile(window.innerWidth <= 768);
   }, []);
 
-  console.log("Event Date Time:", event.dateTime);
+  // console.log("Event Date Time:", event.dateTime);
 
   let dateTime;
 
@@ -163,7 +163,7 @@ const EventPreviewComponent = (props: EventPreviewProps) => {
       .toISOString()
       .split("T")[0];
     dateTime = new Date(`${localDate}T${event.time}`);
-    console.log("Event Date Time:", dateTime);
+    // console.log("Event Date Time:", dateTime);
   }
 
   useEffect(() => {
@@ -278,7 +278,7 @@ export default function EditEventForm({
   params: { event: TagsEvent };
 }) {
   let event = params.event;
-  console.log("EVENT IN:", event);
+  // console.log("EVENT IN:", event);
   event.dateTime = new Date(event.dateTime);
 
   let eventDate = new Date(event.dateTime).toLocaleDateString();
@@ -327,9 +327,9 @@ export default function EditEventForm({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   function onSubmit(data: z.infer<typeof eventSchema>) {
-    console.log("on submit called");
+    // console.log("on submit called");
     setIsSubmitting(true);
-    console.log(data);
+    // console.log(data);
 
     const date = new Date(data.date);
     const localDate = new Date(
@@ -338,7 +338,7 @@ export default function EditEventForm({
       .toISOString()
       .split("T")[0];
     const dateTime = new Date(`${localDate}T${data.time}`);
-    console.log("FINAL DateTime:", dateTime);
+    // console.log("FINAL DateTime:", dateTime);
 
     // Now you can use dateTime in your submit logic
     // For example:
@@ -368,7 +368,7 @@ export default function EditEventForm({
       return; // Exit early if URL is invalid
     }
 
-    console.log(JSON.stringify(data));
+    // console.log(JSON.stringify(data));
 
     //Make POST request to API endpoint
     fetch(`${TAGS_API_BASE_URL}/api/events/${event.event_id}`, {
@@ -387,7 +387,7 @@ export default function EditEventForm({
       })
       .then((data) => {
         // Handle successful response from API
-        console.log("Event edited successfully:", data);
+        // console.log("Event edited successfully:", data);
         setIsSubmitting(false);
         toast({
           variant: "default",
@@ -433,15 +433,15 @@ export default function EditEventForm({
       .toISOString()
       .split("T")[0];
     const dateTime = new Date(`${localDate}T${timeValue}`);
-    console.log("FINAL DateTime:", dateTime);
+    // console.log("FINAL DateTime:", dateTime);
     setValue("dateTime", dateTime);
   }
 
-  console.log(getValues());
-  console.log(errors);
+  // console.log(getValues());
+  // console.log(errors);
 
   const currentEvent: any = getValues();
-  console.log("Current Event:", currentEvent);
+  // console.log("Current Event:", currentEvent);
 
   let differences: { field: string; previousValue: any; newValue: any }[] = [];
 
@@ -452,7 +452,7 @@ export default function EditEventForm({
       key === "updatedAt" ||
       key === "createdAt"
     ) {
-      console.log("Skipping key:", key);
+      // console.log("Skipping key:", key);
       return;
     }
 
@@ -460,9 +460,9 @@ export default function EditEventForm({
       const activeCurrentDivisions = currentEvent.divisions.filter(
         (division: any) => division.active
       );
-      console.log("event", event);
+      // console.log("event", event);
       const activeEventDivisions = (event as TagsEvent).divisions;
-      console.log("Active Event Divisions:", activeEventDivisions);
+      // console.log("Active Event Divisions:", activeEventDivisions);
 
       if (
         JSON.stringify(activeCurrentDivisions) !==
@@ -521,9 +521,9 @@ export default function EditEventForm({
     }
   });
 
-  console.log("Differences:", differences);
+  // console.log("Differences:", differences);
 
-  console.log("Org Code:", organization);
+  // console.log("Org Code:", organization);
 
   const [layouts, setLayouts] = React.useState<LayoutModel[]>([]);
   const [divisions, setDivisions] = React.useState<Division[]>([]);
@@ -534,7 +534,7 @@ export default function EditEventForm({
       return null;
     }
 
-    console.log("Fetching settings data...");
+    // console.log("Fetching settings data...");
     try {
       const response = await fetch(
         `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization}`
@@ -542,9 +542,9 @@ export default function EditEventForm({
       if (!response.ok) {
         throw new Error("Failed to fetch settings data");
       }
-      console.log("Settings data fetched successfully");
+      // console.log("Settings data fetched successfully");
       const data = await response.json();
-      console.log("Settings data:", data);
+      // console.log("Settings data:", data);
       return data; // Return the fetched settings data
     } catch (error) {
       console.error("Error fetching settings data:", error);
@@ -558,7 +558,7 @@ export default function EditEventForm({
     fetchSettingsData()
       .then((settingsData) => {
         // Extract relevant fields from settingsData to prepopulate the form
-        console.log("Divisions data:", settingsData.divisions);
+        // console.log("Divisions data:", settingsData.divisions);
 
         setLayouts(settingsData.layouts);
         setValue("layout", event.layout || settingsData.layouts[0]); // Set default or first layout
@@ -578,7 +578,7 @@ export default function EditEventForm({
           }))
         );
 
-        console.log("Form default values set successfully");
+        // console.log("Form default values set successfully");
       })
       .catch((error) => {
         console.error("Error setting default values:", error);

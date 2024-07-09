@@ -61,15 +61,19 @@ import { useTheme } from "next-themes";
 
 function SideMenu() {
   const pathname = usePathname();
-  // console.log("pathname: ", pathname);
+  // // console.log("pathname: ", pathname);
 
   const [isMobile, setIsMobile] = useState(false);
   const { theme } = useTheme();
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 1080);
+      const width = window.innerWidth;
+      console.log("width: ", width);
+      setIsMobile(width <= 1080);
     };
+
+    handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => {
@@ -111,14 +115,14 @@ function SideMenu() {
 
   const { toast } = useToast();
   const orgCode = getOrganization() as unknown as string;
-  // console.log("orgCode at root: ", orgCode);
+  // // console.log("orgCode at root: ", orgCode);
   const orgCodes = getUserOrganizations() as unknown as string[];
-  // console.log("orgCodes at root: ", orgCodes);
+  // // console.log("orgCodes at root: ", orgCodes);
 
   useEffect(() => {
     const fetchCourse = async () => {
       if (isLoading) return;
-      // console.log("fetching course for orgCode", orgCode);
+      // // console.log("fetching course for orgCode", orgCode);
       if (!orgCode || orgCode === "" || orgCode === "org_6c3b341e563") {
         console.error("Organization code is required");
         // toast({
@@ -132,7 +136,7 @@ function SideMenu() {
       }
 
       try {
-        // console.log(`${API_BASE_URL}/course/${orgCode}`);
+        // // console.log(`${API_BASE_URL}/course/${orgCode}`);
 
         const accessToken = getAccessToken();
 
@@ -141,9 +145,9 @@ function SideMenu() {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-        // console.log(response);
+        // // console.log(response);
         const data = response.data;
-        // console.log(data);
+        // // console.log(data);
         setCourse(data);
         setBelongsToOrg(true);
       } catch (error) {
@@ -161,7 +165,7 @@ function SideMenu() {
     fetchCourse();
 
     const fetchCourses = async () => {
-      // console.log("fetching courses for orgCodes", orgCodes);
+      // // console.log("fetching courses for orgCodes", orgCodes);
       if (orgCodes === undefined || orgCodes === null) {
         console.error("No organization codes provided");
         setErrorMessage("No organization codes found. Please contact support.");
@@ -186,7 +190,7 @@ function SideMenu() {
         });
 
         const fetchedCourses: Course[] = response.data;
-        // console.log(fetchedCourses);
+        // // console.log(fetchedCourses);
         setAllCourses(fetchedCourses);
       } catch (error) {
         console.error(`Error fetching courses: ${error}`);
@@ -209,7 +213,7 @@ function SideMenu() {
   } = useForm<SuggestionFormData>();
 
   const onSubmit = (data: SuggestionFormData) => {
-    console.log(data);
+    // console.log(data);
     const subject = encodeURIComponent("Suggestion for Tags App");
     const body = encodeURIComponent(
       data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
@@ -221,13 +225,13 @@ function SideMenu() {
       const mailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=support@discrescuenetwork.com&su=${subject}&body=${body}`;
       window.open(mailUrl, "_blank");
     }
-    console.log("Submitted suggestion");
+    // console.log("Submitted suggestion");
   };
 
   // if (isLoading) return <div>Loading...</div>;
 
-  // console.log("isAuthenticated: ", isAuthenticated);
-  // console.log("user: ", user);
+  // // console.log("isAuthenticated: ", isAuthenticated);
+  // // console.log("user: ", user);
 
   const [systemTheme, setSystemTheme] = useState("light"); // Default to light theme
 
@@ -393,20 +397,20 @@ function SideMenu() {
           </nav>
         </div>
         <div className="p-4 mt-2 w-full">
-          <Card className="p-4">
-            <CardHeader className="p-2 pt-0 md:p-4">
+          <Card className="p-4 items-center">
+            <CardHeader className="p-1 pt-0 md:p-2">
               <CardTitle>Suggestion Box</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs xl:text-sm">
                 Have a suggestion for us? Let us know!
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
+            <CardContent className="p-2 pt-0 md:pt-0">
               <Drawer>
                 <DrawerTrigger>
                   <Button
                     asChild
                     variant="default"
-                    className="w-full justify-start flex gap-2 my-1"
+                    className="w-full items-center justify-start flex gap-2 my-1"
                   >
                     <div className="flex flex-row gap-2">
                       <NotebookText className="h-4 w-4" />

@@ -47,7 +47,7 @@ const CheckInForm = (props: CheckInFormProps) => {
     onClose,
   } = props;
 
-  console.log("Event In: ", event);
+  // console.log("Event In: ", event);
 
   const { register, handleSubmit, setValue } = useForm();
 
@@ -77,7 +77,7 @@ const CheckInForm = (props: CheckInFormProps) => {
 
     const event_id = event.event_id;
 
-    console.log(division_id);
+    // console.log(division_id);
 
     const formData = {
       udisc_display_name: udisc_display_name,
@@ -88,7 +88,7 @@ const CheckInForm = (props: CheckInFormProps) => {
       kinde_id: kinde_id!,
     };
 
-    console.log("Form Data: ", formData);
+    // console.log("Form Data: ", formData);
 
     // If the user is authenticated and the UDisc display name was missing, update the user profile
     if (!userProfile?.udisc_display_name) {
@@ -105,7 +105,7 @@ const CheckInForm = (props: CheckInFormProps) => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Success:", data);
+          // console.log("Success:", data);
         })
         .catch((error) => {
           console.error("Error:", error);
@@ -117,7 +117,7 @@ const CheckInForm = (props: CheckInFormProps) => {
     onClose();
   };
 
-  console.log("User Profile: ", userProfile);
+  // console.log("User Profile: ", userProfile);
 
   return (
     <Dialog open={true} onOpenChange={setCheckInStarted}>

@@ -31,8 +31,8 @@ export function ComboBox(props: ComboBoxProps) {
   const [orgCode, setOrgCode] = React.useState("");
   const [courseName, setCourseName] = React.useState(currentCourse.courseName);
 
-  // console.log("Current course:", currentCourse);
-  // console.log("All courses:", allCourses);
+  // // console.log("Current course:", currentCourse);
+  // // console.log("All courses:", allCourses);
 
   React.useEffect(() => {
     if (currentCourse.orgCode) {

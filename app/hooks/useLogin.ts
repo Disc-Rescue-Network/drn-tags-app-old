@@ -21,9 +21,9 @@ export const useLogin = (
       //   if (loading) return;
       setLoading(true);
       if (isAuthenticated && user && !loginAttempted.current) {
-        console.log("Checking db for user:", user);
+        // console.log("Checking db for user:", user);
         loginAttempted.current = true; // Set this to prevent future executions
-        console.log("Checking db for user:", user);
+        // console.log("Checking db for user:", user);
         // Ensure user.email is not null before using it
         const accessToken = getAccessToken(); // Assume getAccessToken is async
         try {
@@ -47,27 +47,27 @@ export const useLogin = (
             throw new Error(message);
           }
 
-          console.log("Response status:", response.status);
+          // console.log("Response status:", response.status);
 
           if (response.status === 201) {
-            console.log("Account created successfully");
+            // console.log("Account created successfully");
             setDoesAccountExist(true);
           }
 
           if (response.status === 200) {
-            console.log("Account exists");
+            // console.log("Account exists");
             setDoesAccountExist(true);
           }
 
           const data = await response.json();
-          console.log("Login status:", data);
+          // console.log("Login status:", data);
           setLoading(false);
         } catch (error) {
           console.error("Failed to fetch UDisc display name status:", error);
           setLoading(false);
         }
       } else {
-        console.log("User is not authenticated or user is missing");
+        // console.log("User is not authenticated or user is missing");
       }
     };
 

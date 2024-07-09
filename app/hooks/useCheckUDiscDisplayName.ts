@@ -19,7 +19,7 @@ export const useCheckUDiscDisplayName = (
     const checkUDiscDisplayName = async () => {
       setLoading(true);
       if (isAuthenticated && user && doesAccountExist) {
-        console.log("Checking UDisc display name status for user:", user);
+        // console.log("Checking UDisc display name status for user:", user);
         // Ensure user.email is not null before using it
         const accessToken = getAccessToken(); // Assume getAccessToken is async
         try {
@@ -38,10 +38,10 @@ export const useCheckUDiscDisplayName = (
           );
 
           const data = await response.json();
-          console.log("UDisc display name status:", data);
+          // console.log("UDisc display name status:", data);
 
           if (!data.hasUDiscDisplayName) {
-            console.log("User is missing UDisc display name");
+            // console.log("User is missing UDisc display name");
             setUDiscNameMissing(true);
           }
           setLoading(false);

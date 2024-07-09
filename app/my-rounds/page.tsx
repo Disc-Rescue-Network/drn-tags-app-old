@@ -57,7 +57,7 @@ ChartJS.register(
 
 const Home: NextPage = () => {
   const { isLoading, isAuthenticated, user } = useKindeBrowserClient();
-  console.log("User:", user);
+  // console.log("User:", user);
 
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -90,13 +90,13 @@ const Home: NextPage = () => {
   useEffect(() => {
     const fetchPlayerRounds = async (kindeId: string) => {
       setLoading(true);
-      console.log("Fetching player rounds for user:", kindeId);
+      // console.log("Fetching player rounds for user:", kindeId);
       try {
         const response = await fetch(
           `${TAGS_API_BASE_URL}/api/fetch-player-rounds/${kindeId}`
         );
         const data: PlayerRound[] = await response.json();
-        console.log(data);
+        // console.log(data);
         setPlayerRounds(data);
 
         // Prepare chart data for each filter
@@ -107,7 +107,7 @@ const Home: NextPage = () => {
 
         //TESTING ONLY
         // let TESTDATAONLY = data.concat(data, data, data, data);
-        // console.log(TESTDATAONLY);
+        // // console.log(TESTDATAONLY);
         // setPlayerRounds(TESTDATAONLY);
         // setAllChartData(prepareChartData(TESTDATAONLY));
         // setLast5ChartData(prepareChartData(TESTDATAONLY.slice(-5)));
@@ -149,7 +149,7 @@ const Home: NextPage = () => {
     rounds: PlayerRound[]
   ): number | null => {
     if (rounds.length === 0) {
-      console.log("No rounds found");
+      // console.log("No rounds found");
       return null; // Return null if there are no rounds to evaluate
     }
 
@@ -160,23 +160,23 @@ const Home: NextPage = () => {
         new Date(a.EventModel.dateTime).getTime()
     );
 
-    console.log("Sorted rounds:", sortedRounds);
+    // console.log("Sorted rounds:", sortedRounds);
 
     // Get the most recent round
     const mostRecentRound = sortedRounds[0];
 
-    console.log("Most recent round:", mostRecentRound);
+    // console.log("Most recent round:", mostRecentRound);
 
     // Calculate the movement from tagIn to tagOut
     if (mostRecentRound.tagIn === null) {
-      console.log("No tagIn value found");
+      // console.log("No tagIn value found");
       return null; // If tagIn is null, it means there's no previous tag to compare
     }
 
-    console.log(
-      "Tag movement:",
-      mostRecentRound.tagOut - mostRecentRound.tagIn
-    );
+    // console.log(
+    //   "Tag movement:",
+    //   mostRecentRound.tagOut - mostRecentRound.tagIn
+    // );
     return mostRecentRound.tagOut - mostRecentRound.tagIn;
   };
 
@@ -320,10 +320,10 @@ const Home: NextPage = () => {
     );
   };
 
-  console.log("AllChartData:", allChartData);
-  console.log("Last5ChartData:", last5ChartData);
-  console.log("Last10ChartData:", last10ChartData);
-  console.log("Last20ChartData:", last20ChartData);
+  // console.log("AllChartData:", allChartData);
+  // console.log("Last5ChartData:", last5ChartData);
+  // console.log("Last10ChartData:", last10ChartData);
+  // console.log("Last20ChartData:", last20ChartData);
 
   // Function to find the round with the lowest (best) score
   const findBestScoreRound = (
@@ -334,9 +334,9 @@ const Home: NextPage = () => {
     location: string;
     layout: string;
   } | null => {
-    console.log("Rounds:", rounds);
+    // console.log("Rounds:", rounds);
     if (rounds.length === 0) {
-      console.log("No rounds found, can't find best score");
+      // console.log("No rounds found, can't find best score");
       return null; // No rounds available
     }
 
@@ -345,7 +345,7 @@ const Home: NextPage = () => {
       current.score < best.score ? current : best
     );
 
-    console.log("Best round:", bestRound);
+    // console.log("Best round:", bestRound);
     // Extract the details from the best round
     return {
       score: bestRound.score,
