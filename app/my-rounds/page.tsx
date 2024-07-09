@@ -402,7 +402,13 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 p-4 lg:p-6 gap-4 h-full w-full text-center items-start">
+    <div
+      className={
+        user
+          ? "grid grid-col-1 p-2 lg:p-6 gap-4 h-full w-full text-center items-start"
+          : "flex flex-col max-h-[60dvh] p-4 lg:p-6 gap-4 h-full w-full text-center items-start"
+      }
+    >
       <h1 className="text-lg text-left font-semibold md:text-2xl">My Rounds</h1>
 
       <div
