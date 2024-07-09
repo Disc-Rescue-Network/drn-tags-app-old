@@ -43,7 +43,7 @@ const UDiscDisplayNameDialog = () => {
     getUserOrganizations,
   } = useKindeBrowserClient();
 
-  console.log("udisc dialog code running");
+  // console.log("udisc dialog code running");
 
   const { loading: loginLoading, doesAccountExist } = useLogin(
     isAuthenticated,
@@ -51,10 +51,10 @@ const UDiscDisplayNameDialog = () => {
     getAccessToken
   );
 
-  console.log("Does account exist:", doesAccountExist);
-  console.log("Login loading:", loginLoading);
-  console.log("Is authenticated:", isAuthenticated);
-  console.log("User:", user);
+  // console.log("Does account exist:", doesAccountExist);
+  // console.log("Login loading:", loginLoading);
+  // console.log("Is authenticated:", isAuthenticated);
+  // console.log("User:", user);
 
   const { loading: displayNameLoading, isUDiscNameMissing } =
     useCheckUDiscDisplayName(
@@ -64,8 +64,8 @@ const UDiscDisplayNameDialog = () => {
       doesAccountExist
     );
 
-  console.log("Is UDisc name missing:", isUDiscNameMissing);
-  console.log("Display name loading:", displayNameLoading);
+  // console.log("Is UDisc name missing:", isUDiscNameMissing);
+  // console.log("Display name loading:", displayNameLoading);
 
   const [loading, setLoading] = useState(false);
   const [isDialogDismissed, setIsDialogDismissed] = useState(
@@ -106,7 +106,7 @@ const UDiscDisplayNameDialog = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
+        // console.log("Success:", data);
         // if (data.success) {
         //   setUDiscNameMissing(false); // Assuming you have this state to close the dialog or handle UI changes
         // }

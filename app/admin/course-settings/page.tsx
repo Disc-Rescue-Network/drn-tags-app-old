@@ -52,7 +52,7 @@ import { Label } from "@/components/ui/label";
 import { set } from "date-fns";
 
 const fetchCourseSettings = async (orgCode: KindeOrganization) => {
-  console.log("Fetching course settings for orgCode:", orgCode);
+  // console.log("Fetching course settings for orgCode:", orgCode);
   const response = await fetch(
     `${TAGS_API_BASE_URL}/api/fetch-course-settings/${orgCode}`
   );
@@ -146,7 +146,7 @@ const AdminTools: NextPage = () => {
   const { isLoading, isAuthenticated, user, organization } =
     useKindeBrowserClient();
 
-  console.log("Org Code:", organization);
+  // console.log("Org Code:", organization);
 
   const router = useRouter();
 
@@ -165,10 +165,10 @@ const AdminTools: NextPage = () => {
   //   watch("venmoUsername");
   //   watch("cashappUsername");
 
-  console.log(getValues());
+  // console.log(getValues());
 
-  console.log("Form State:", formState);
-  console.log("Form Errors:", formState.errors);
+  // console.log("Form State:", formState);
+  // console.log("Form Errors:", formState.errors);
 
   const [loading, setLoading] = useState(false);
 
@@ -183,7 +183,7 @@ const AdminTools: NextPage = () => {
       fetchCourseSettings(organization)
         .then((data) => {
           reset(data); // Assuming the fetched data matches the form's structure
-          console.log("Fetched course settings:", data);
+          // console.log("Fetched course settings:", data);
           setLoading(false);
         })
         .catch((error) => {
@@ -200,7 +200,7 @@ const AdminTools: NextPage = () => {
   }, [isLoading, user, organization, router, reset]);
 
   const onSubmit = async (data: CourseSettingsData) => {
-    console.log("Form Data:", data);
+    // console.log("Form Data:", data);
 
     if (!isAuthenticated) {
       toast({
@@ -212,7 +212,7 @@ const AdminTools: NextPage = () => {
     }
 
     if (!organization) {
-      console.log("Organization:", organization);
+      // console.log("Organization:", organization);
       toast({
         title: "Unauthorized",
         description:
@@ -247,7 +247,7 @@ const AdminTools: NextPage = () => {
       }
 
       const result = await response.json();
-      console.log("Course settings saved successfully:", result);
+      // console.log("Course settings saved successfully:", result);
       setLoading(false);
       toast({
         title: "Success",

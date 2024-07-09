@@ -19,11 +19,11 @@ const EditEvent = ({ params }: { params: { event_id: string } }) => {
 
   const fetchEvent = async () => {
     setLoading(true);
-    console.log("fetching event", event_id);
+    // console.log("fetching event", event_id);
     const response = await axios.get(
       `${TAGS_API_BASE_URL}/api/events/${event_id}`
     );
-    console.log("response", response.data);
+    // console.log("response", response.data);
     setEvent(response.data);
     setLoading(false);
     //TODO: add check for whether the event is live
@@ -33,7 +33,7 @@ const EditEvent = ({ params }: { params: { event_id: string } }) => {
     fetchEvent();
   }, []);
 
-  console.log(event);
+  // console.log(event);
   const router = useRouter();
 
   useEffect(() => {

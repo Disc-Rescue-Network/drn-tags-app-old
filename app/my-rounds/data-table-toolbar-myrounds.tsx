@@ -29,7 +29,7 @@ export function DataTableToolbar<TData>({
     return Array.from(new Set(values));
   }, [table]);
 
-  console.log("uniqueLocations", uniqueLocations);
+  // console.log("uniqueLocations", uniqueLocations);
 
   // Convert the Set to an array and map it to the format needed for the options
   const locationOptions = Array.from(uniqueLocations).map((location) => ({
@@ -37,7 +37,7 @@ export function DataTableToolbar<TData>({
     label: location,
   }));
 
-  console.log("locationOptions", locationOptions);
+  // console.log("locationOptions", locationOptions);
 
   const uniqueLayouts = useMemo(() => {
     const values = table
@@ -48,14 +48,14 @@ export function DataTableToolbar<TData>({
     return Array.from(new Set(values));
   }, [table]);
 
-  console.log("uniqueLayouts", uniqueLayouts);
+  // console.log("uniqueLayouts", uniqueLayouts);
 
   const layoutOptions = Array.from(uniqueLayouts).map((layout) => ({
     value: layout,
     label: layout,
   }));
 
-  console.log("layoutOptions", layoutOptions);
+  // console.log("layoutOptions", layoutOptions);
 
   const [isMobile, setIsMobile] = React.useState(false);
   const handleResize = () => {

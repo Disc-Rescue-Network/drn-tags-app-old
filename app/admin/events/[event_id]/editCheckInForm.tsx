@@ -54,7 +54,7 @@ const EditCheckInForm = (props: EditCheckInFormProps) => {
         },
       }
     );
-    console.log("Response: ", response);
+    // console.log("Response: ", response);
     setEvent(await response.json());
   };
 
@@ -69,7 +69,7 @@ const EditCheckInForm = (props: EditCheckInFormProps) => {
       player: editedPlayerDetails,
     };
 
-    console.log("Form Data: ", formData);
+    // console.log("Form Data: ", formData);
 
     // Submit the check-in data
     onSubmit(formData.player);
@@ -93,7 +93,7 @@ const EditCheckInForm = (props: EditCheckInFormProps) => {
               type="text"
               value={editedPlayerDetails.udisc_display_name}
               onChange={(e) => {
-                console.log("Value: ", e.target.value);
+                // console.log("Value: ", e.target.value);
                 setEditedPlayerDetails({
                   ...editedPlayerDetails,
                   udisc_display_name: e.target.value,
@@ -105,7 +105,7 @@ const EditCheckInForm = (props: EditCheckInFormProps) => {
               <Select
                 value={editedPlayerDetails.division_id.toString()}
                 onValueChange={(e) => {
-                  console.log("Division ID: ", e);
+                  // console.log("Division ID: ", e);
                   setEditedPlayerDetails({
                     ...editedPlayerDetails,
                     division_id: parseInt(e),

@@ -49,7 +49,7 @@ export default function Settings() {
   );
 
   useEffect(() => {
-    console.log("userProfile", userProfile);
+    // console.log("userProfile", userProfile);
   }, [userProfile]);
 
   const { toast } = useToast();
@@ -95,7 +95,7 @@ export default function Settings() {
         }
       }
       const data = await response.json();
-      console.log("Success:", data);
+      // console.log("Success:", data);
       setLoading(false);
       toast({
         variant: "default",

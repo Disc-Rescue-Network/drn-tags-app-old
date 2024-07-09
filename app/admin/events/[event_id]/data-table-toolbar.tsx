@@ -44,7 +44,7 @@ export function DataTableToolbar<TData>({
     return Array.from(new Set(values));
   }, [table]);
 
-  console.log("uniqueDivisions", uniqueDivisions);
+  // console.log("uniqueDivisions", uniqueDivisions);
 
   // Convert the Set to an array and map it to the format needed for the options
   const divisionOptions = Array.from(uniqueDivisions).map((division) => ({
@@ -52,7 +52,7 @@ export function DataTableToolbar<TData>({
     label: division,
   }));
 
-  console.log("divisionOptions", divisionOptions);
+  // console.log("divisionOptions", divisionOptions);
 
   return (
     <div className="flex items-center justify-between">

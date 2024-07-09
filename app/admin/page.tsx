@@ -67,14 +67,13 @@ const AdminTools: NextPage = () => {
   };
 
   const onSubmit = (data: SuggestionFormData) => {
-    console.log(data);
+    // // console.log(data);
     const subject = encodeURIComponent("Suggestion for Tags App");
     const body = encodeURIComponent(
       data.suggestion + "\n\nSubmitted by: " + user?.email + "\n\n"
     );
 
-    if (typeof window === "undefined")
-      return console.log("Window is undefined");
+    if (typeof window === "undefined") return; // console.log("Window is undefined");
 
     if (isMobile) {
       window.location.href = `mailto:support@discrescuenetwork.com?subject=${subject}&body=${body}`;
@@ -82,7 +81,7 @@ const AdminTools: NextPage = () => {
       const mailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=support@discrescuenetwork.com&su=${subject}&body=${body}`;
       window.open(mailUrl, "_blank");
     }
-    console.log("Submitted suggestion");
+    // // console.log("Submitted suggestion");
   };
 
   return (

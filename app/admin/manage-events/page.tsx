@@ -243,20 +243,20 @@ const ManageEvents: NextPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("userProfile", userProfile);
+    // console.log("userProfile", userProfile);
   }, [userProfile]);
 
   useEffect(() => {
     setIsLoading(true);
-    console.log("Fetching events data...");
+    // console.log("Fetching events data...");
     // Fetch events data from your API
     fetch(`${TAGS_API_BASE_URL}/api/events`)
       .then((response) => {
-        console.log(response.status);
+        // console.log(response.status);
         return response.json();
       })
       .then((data) => {
-        console.log("Fetched events data:", data);
+        // console.log("Fetched events data:", data);
         // Filter events that are in the future
         const futureEvents = data.filter((event: TagsEvent) => {
           const eventDate = new Date(event.dateTime);
@@ -265,13 +265,13 @@ const ManageEvents: NextPage = () => {
           const currentDate = new Date();
           currentDate.setHours(0, 0, 0, 0);
 
-          console.log("Event Date:", eventDate);
-          console.log("Current Date:", currentDate);
-          console.log("Comparison Result:", eventDate >= currentDate);
+          // console.log("Event Date:", eventDate);
+          // console.log("Current Date:", currentDate);
+          // console.log("Comparison Result:", eventDate >= currentDate);
 
           return eventDate >= currentDate;
         });
-        console.log("Future events:", futureEvents);
+        // console.log("Future events:", futureEvents);
         setEvents(futureEvents);
         setIsLoading(false);
       })
@@ -290,13 +290,13 @@ const ManageEvents: NextPage = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      console.log("Window width:", window.innerWidth);
+      // console.log("Window width:", window.innerWidth);
       if (window.innerWidth <= 768) {
         setIsMobile(true);
-        console.log("isMobile is true");
+        // console.log("isMobile is true");
       } else {
         setIsMobile(false);
-        console.log("isMobile is false");
+        // console.log("isMobile is false");
       }
     };
 
@@ -309,19 +309,19 @@ const ManageEvents: NextPage = () => {
   }, []);
 
   function openEvent(event: TagsEvent) {
-    console.log("Opening event:", event.event_id);
+    // console.log("Opening event:", event.event_id);
     router.push(`/admin/events/${event.event_id}`);
   }
 
   function deleteEvent(event: TagsEvent) {
-    console.log("Deleting event:", event.event_id);
+    // console.log("Deleting event:", event.event_id);
     fetch(`${TAGS_API_BASE_URL}/api/events/${event.event_id}`, {
       method: "DELETE",
     })
       .then((response) => {
-        console.log(response.status);
+        // console.log(response.status);
         if (response.status === 200) {
-          console.log("Event deleted successfully");
+          // console.log("Event deleted successfully");
           toast({
             variant: "default",
             title: "Event Deleted",

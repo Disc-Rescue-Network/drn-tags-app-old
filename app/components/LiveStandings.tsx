@@ -34,9 +34,9 @@ const LiveStandings: React.FC = ({}) => {
 
   const handleSubmit = async (url: string) => {
     setLoading(true);
-    console.log("URL: ", url);
+    // console.log("URL: ", url);
     const urlForReq = JSON.stringify({ url });
-    console.log(urlForReq);
+    // console.log(urlForReq);
     try {
       const response = await fetch(`${TAGS_API_BASE_URL}/fetch_data`, {
         method: "POST",
@@ -56,14 +56,14 @@ const LiveStandings: React.FC = ({}) => {
         throw new Error("Network response was not ok");
       }
       const result = await response.json();
-      console.log(result.message); // "Fetching initiated"
-      console.log("Result:", result.data); // You can display this in your UI (optional
+      // console.log(result.message); // "Fetching initiated"
+      // console.log("Result:", result.data); // You can display this in your UI (optional
       const event_info: TagsEvent = await result.data;
-      console.log("Event Info:", event_info); // You can display this in your UI (optional
-      console.log("League Name:", event_info.leagueName); // You can display this in your UI
-      console.log("Divisions:", event_info.data); // You can display this in your UI
+      // console.log("Event Info:", event_info); // You can display this in your UI (optional
+      // console.log("League Name:", event_info.leagueName); // You can display this in your UI
+      // console.log("Divisions:", event_info.data); // You can display this in your UI
       if (event_info.data!.length === 0) {
-        console.log("No data yet. Check back later.");
+        // console.log("No data yet. Check back later.");
         return;
       }
       setData(event_info.data!);
@@ -79,11 +79,11 @@ const LiveStandings: React.FC = ({}) => {
     try {
       const response = await fetch(`${TAGS_API_BASE_URL}/data`);
       const event_info: TagsEvent = await response.json();
-      console.log("Event Info:", event_info); // You can display this in your UI (optional
-      console.log("League Name:", event_info.leagueName); // You can display this in your UI
-      console.log("Divisions:", event_info.data); // You can display this in your UI
+      // console.log("Event Info:", event_info); // You can display this in your UI (optional
+      // console.log("League Name:", event_info.leagueName); // You can display this in your UI
+      // console.log("Divisions:", event_info.data); // You can display this in your UI
       if (event_info.data!.length === 0) {
-        console.log("No data yet. Check back later.");
+        // console.log("No data yet. Check back later.");
         return;
       }
       setData(event_info.data!);
@@ -99,7 +99,7 @@ const LiveStandings: React.FC = ({}) => {
           )
         )
       ) {
-        console.log("All players finished. Stop fetching.");
+        // console.log("All players finished. Stop fetching.");
         setLive(false);
       } else {
         setLive(true);

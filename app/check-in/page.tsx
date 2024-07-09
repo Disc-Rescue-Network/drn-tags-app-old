@@ -80,12 +80,12 @@ const CheckIn: NextPage = () => {
       doesAccountExist
     );
 
-  console.log("Does account exist:", doesAccountExist);
-  console.log("Login loading:", loginLoading);
-  console.log("Is authenticated:", isAuthenticated);
-  console.log("User:", user);
-  console.log("Is UDisc name missing:", isUDiscNameMissing);
-  console.log("Display name loading:", displayNameLoading);
+  // console.log("Does account exist:", doesAccountExist);
+  // console.log("Login loading:", loginLoading);
+  // console.log("Is authenticated:", isAuthenticated);
+  // console.log("User:", user);
+  // console.log("Is UDisc name missing:", isUDiscNameMissing);
+  // console.log("Display name loading:", displayNameLoading);
 
   const { userProfile, setUserProfile } = useUserDetails(
     isAuthenticated,
@@ -94,32 +94,32 @@ const CheckIn: NextPage = () => {
   );
 
   useEffect(() => {
-    console.log("userProfile", userProfile);
+    // console.log("userProfile", userProfile);
   }, [userProfile]);
 
   useEffect(() => {
     setIsLoading(true);
-    console.log("Fetching events data...");
+    // console.log("Fetching events data...");
     // Fetch events data from your API
     fetch(`${TAGS_API_BASE_URL}/api/events`)
       .then((response) => {
-        console.log(response.status);
+        // console.log(response.status);
         return response.json();
       })
       .then((data) => {
-        console.log("Fetched events data:", data);
+        // console.log("Fetched events data:", data);
         // Filter events that are in the future
         const futureEvents = data.filter((event: TagsEvent) => {
           const eventDate = new Date(event.dateTime);
           const currentDate = new Date();
 
-          console.log("Event Date:", eventDate);
-          console.log("Current Date:", currentDate);
-          console.log("Comparison Result:", eventDate > currentDate);
+          // console.log("Event Date:", eventDate);
+          // console.log("Current Date:", currentDate);
+          // console.log("Comparison Result:", eventDate > currentDate);
 
           return eventDate > currentDate;
         });
-        console.log("Future events:", futureEvents);
+        // console.log("Future events:", futureEvents);
         setEvents(futureEvents);
         setIsLoading(false);
       })
@@ -137,7 +137,7 @@ const CheckIn: NextPage = () => {
   }, []);
 
   const beginUnauthenticatedCheckIn = () => {
-    console.log("Beginning unauthenticated check in...");
+    // console.log("Beginning unauthenticated check in...");
     //bring up a form with no data prefilled
   };
 
@@ -148,11 +148,11 @@ const CheckIn: NextPage = () => {
   );
 
   const checkIn = (event: TagsEvent) => {
-    console.log("Checking in to event: ", event);
+    // console.log("Checking in to event: ", event);
 
     // check for authentication
     if (!user || !userProfile) {
-      console.log("User or userProfile is missing...");
+      // console.log("User or userProfile is missing...");
       setShowLoginDisclaimer(true);
       return;
     }
@@ -160,16 +160,16 @@ const CheckIn: NextPage = () => {
     //if they get here, they are logged in
     setEventForCheckIn(event);
     setCheckInStarted(true);
-    console.log("Check-in started...");
+    // console.log("Check-in started...");
   };
 
   const handleCheckInComplete = () => {
-    console.log("check in complete...");
+    // console.log("check in complete...");
     setCheckInStarted(false);
   };
 
   const checkInPlayer = async (formData: CheckInFormData) => {
-    console.log("Checking in player...", formData);
+    // console.log("Checking in player...", formData);
     try {
       const response = await fetch(`${TAGS_API_BASE_URL}/api/player-check-in`, {
         method: "POST",
@@ -184,7 +184,7 @@ const CheckIn: NextPage = () => {
       }
 
       const data = await response.json();
-      console.log("Check-in successful:", data);
+      // console.log("Check-in successful:", data);
       toast({
         variant: "default",
         title: "Check-in successful",
@@ -231,13 +231,13 @@ const CheckIn: NextPage = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      console.log("Window width:", window.innerWidth);
+      // console.log("Window width:", window.innerWidth);
       if (window.innerWidth <= 768) {
         setIsMobile(true);
-        console.log("isMobile is true");
+        // console.log("isMobile is true");
       } else {
         setIsMobile(false);
-        console.log("isMobile is false");
+        // console.log("isMobile is false");
       }
     };
 

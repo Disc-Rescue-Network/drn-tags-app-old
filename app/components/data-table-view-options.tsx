@@ -26,7 +26,7 @@ export function DataTableViewOptions<TData>({
   table,
   columnHeaders,
 }: DataTableViewOptionsProps<TData>) {
-  console.log("table", table.getAllColumns());
+  // console.log("table", table.getAllColumns());
 
   useEffect(() => {
     table.getAllColumns().forEach((column) => {
