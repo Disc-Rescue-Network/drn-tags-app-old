@@ -43,6 +43,7 @@ export interface EnhancedLeaderboardEntry extends LeaderboardEntry {
   averageScorePerRound: number;
   change: string;
   previousPosition: number;
+  kindeId: string;
 }
 
 export interface RunningScoreEntry {

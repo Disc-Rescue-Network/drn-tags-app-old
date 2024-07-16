@@ -29,20 +29,33 @@ import { EnhancedLeaderboardEntry, LeaderboardEntry } from "../types";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableRowActions } from "./data-table-row-actions";
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { TAGS_API_BASE_URL } from "../networking/apiExports";
+import EditTagDialog from "./editTagDialog";
+import SwapTagDialog from "./swapTagDialog";
+import { useUserCourses } from "../hooks/useUserCourses";
 
 interface DataTableProps {
   columns: ColumnDef<EnhancedLeaderboardEntry>[];
   data: EnhancedLeaderboardEntry[];
+  setLeaderboardData: React.Dispatch<
+    React.SetStateAction<EnhancedLeaderboardEntry[] | null>
+  >;
   sort?: string;
   loading: boolean;
+  admin: boolean;
   qualiferCount: number;
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
   columns,
   data,
+  setLeaderboardData,
   sort,
   loading,
+  admin,
   qualiferCount,
 }) => {
   const [rowSelection, setRowSelection] = React.useState({});
@@ -94,6 +107,105 @@ export const DataTable: React.FC<DataTableProps> = ({
   };
 
   const SKELETON_ROWS = 10;
+  const router = useRouter();
+  const [editingTag, setEditingTag] = React.useState<boolean>(false);
+  const [swappingTag, setSwappingTag] = React.useState<boolean>(false);
+  const [tagsEntry, setTagsEntry] =
+    React.useState<EnhancedLeaderboardEntry | null>(null);
+  const { course, courses } = useUserCourses();
+  const orgCode = course.orgCode;
+
+  // Function to update the tag
+  async function updateTag(kinde_id: string, newTag: number) {
+    console.log("Updating tag:", kinde_id, newTag);
+    try {
+      const response = await fetch(
+        `${TAGS_API_BASE_URL}/api/update-tag/${kinde_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ newTag, orgCode }),
+        }
+      );
+      if (!response.ok) {
+        console.error("Failed to update tag");
+        toast({
+          title: "Error",
+          description: "Failed to update tag",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+      const data = await response.json();
+      console.log("Tag updated successfully:", data);
+      toast({
+        title: "Success",
+        description: "Tag updated successfully",
+        variant: "default",
+        duration: 3000,
+      });
+      setEditingTag(false);
+      // Update the leaderboardData
+      setLeaderboardData((prevData) => {
+        if (!prevData) return null;
+        const updatedData = prevData.map((entry) => {
+          if (entry.kindeId === kinde_id) {
+            return { ...entry, currentTag: newTag };
+          }
+          return entry;
+        });
+        return updatedData;
+      });
+
+      return data;
+    } catch (error) {
+      console.error("Error updating tag:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update tag",
+        variant: "destructive",
+        duration: 3000,
+      });
+      throw error;
+    }
+  }
+
+  // Function to swap tags
+  async function swapTags(user1Id: string, user2Id: string) {
+    try {
+      const response = await fetch(`${TAGS_API_BASE_URL}/api/swap-tags`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user1Id, user2Id, orgCode }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to swap tags");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error swapping tags:", error);
+      throw error;
+    }
+  }
+
+  if (admin && !columns.find((col) => col.id === "actions")) {
+    columns.push({
+      id: "actions",
+      cell: ({ row }) => (
+        <DataTableRowActions
+          row={row}
+          setEditingTag={setEditingTag}
+          setSwappingTag={setSwappingTag}
+          setTagsEntry={setTagsEntry}
+        />
+      ),
+    });
+  }
 
   return (
     <div className="space-y-4 px-4" style={{ maxWidth: "93dvw" }}>
@@ -132,7 +244,9 @@ export const DataTable: React.FC<DataTableProps> = ({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className={getRowClassName(row.original.position)}
+                  className={
+                    admin ? "" : getRowClassName(row.original.position)
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -159,6 +273,23 @@ export const DataTable: React.FC<DataTableProps> = ({
         </Table>
       </div>
       <DataTablePagination table={table} />
+      {tagsEntry && (
+        <EditTagDialog
+          open={editingTag}
+          onOpenChange={setEditingTag}
+          updateTag={updateTag}
+          tagsEntry={tagsEntry}
+        />
+      )}
+      {tagsEntry && (
+        <SwapTagDialog
+          open={swappingTag}
+          onOpenChange={setSwappingTag}
+          swapTags={swapTags}
+          tagsEntry={tagsEntry}
+          allPlayers={data}
+        />
+      )}
     </div>
   );
 };

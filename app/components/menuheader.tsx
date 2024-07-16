@@ -53,7 +53,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { useEffect, useRef, useState } from "react";
-import { Course } from "../layout";
 import { useToast } from "@/components/ui/use-toast";
 import { API_BASE_URL, TAGS_API_BASE_URL } from "../networking/apiExports";
 import axios from "axios";
@@ -82,6 +81,8 @@ import { Label } from "@radix-ui/react-label";
 import { register } from "module";
 import { SuggestionFormData } from "../types";
 import { useForm } from "react-hook-form";
+import { Course } from "../types/Course";
+import { useUserCourses } from "../hooks/useUserCourses";
 
 interface KindeUser {
   family_name: string;
@@ -110,7 +111,7 @@ function MenuHeader() {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      console.log("width: ", width);
+      // console.log("width: ", width);
       setIsMobile(width <= 1080);
     };
 
@@ -122,111 +123,19 @@ function MenuHeader() {
     };
   }, []);
 
-  const [course, setCourse] = useState<Course>({
-    orgCode: "",
-    courseName: "",
-  });
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
-  const [belongsToOrg, setBelongsToOrg] = useState(false);
+  const {
+    courses,
+    course,
+    isSwitchingOrgs,
+    belongsToOrg,
+    errorMessage,
+    showErrorMessage,
+  } = useUserCourses();
   const { theme } = useTheme();
 
   const pathname = usePathname();
 
-  const [showErrorMessage, setShowErrorMessage] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("Testing");
-
   const { toast } = useToast();
-  const orgCode = getOrganization() as unknown as string;
-  // // console.log("orgCode at root: ", orgCode);
-  const orgCodes = getUserOrganizations() as unknown as string[];
-  // // console.log("orgCodes at root: ", orgCodes);
-
-  useEffect(() => {
-    const fetchCourse = async () => {
-      if (isLoading) return;
-      // console.log("fetching course for orgCode", orgCode);
-      if (!orgCode || orgCode === "" || orgCode === "org_6c3b341e563") {
-        console.error("Organization code is required");
-        // toast({
-        //   variant: "destructive",
-        //   title: "Error",
-        //   description: "Organization code is required.",
-        //   duration: 3000,
-        // });
-        setBelongsToOrg(false);
-        return;
-      }
-
-      try {
-        // console.log(`${API_BASE_URL}/course/${orgCode}`);
-
-        const accessToken = getAccessToken();
-
-        const response = await axios.get(`${API_BASE_URL}/course/${orgCode}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        // console.log(response);
-        const data = response.data;
-        // console.log(data);
-        setCourse(data);
-        setBelongsToOrg(true);
-      } catch (error) {
-        console.error(`Error fetching course for orgCode ${orgCode}: ${error}`);
-        setErrorMessage(
-          `Error fetching course for orgCode ${orgCode}: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-        setShowErrorMessage(true);
-        setBelongsToOrg(false);
-      }
-    };
-
-    fetchCourse();
-
-    const fetchCourses = async () => {
-      // console.log("fetching courses for orgCodes", orgCodes);
-      if (orgCodes === undefined || orgCodes === null) {
-        console.error("No organization codes provided");
-        setErrorMessage("No organization codes found. Please contact support.");
-        setShowErrorMessage(true);
-        return;
-      }
-
-      if (orgCodes.length === 0) {
-        console.error("No organization codes provided");
-        setErrorMessage("No organization codes found. Please contact support.");
-        setShowErrorMessage(true);
-        return;
-      }
-
-      try {
-        const accessToken = getToken();
-        const response = await axios.get(`${API_BASE_URL}/courses`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          params: { orgCodes: orgCodes },
-        });
-
-        const fetchedCourses: Course[] = response.data;
-        // console.log(fetchedCourses);
-        setAllCourses(fetchedCourses);
-      } catch (error) {
-        console.error(`Error fetching courses: ${error}`);
-        setErrorMessage(
-          `Error fetching courses: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-        setShowErrorMessage(true);
-      }
-    };
-
-    fetchCourses();
-  }, [orgCode, orgCodes]);
 
   const [systemTheme, setSystemTheme] = useState("light"); // Default to light theme
 
@@ -361,6 +270,22 @@ function MenuHeader() {
                 <DialogTrigger asChild>
                   <Button
                     asChild
+                    variant={pathname === "/admin/tags" ? "secondary" : "ghost"}
+                    className="w-full justify-start flex gap-2 my-1"
+                  >
+                    <Link
+                      href="/admin/tags"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                    >
+                      <Medal className="h-4 w-4" />
+                      Tags
+                    </Link>
+                  </Button>
+                </DialogTrigger>
+
+                {/* <DialogTrigger asChild>
+                  <Button
+                    asChild
                     variant={pathname === "/admin" ? "secondary" : "ghost"}
                     className="w-full justify-start flex gap-2 my-1"
                   >
@@ -372,7 +297,7 @@ function MenuHeader() {
                       Dashboard
                     </Link>
                   </Button>
-                </DialogTrigger>
+                </DialogTrigger> */}
                 <DialogTrigger asChild>
                   <Button
                     asChild
@@ -539,23 +464,22 @@ function MenuHeader() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {allCourses.length > 1 && (
-              <>
-                {course.courseName !== "" ? (
-                  <ComboBox currentCourse={course} allCourses={allCourses} />
-                ) : (
-                  <Skeleton className="w-[200px] h-[30px] rounded" />
-                )}
-                {isAuthenticated && <DropdownMenuSeparator className="mt-2" />}
-              </>
+
+            {course.courseName !== "" ? (
+              <ComboBox currentCourse={course} allCourses={courses} />
+            ) : (
+              <Skeleton className="w-[200px] h-[30px] rounded" />
             )}
+            {isAuthenticated && <DropdownMenuSeparator className="mt-2" />}
 
             {isAuthenticated ? (
               <DropdownMenuItem>
-                <div className="flex items-center gap-3 rounded-lg px-1 py-2 text-muted-foreground transition-all hover:text-primary">
-                  <LogOut className="h-4 w-4" />
-                  <LogoutLink>Log out</LogoutLink>
-                </div>
+                <LogoutLink>
+                  <div className="flex items-center gap-3 rounded-lg px-1 py-2 text-muted-foreground transition-all hover:text-primary">
+                    <LogOut className="h-4 w-4" />
+                    Log out
+                  </div>
+                </LogoutLink>
               </DropdownMenuItem>
             ) : (
               <></>

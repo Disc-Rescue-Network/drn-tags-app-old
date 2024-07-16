@@ -124,6 +124,7 @@ const Leaderboard = () => {
                 columns={columns}
                 data={leaderboardData || []}
                 loading={loading}
+                admin={false}
                 qualiferCount={16}
               />
             </div>
@@ -165,6 +166,7 @@ const Leaderboard = () => {
                 columns={columns}
                 data={alcyonLeaderboardData}
                 loading={loading}
+                admin={false}
                 qualiferCount={32}
               />
             )}
