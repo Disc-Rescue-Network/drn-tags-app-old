@@ -412,7 +412,7 @@ const Home: NextPage = () => {
       <h1 className="text-lg text-left font-semibold md:text-2xl">My Rounds</h1>
 
       <div
-        className="flex flex-1 w-full m-auto h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
+        className="flex flex-1 w-full m-auto min-h-[50dvh] h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
         x-chunk="dashboard-02-chunk-1"
       >
         {user ? (

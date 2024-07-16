@@ -12,13 +12,16 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Course } from "../layout";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useUserCourses } from "../hooks/useUserCourses";
+import { Course } from "../types/Course";
 
 interface ComboBoxProps {
   currentCourse: Course;
@@ -26,19 +29,20 @@ interface ComboBoxProps {
 }
 
 export function ComboBox(props: ComboBoxProps) {
-  const { currentCourse, allCourses } = props;
+  const {
+    course,
+    setCourse,
+    courses,
+    isSwitchingOrgs,
+    setIsSwitchingOrgs,
+    belongsToOrg,
+    errorMessage,
+    showErrorMessage,
+  } = useUserCourses();
   const [open, setOpen] = React.useState(false);
-  const [orgCode, setOrgCode] = React.useState("");
-  const [courseName, setCourseName] = React.useState(currentCourse.courseName);
 
-  // // console.log("Current course:", currentCourse);
-  // // console.log("All courses:", allCourses);
-
-  React.useEffect(() => {
-    if (currentCourse.orgCode) {
-      setOrgCode(currentCourse.orgCode);
-    }
-  }, [currentCourse]);
+  // console.log("Current course:", course);
+  // console.log("All courses:", courses);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -49,38 +53,41 @@ export function ComboBox(props: ComboBoxProps) {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {courseName}
+          {course ? course.courseName : "Select course..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
           <CommandInput placeholder="Search course..." />
-          <CommandEmpty>No course found.</CommandEmpty>
-          <CommandGroup>
-            {allCourses.map((course) => (
-              <LoginLink key={course.orgCode} orgCode={course.orgCode}>
+          <CommandList>
+            <CommandEmpty>No course found.</CommandEmpty>
+            <CommandGroup>
+              {courses.map((courseLocal) => (
                 <CommandItem
-                  value={course.orgCode}
-                  onSelect={(currentOrgCode) => {
-                    setOrgCode(
-                      currentOrgCode === orgCode ? "" : currentOrgCode
-                    );
-                    setCourseName(course.courseName);
+                  key={courseLocal.orgCode}
+                  value={courseLocal.courseName}
+                  onSelect={(selectedCourse) => {
+                    setCourse(courseLocal);
+                    setIsSwitchingOrgs(true);
                     setOpen(false);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      orgCode === course.orgCode ? "opacity-500" : "opacity-0"
+                      course.courseName === courseLocal.courseName
+                        ? "opacity-100"
+                        : "opacity-0"
                     )}
                   />
-                  {course.courseName}
+                  <LoginLink orgCode={courseLocal.orgCode}>
+                    {courseLocal.courseName}
+                  </LoginLink>
                 </CommandItem>
-              </LoginLink>
-            ))}
-          </CommandGroup>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

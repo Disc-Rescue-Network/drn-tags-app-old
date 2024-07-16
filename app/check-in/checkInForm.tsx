@@ -52,7 +52,7 @@ const CheckInForm = (props: CheckInFormProps) => {
   const { register, handleSubmit, setValue } = useForm();
 
   const [udisc_display_name, setUdiscDisplayName] = useState("");
-  const [tagIn, setTagIn] = useState("");
+  const [tagIn, setTagIn] = useState("" + userProfile?.lastKnownTagOut || "");
   const [division_id, setDivisionId] = useState("");
   const [paid] = useState(false); // default to false
 
@@ -121,7 +121,7 @@ const CheckInForm = (props: CheckInFormProps) => {
 
   return (
     <Dialog open={true} onOpenChange={setCheckInStarted}>
-      <DialogContent className="max-width-90">
+      <DialogContent className="max-w-[350px] lg:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Check In</DialogTitle>
           <DialogDescription>

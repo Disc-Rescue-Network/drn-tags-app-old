@@ -43,6 +43,7 @@ export interface EnhancedLeaderboardEntry extends LeaderboardEntry {
   averageScorePerRound: number;
   change: string;
   previousPosition: number;
+  kindeId: string;
 }
 
 export interface RunningScoreEntry {
@@ -64,6 +65,7 @@ export interface UserProfile {
   home_course?: string;
   udisc_display_name?: string;
   kinde_id: string;
+  lastKnownTagOut?: number;
 }
 
 export interface TagsEvent {

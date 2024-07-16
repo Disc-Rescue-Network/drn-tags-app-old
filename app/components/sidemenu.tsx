@@ -35,12 +35,9 @@ import DRNLightLogo from "@/public/tags_logo_lightmode_long.png";
 import DRNDarkLogo from "@/public/tags_logo_darkmode_long.png";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
-import { Course, KindeOrganization } from "../layout";
 import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { Combo } from "next/font/google";
-import { ComboBox } from "./comboBox";
 import { API_BASE_URL } from "../networking/apiExports";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -54,10 +51,10 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea";
-import { register } from "module";
 import { SuggestionFormData } from "../types";
 import { useForm } from "react-hook-form";
 import { useTheme } from "next-themes";
+import { Course } from "../types/Course";
 
 function SideMenu() {
   const pathname = usePathname();
@@ -69,7 +66,7 @@ function SideMenu() {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      console.log("width: ", width);
+      // console.log("width: ", width);
       setIsMobile(width <= 1080);
     };
 
@@ -85,6 +82,14 @@ function SideMenu() {
   const [course, setCourse] = useState<Course>({
     orgCode: "",
     courseName: "",
+    state: "",
+    city: "",
+    shortCode: "",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    activeForLostAndFound: false,
+    shortLink: "",
+    link: "",
   });
   const [allCourses, setAllCourses] = useState<Course[]>([]);
 
@@ -325,13 +330,26 @@ function SideMenu() {
               </Link>
             </Button>
 
-            {course.orgCode === "org_155e4b351474" && (
+            {(course.orgCode === "org_6108516784ae" ||
+              course.orgCode === "org_155e4b351474") && (
               <>
                 <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
                   Admin Tools
                 </h2>
-
                 <Button
+                  asChild
+                  variant={pathname === "/admin/tags" ? "secondary" : "ghost"}
+                  className="w-full justify-start flex gap-2 my-1"
+                >
+                  <Link
+                    href="/admin/tags"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                  >
+                    <Medal className="h-4 w-4" />
+                    Tags
+                  </Link>
+                </Button>
+                {/* <Button
                   asChild
                   variant={pathname === "/admin" ? "secondary" : "ghost"}
                   className="w-full justify-start flex gap-2 my-1"
@@ -343,7 +361,7 @@ function SideMenu() {
                     <LayoutDashboard className="h-4 w-4" />
                     Dashboard
                   </Link>
-                </Button>
+                </Button> */}
                 <Button
                   asChild
                   variant={

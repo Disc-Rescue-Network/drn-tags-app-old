@@ -9,6 +9,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import UDiscDisplayNameDialog from "./components/UDiscDisplayNameDialog";
+import { Course } from "./types/Course";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -76,11 +78,6 @@ export const viewport: Viewport = {
   themeColor: "#FFFFFF",
 };
 
-export interface Course {
-  orgCode: string;
-  courseName: string;
-}
-
 export interface KindeOrganization {
   orgCode: string;
 }
@@ -98,14 +95,6 @@ export default async function RootLayout({
   const orgCode =
     organization && organization.orgCode ? organization.orgCode : "";
 
-  // #TODO
-  // get current org from a central hook
-
-  const course: Course = {
-    orgCode: orgCode,
-    courseName: "Test Course",
-  };
-
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -121,7 +110,9 @@ export default async function RootLayout({
             <SideMenu />
             <div className="w-full">
               <MenuHeader />
-              <main className="p-0 main-overflow">{children}</main>
+              <main className="p-0 main-overflow">
+                <ScrollArea className="w-full h-full">{children}</ScrollArea>
+              </main>
             </div>
           </div>
           <UDiscDisplayNameDialog />
