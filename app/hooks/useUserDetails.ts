@@ -5,6 +5,7 @@ import {
 } from "@kinde-oss/kinde-auth-nextjs/types";
 import { UserProfile } from "../types";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
+import { useUserCourses } from "./useUserCourses";
 
 export const useUserDetails = (
   isAuthenticated: boolean | null,
@@ -13,6 +14,7 @@ export const useUserDetails = (
 ) => {
   const [userProfile, setUserProfile] = useState<UserProfile | undefined>();
   const [loading, setLoading] = useState(false);
+  const { course } = useUserCourses();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -30,12 +32,19 @@ export const useUserDetails = (
               },
               body: JSON.stringify({
                 kinde_id: user.id,
+                courseId: course.orgCode,
               }),
             }
           );
 
           const data = await response.json();
-          setUserProfile(data.user);
+          console.log("User details:", data);
+          const lastKnownTagOut = data.lastKnownTagOut;
+          if (lastKnownTagOut) {
+            setUserProfile({ ...data.user, lastKnownTagOut });
+          } else {
+            setUserProfile(data.user);
+          }
         } catch (error) {
           console.error("Failed to fetch user details:", error);
         } finally {

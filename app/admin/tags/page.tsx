@@ -5,7 +5,7 @@ import type { NextPage } from "next";
 
 const TagsAdmin: NextPage = () => {
   return (
-    <div className="grid min-h-screen w-full text-left items-start gap-4 p-4 lg:gap-6 lg:p-6">
+    <div className="grid h-full max-h-80 w-full text-left items-start">
       <LeaderboardAdmin />
     </div>
   );

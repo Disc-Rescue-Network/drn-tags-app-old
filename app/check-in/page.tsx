@@ -94,7 +94,7 @@ const CheckIn: NextPage = () => {
   );
 
   useEffect(() => {
-    // console.log("userProfile", userProfile);
+    console.log("userProfile", userProfile);
   }, [userProfile]);
 
   useEffect(() => {
@@ -260,7 +260,7 @@ const CheckIn: NextPage = () => {
       <h1 className="text-lg text-left font-semibold md:text-2xl">Check In</h1>
 
       <div
-        className="grid grid-cols-1 w-full h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
+        className="grid grid-cols-1 min-h-[50dvh] w-full h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
         x-chunk="dashboard-02-chunk-1"
       >
         {events.length === 0 ? (
