@@ -261,7 +261,8 @@ function MenuHeader() {
                 </Link>
               </Button>
             </DialogTrigger>
-            {course.orgCode === "org_155e4b351474" && (
+            {(course.orgCode === "org_6108516784ae" ||
+              course.orgCode === "org_155e4b351474") && (
               <>
                 <h2 className="my-4 px-4 text-lg font-semibold tracking-tight">
                   Admin Tools
