@@ -183,9 +183,44 @@ export const DataTable: React.FC<DataTableProps> = ({
         body: JSON.stringify({ user1Id, user2Id, orgCode }),
       });
       if (!response.ok) {
-        throw new Error("Failed to swap tags");
+        console.error("Failed to swap tags");
+        toast({
+          title: "Error",
+          description: "Failed to swap tags",
+          variant: "destructive",
+          duration: 3000,
+        });
       }
       const data = await response.json();
+      console.log("Tags swapped successfully:", data);
+      toast({
+        title: "Success",
+        description: "Tags swapped successfully",
+        variant: "default",
+        duration: 3000,
+      });
+      setSwappingTag(false);
+      // Update the leaderboardData
+      setLeaderboardData((prevData) => {
+        if (!prevData) return null;
+        const oldTag1 =
+          prevData.find(
+            (entry: EnhancedLeaderboardEntry) => entry.kindeId === user1Id
+          )?.currentTag ?? 0;
+        const oldTag2 =
+          prevData.find(
+            (entry: EnhancedLeaderboardEntry) => entry.kindeId === user2Id
+          )?.currentTag ?? 0;
+        const updatedData = prevData.map((entry) => {
+          if (entry.kindeId === user1Id) {
+            return { ...entry, currentTag: oldTag2 };
+          } else if (entry.kindeId === user2Id) {
+            return { ...entry, currentTag: oldTag1 };
+          }
+          return entry;
+        });
+        return updatedData;
+      });
       return data;
     } catch (error) {
       console.error("Error swapping tags:", error);

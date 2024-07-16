@@ -123,6 +123,7 @@ const Leaderboard = () => {
               <DataTable
                 columns={columns}
                 data={leaderboardData || []}
+                setLeaderboardData={setLeaderboardData}
                 loading={loading}
                 admin={false}
                 qualiferCount={16}
@@ -165,6 +166,7 @@ const Leaderboard = () => {
               <DataTable
                 columns={columns}
                 data={alcyonLeaderboardData}
+                setLeaderboardData={setLeaderboardData}
                 loading={loading}
                 admin={false}
                 qualiferCount={32}

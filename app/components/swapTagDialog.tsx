@@ -23,6 +23,7 @@ import { EnhancedLeaderboardEntry } from "../types";
 import { PlayerLookupComboBox } from "./playerLookupComboBox";
 import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
 import { all } from "axios";
+import { set } from "date-fns";
 
 interface SwapTagDialogProps {
   open: boolean;
@@ -35,11 +36,12 @@ interface SwapTagDialogProps {
 const SwapTagDialog = (props: SwapTagDialogProps) => {
   const { open, onOpenChange, swapTags, tagsEntry, allPlayers } = props;
   const [selectedPlayer, setSelectedPlayer] =
-    useState<EnhancedLeaderboardEntry | null>(allPlayers[0]);
+    useState<EnhancedLeaderboardEntry | null>(null);
 
   const handleSwap = () => {
     if (selectedPlayer) {
       swapTags(tagsEntry.kindeId, selectedPlayer.kindeId);
+      setSelectedPlayer(null);
     }
   };
 
@@ -70,7 +72,7 @@ const SwapTagDialog = (props: SwapTagDialogProps) => {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col lg:flex-row items-center justify-center gap-4 py-4 w-full">
-          <div className="flex flex-row w-full gap-4 lg:flex-col justify-center mr-auto ml-auto">
+          <div className="flex flex-col w-full gap-4 lg:flex-col justify-center items-center mr-auto ml-auto">
             <Label className="text-sm lg:text-medium">{tagsEntry.name}</Label>
             <Label className="text-sm lg:text-medium">
               Tag #{tagsEntry.currentTag}
@@ -81,13 +83,17 @@ const SwapTagDialog = (props: SwapTagDialogProps) => {
           ) : (
             <ArrowLeftRight className="h-8 w-8" />
           )}
-          <div className="grid grid-cols-1 col-span-1 lg:col-span-4 gap-4 justify-center text-center items-center">
+          <div className="flex flex-col w-full gap-4 lg:flex-col items-center justify-center mr-auto ml-auto">
             <PlayerLookupComboBox
               items={allPlayers}
               selectedValue={selectedPlayer}
               onSelect={setSelectedPlayer}
             />
-            {selectedPlayer && <Label>Tag #{selectedPlayer.currentTag}</Label>}
+            {selectedPlayer && (
+              <Label className="text-sm lg:text-medium">
+                Tag #{selectedPlayer.currentTag}
+              </Label>
+            )}
           </div>
         </div>
         <DialogFooter>

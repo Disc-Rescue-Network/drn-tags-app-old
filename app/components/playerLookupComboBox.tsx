@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { EnhancedLeaderboardEntry } from "../types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PlayerLookupComboBoxProps {
   items: EnhancedLeaderboardEntry[];
@@ -52,6 +53,7 @@ export function PlayerLookupComboBox({
       <PopoverContent className="p-0">
         <Command>
           <CommandInput placeholder="Search player..." />
+
           <CommandEmpty>No player found.</CommandEmpty>
           {items && (
             <CommandList>
