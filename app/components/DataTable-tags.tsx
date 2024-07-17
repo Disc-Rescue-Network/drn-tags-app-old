@@ -243,7 +243,7 @@ export const DataTable: React.FC<DataTableProps> = ({
   }
 
   return (
-    <div className="space-y-4 px-4" style={{ maxWidth: "93dvw" }}>
+    <div className="space-y-4 lg:px-4">
       <DataTableToolbar searchName={"name"} table={table} />
       <div className="rounded-md border">
         <Table className="relative">

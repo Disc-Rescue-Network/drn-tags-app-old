@@ -121,7 +121,7 @@ const eventSchema = z.object({
     .min(1, { message: "This field is required" }),
   leagueName: z.string().optional(),
   eventName: z.string().min(1),
-  uDiscEventURL: z.string().refine((url) => isValidUDiscURL(url), {
+  udiscLeagueURL: z.string().refine((url) => isValidUDiscURL(url), {
     message: "Invalid uDisc URL. Must end with '?tab=scores'.",
   }),
   maxSignups: z.number().min(1),
@@ -300,7 +300,7 @@ export default function EditEventForm({
       format: event.format,
       leagueName: event.leagueName,
       eventName: event.eventName,
-      uDiscEventURL: event.uDiscEventURL,
+      udiscLeagueURL: event.udiscLeagueURL,
       maxSignups: event.maxSignups,
       layout: event.layout || null,
       checkInPeriod: event.checkInPeriod,
@@ -355,7 +355,7 @@ export default function EditEventForm({
     setPreviewOpen(false); // Close preview modal
 
     // Validate uDisc URL
-    if (!isValidUDiscURL(data.uDiscEventURL)) {
+    if (!isValidUDiscURL(data.udiscLeagueURL)) {
       // Display error toast if URL is invalid
       toast({
         variant: "destructive",
@@ -417,7 +417,7 @@ export default function EditEventForm({
   const location = watch("location");
   const format = watch("format");
   const eventName = watch("eventName");
-  const uDiscEventURL = watch("uDiscEventURL");
+  const udiscLeagueURL = watch("udiscLeagueURL");
   const divisionsWatch = watch("divisions");
 
   const dateValue = getValues().date;
@@ -888,7 +888,7 @@ export default function EditEventForm({
 
             <FormField
               control={form.control}
-              name="uDiscEventURL"
+              name="udiscLeagueURL"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>UDisc Event URL</FormLabel>

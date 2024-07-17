@@ -114,11 +114,11 @@ const Leaderboard = () => {
         <TabsTrigger value="alcyon">Alycon Woods</TabsTrigger>
       </TabsList>
       <TabsContent value="tranq">
-        <Card>
-          <CardHeader>
+        <Card className="border-none p-0 m-0">
+          <CardHeader className="px-0 py-4 lg:p-6">
             <CardTitle>Tranquility Tags Standings</CardTitle>
           </CardHeader>
-          <CardContent className="p-0 grid gap-8 w-full">
+          <CardContent className="p-0 m-0 grid gap-8 w-full">
             <div className="grid grid-cols-1 gap-4">
               <DataTable
                 columns={columns}

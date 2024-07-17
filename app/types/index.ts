@@ -73,7 +73,7 @@ export interface TagsEvent {
   dateTime: Date;
   location: string;
   format: string;
-  uDiscEventURL: string;
+  udiscLeagueURL: string;
   maxSignups: number;
   leagueName?: string;
   eventName: string;
@@ -91,7 +91,7 @@ export interface EventPreview {
   time?: string;
   location: string;
   format: string;
-  uDiscEventURL: string;
+  udiscLeagueURL: string;
   maxSignups: number;
   leagueName?: string;
   eventName: string;
