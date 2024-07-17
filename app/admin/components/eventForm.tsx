@@ -120,7 +120,7 @@ const eventSchema = z.object({
     .min(1, { message: "This field is required" }),
   leagueName: z.string().optional(),
   eventName: z.string().min(1),
-  uDiscEventURL: z.string().refine((url) => isValidUDiscURL(url), {
+  udiscLeagueURL: z.string().refine((url) => isValidUDiscURL(url), {
     message: "Invalid uDisc URL. Must end with '?tab=scores'.",
   }),
   maxSignups: z.number().min(1),
@@ -278,7 +278,7 @@ export default function EventForm() {
       format: "Singles",
       leagueName: "",
       eventName: "Tags Event",
-      uDiscEventURL: "",
+      udiscLeagueURL: "",
       maxSignups: 72,
       layout: { layout_id: 1, name: "Short Tees", par: "54" },
       checkInPeriod: 30,
@@ -328,7 +328,7 @@ export default function EventForm() {
     setPreviewOpen(false); // Close preview modal
 
     // Validate uDisc URL
-    if (!isValidUDiscURL(data.uDiscEventURL)) {
+    if (!isValidUDiscURL(data.udiscLeagueURL)) {
       // Display error toast if URL is invalid
       toast({
         variant: "destructive",
@@ -394,7 +394,7 @@ export default function EventForm() {
   const location = form.watch("location");
   const format = form.watch("format");
   const eventName = form.watch("eventName");
-  const uDiscEventURL = form.watch("uDiscEventURL");
+  const udiscLeagueURL = form.watch("udiscLeagueURL");
   const divisionsWatch = form.watch("divisions");
 
   const dateValue = form.getValues().date;
@@ -461,7 +461,7 @@ export default function EventForm() {
           format: "Singles", // Default value
           leagueName: "",
           eventName: "Tags Event", // Default value
-          uDiscEventURL: "", // Default value
+          udiscLeagueURL: settingsData.udiscLeagueURL, // Default value
           maxSignups: 72, // Default value
           layout: settingsData.layouts[0], // Default value
           checkInPeriod: 30, // Default value
@@ -498,7 +498,7 @@ export default function EventForm() {
   // console.log("Org Code:", organization);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <fieldset className="grid gap-6 rounded-lg border p-4">
@@ -785,7 +785,7 @@ export default function EventForm() {
 
             <FormField
               control={form.control}
-              name="uDiscEventURL"
+              name="udiscLeagueURL"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>UDisc Event URL</FormLabel>
@@ -838,14 +838,16 @@ export default function EventForm() {
         </form>
       </Form>
       {!loading && (
-        <Card className="h-max bg-muted/20 hidden md:block">
-          <CardHeader className="p-4">
-            <CardTitle>Preview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EventPreviewComponent data={form.getValues()} />
-          </CardContent>
-        </Card>
+        <div className="fixed top-[190px] right-[50px] z-50">
+          <Card className="h-max w-full min-w-[600px] bg-muted/20 hidden md:block">
+            <CardHeader className="p-4">
+              <CardTitle>Preview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <EventPreviewComponent data={form.getValues()} />
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );

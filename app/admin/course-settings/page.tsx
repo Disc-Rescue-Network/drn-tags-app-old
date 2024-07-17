@@ -42,10 +42,11 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormDescription,
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
-import { CourseSettingsData } from "@/app/types";
+import { CourseSettingsData, Division, HoleModel } from "@/app/types";
 import { TAGS_API_BASE_URL } from "@/app/networking/apiExports";
 import { KindeOrganization } from "@kinde-oss/kinde-auth-nextjs/types";
 import { Label } from "@/components/ui/label";
@@ -59,7 +60,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 
 const fetchCourseSettings = async (orgCode: KindeOrganization) => {
   // console.log("Fetching course settings for orgCode:", orgCode);
@@ -69,6 +70,7 @@ const fetchCourseSettings = async (orgCode: KindeOrganization) => {
   if (!response.ok) {
     throw new Error("Failed to fetch course settings");
   }
+  console.log("Response:", response);
   return await response.json();
 };
 
@@ -108,6 +110,7 @@ const courseSchema = z.object({
       active: z.boolean(),
     })
   ),
+  udiscLeagueURL: z.string().optional(),
 });
 
 type CourseFormValues = z.infer<typeof courseSchema>;
@@ -138,6 +141,7 @@ const AdminTools: NextPage = () => {
         { division_id: 9, name: "MA4", active: false },
         { division_id: 10, name: "FA4", active: false },
       ],
+      udiscLeagueURL: "",
       //   venmoUsername: "",
       //   cashappUsername: "",
     },
@@ -172,6 +176,7 @@ const AdminTools: NextPage = () => {
   watch("layouts");
   watch("holes");
   watch("divisions");
+  watch("udiscLeagueURL");
   //   watch("venmoUsername");
   //   watch("cashappUsername");
 
@@ -192,8 +197,24 @@ const AdminTools: NextPage = () => {
       setLoading(true);
       fetchCourseSettings(organization)
         .then((data) => {
-          reset(data); // Assuming the fetched data matches the form's structure
-          // console.log("Fetched course settings:", data);
+          // Sort divisions by name prefix and division_id
+          const sortedDivisions = data.divisions.sort(
+            (a: Division, b: Division) => {
+              if (a.name[0] === "M" && b.name[0] === "F") return -1;
+              if (a.name[0] === "F" && b.name[0] === "M") return 1;
+              return a.division_id - b.division_id;
+            }
+          );
+          data.divisions = sortedDivisions;
+
+          // Sort holes by hole_number
+          const sortedHoles = data.holes.sort(
+            (a: HoleModel, b: HoleModel) => a.hole_number - b.hole_number
+          );
+          data.holes = sortedHoles;
+
+          reset(data); // Reset the form with sorted divisions
+          console.log("Fetched course settings:", data);
           setLoading(false);
         })
         .catch((error) => {
@@ -285,83 +306,120 @@ const AdminTools: NextPage = () => {
       ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Course Name */}
-            <FormField
-              control={form.control}
-              name="courseName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Course Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Course Name" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            <Card className="lg:max-w-[800px]">
+              <CardHeader className="p-4 lg:p-6">
+                <CardTitle>General Course Info</CardTitle>
+                <CardDescription className="text-xs">
+                  Add general information about the course to be used as default
+                  values across the app.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 gap-6 p-4 lg:p-6">
+                {/* Course Name */}
+                <FormField
+                  control={form.control}
+                  name="courseName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Course Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Course Name" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-            {/* Course Short Code */}
-            <FormField
-              control={form.control}
-              name="shortCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Course Short Code</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Course Short Code (i.e., TRANQ)"
-                      onChange={(e) => {
-                        e.target.value = e.target.value.toUpperCase();
-                        field.onChange(e);
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                {/* Course Short Code */}
+                <FormField
+                  control={form.control}
+                  name="shortCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Course Short Code</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Course Short Code (i.e., TRANQ)"
+                          onChange={(e) => {
+                            e.target.value = e.target.value.toUpperCase();
+                            field.onChange(e);
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-            {/* City */}
-            <FormField
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="City" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                {/* City */}
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="City" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                {/* State */}
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="State" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-            {/* State */}
-            <FormField
-              control={form.control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="State" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                {/* UDisc League URL */}
+                <FormField
+                  control={form.control}
+                  name="udiscLeagueURL"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>UDisc League URL</FormLabel>
+                      <FormDescription className="text-xs">
+                        The URL of the event on UDisc. On Desktop, click the
+                        &apos;scores&apos; tab on the event page and then copy
+                        the URL. On Mobile, click &apos;View Leaderboard&apos; &
+                        then click &apos;Share&apos; to copy the URL.
+                      </FormDescription>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="UDisc League URL"
+                          onChange={(e) => {
+                            e.target.value = e.target.value.toUpperCase();
+                            field.onChange(e);
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="lg:max-w-[800px]">
+              <CardHeader className="p-4 lg:p-6">
                 <CardTitle>Layouts</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs">
                   Add and remove layouts for this course.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-2 lg:p-6">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Layout Name</TableHead>
-                      <TableHead>Par</TableHead>
-                      <TableHead className="w-[100px]"></TableHead>
+                      <TableHead className="w-[100px]">Par</TableHead>
+                      <TableHead className="w-[30px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -397,7 +455,7 @@ const AdminTools: NextPage = () => {
                             className="gap-1"
                             onClick={() => remove(index)}
                           >
-                            Remove
+                            <X className="h-3.5 w-3.5" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -418,93 +476,114 @@ const AdminTools: NextPage = () => {
                 </Button>
               </CardFooter>
             </Card>
-            {/* {fields.map((field, index) => (
-              <div key={field.id}>
-                <FormField
-                  control={form.control}
-                  name={`layouts.${index}.name`}
-                  render={({ field }) => (
-                    <div className="flex flex-row gap-1 items-end w-full">
-                      <FormItem>
-                        <FormLabel>Layout {index + 1}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder={`Layout ${index + 1}`}
-                          />
-                        </FormControl>
-                      </FormItem>
-                      <Button type="button" onClick={() => remove(index)}>
-                        Remove
-                      </Button>
-                    </div>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`layouts.${index}.par`}
-                  render={({ field }) => (
-                    <div className="flex flex-row gap-1 items-end w-full">
-                      <FormItem>
-                        <FormLabel>Par {index + 1}</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder={`Par ${index + 1}`} />
-                        </FormControl>
-                      </FormItem>
-                    </div>
-                  )}
-                />
-              </div>
-            ))}
-            <Button
-              type="button"
-              onClick={() => append({ name: "", par: "-1" })}
-            >
-              + Add Layout
-            </Button> */}
 
-            {/* Starting Holes */}
-            <div className="flex flex-col gap-2 text-left w-full">
-              <h1>Preferred Starting Holes</h1>
-              <Label className="text-sm text-gray-500">
-                Note: Each event may override this setting.
-              </Label>
-              <div className="grid grid-cols-3 gap-2 justify-center items-center">
-                {form
-                  .watch("holes")
-                  .sort(
-                    (a: { hole_number: number }, b: { hole_number: number }) =>
-                      a.hole_number - b.hole_number
-                  )
-                  .map(
-                    (
-                      hole: {
-                        hole_id: Key | null | undefined;
-                        hole_number: any;
-                      },
-                      index: any
-                    ) => (
-                      <FormField
-                        key={hole.hole_id}
-                        control={form.control}
-                        name={`holes.${index}.active`}
-                        render={({ field }) => (
-                          <FormItem className="grid grid-cols-2 gap-2 w-full">
-                            <FormLabel className="min-w-fit text-sm items-center justify-center">{`Hole ${hole.hole_number}`}</FormLabel>
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                className="h-4 w-4 !mt-[2px] !mb-0 items-center justify-center"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    )
+            <Card className="lg:max-w-[800px]">
+              <CardHeader className="p-4 lg:p-6">
+                <CardTitle>Preferred Starting Holes</CardTitle>
+                <CardDescription className="text-xs">
+                  Select the holes you want to include as defaults for starting
+                  positions for each card. If possible, the app will try to only
+                  use these holes, while evenly spacing cards to ensure pace of
+                  play. <br />
+                  <br />
+                  <strong>Note:</strong> Each event may override this setting.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-2 lg:p-6">
+                {/* Starting Holes */}
+                <FormField
+                  control={form.control}
+                  name="holes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel></FormLabel>
+                      <FormDescription></FormDescription>
+                      <FormControl>
+                        <Table className="relative">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="min-w-[85px]">
+                                Front 9
+                              </TableHead>
+                              <TableHead className="w-[30px]">Action</TableHead>
+                              <TableHead className="min-w-[85px]">
+                                Back 9
+                              </TableHead>
+                              <TableHead className="w-[30px]">Action</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {Array.from({ length: 9 }).map((_, index) => (
+                              <TableRow key={index}>
+                                {/* Front 9 */}
+                                <TableCell>{`Hole ${field.value[index].hole_number}`}</TableCell>
+                                <TableCell>
+                                  <FormField
+                                    control={form.control}
+                                    name={`holes.${index}.active`}
+                                    render={({ field }) => (
+                                      <Button
+                                        type="button"
+                                        variant={
+                                          field.value
+                                            ? "destructive"
+                                            : "secondary"
+                                        }
+                                        onClick={() => {
+                                          const newValue = !field.value;
+                                          field.onChange(newValue);
+                                        }}
+                                      >
+                                        {field.value ? (
+                                          <X className="h-3.5 w-3.5" />
+                                        ) : (
+                                          <PlusCircle className="h-3.5 w-3.5" />
+                                        )}
+                                      </Button>
+                                    )}
+                                  />
+                                </TableCell>
+                                {/* Back 9 */}
+                                <TableCell>{`Hole ${
+                                  field.value[index + 9].hole_number
+                                }`}</TableCell>
+                                <TableCell>
+                                  <FormField
+                                    control={form.control}
+                                    name={`holes.${index + 9}.active`}
+                                    render={({ field }) => (
+                                      <Button
+                                        type="button"
+                                        variant={
+                                          field.value
+                                            ? "destructive"
+                                            : "secondary"
+                                        }
+                                        onClick={() => {
+                                          const newValue = !field.value;
+                                          field.onChange(newValue);
+                                        }}
+                                      >
+                                        {field.value ? (
+                                          <X className="h-3.5 w-3.5" />
+                                        ) : (
+                                          <PlusCircle className="h-3.5 w-3.5" />
+                                        )}
+                                      </Button>
+                                    )}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-              </div>
-            </div>
+                />
+              </CardContent>
+            </Card>
 
             {/* Venmo and CashApp Usernames */}
             {/* <FormField
@@ -532,37 +611,69 @@ const AdminTools: NextPage = () => {
             )}
           /> */}
 
-            {/* Divisions */}
-            <div className="flex flex-col gap-2 justify-start items-start">
-              <h1>Divisions for Tags</h1>
-              <div className="grid grid-cols-4 gap-2 justify-center items-center">
-                {form
-                  .watch("divisions")
-                  .sort((a, b) => a.division_id - b.division_id)
-                  .map((division, index) => (
-                    <FormField
-                      key={division.division_id}
-                      control={form.control}
-                      name={`divisions.${index}.active`}
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-2 gap-2 w-full">
-                          <FormLabel className="min-w-fit text-sm items-center justify-center">
-                            {division.name}
-                          </FormLabel>
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              className="h-4 w-4 !mt-[2px] !mb-0 items-center justify-center"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  ))}
-              </div>
-            </div>
-
+            <Card className="lg:max-w-[800px]">
+              <CardHeader className="p-4 lg:p-6">
+                <CardTitle>Divisions for Tags</CardTitle>
+                <CardDescription className="text-xs">
+                  Select the divisions you want to include, as defaults, in the
+                  tags event
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-2 lg:p-6">
+                <FormField
+                  control={form.control}
+                  name="divisions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Table className="relative">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Division Name</TableHead>
+                              <TableHead>Action</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {field.value.map((division, index) => (
+                              <TableRow key={division.division_id}>
+                                <TableCell>{division.name}</TableCell>
+                                <TableCell>
+                                  <FormField
+                                    control={form.control}
+                                    name={`divisions.${index}.active`}
+                                    render={({ field }) => (
+                                      <Button
+                                        type="button"
+                                        variant={
+                                          field.value
+                                            ? "destructive"
+                                            : "secondary"
+                                        }
+                                        onClick={() => {
+                                          const newValue = !field.value;
+                                          field.onChange(newValue);
+                                        }}
+                                      >
+                                        {field.value ? (
+                                          <X className="h-3.5 w-3.5" />
+                                        ) : (
+                                          <PlusCircle className="h-3.5 w-3.5" />
+                                        )}
+                                      </Button>
+                                    )}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
             <Button type="submit">Save Settings</Button>
           </form>
         </Form>

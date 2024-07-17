@@ -88,11 +88,11 @@ const LeaderboardAdmin = () => {
 
   return (
     <Card className="border-none p-0 m-0">
-      <CardHeader>
+      <CardHeader className="px-4 lg:px-0 py-4 lg:p-6">
         <CardTitle>{course.courseName} Standings</CardTitle>
       </CardHeader>
-      <CardContent className="p-0 grid gap-8 w-full">
-        <div className="grid grid-cols-1 gap-4">
+      <CardContent className="p-0 px-4 lg:px-0 grid gap-8 w-full">
+        <div className="grid grid-cols-1 gap-4 ">
           <DataTable
             columns={columns}
             data={leaderboardData || []}
