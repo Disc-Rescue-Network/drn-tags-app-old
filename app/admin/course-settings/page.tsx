@@ -61,6 +61,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PlusCircle, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 const fetchCourseSettings = async (orgCode: KindeOrganization) => {
   // console.log("Fetching course settings for orgCode:", orgCode);
@@ -186,6 +194,189 @@ const AdminTools: NextPage = () => {
   // console.log("Form Errors:", formState.errors);
 
   const [loading, setLoading] = useState(false);
+  const [courseSettings, setCourseSettings] = useState<CourseFormValues>({
+    courseName: "",
+    shortCode: "",
+    city: "",
+    state: "",
+    layouts: [{ name: "", layout_id: -1, par: "72" }],
+    holes: Array.from({ length: 18 }, (_, index) => ({
+      hole_id: index + 1,
+      hole_number: index + 1,
+      active: true,
+    })),
+    divisions: [
+      { division_id: 1, name: "MPO", active: true },
+      { division_id: 2, name: "FPO", active: false },
+      { division_id: 3, name: "MA1", active: true },
+      { division_id: 4, name: "FA1", active: false },
+      { division_id: 5, name: "MA2", active: true },
+      { division_id: 6, name: "FA2", active: false },
+      { division_id: 7, name: "MA3", active: false },
+      { division_id: 8, name: "FA3", active: false },
+      { division_id: 9, name: "MA4", active: false },
+      { division_id: 10, name: "FA4", active: false },
+    ],
+    udiscLeagueURL: "",
+  });
+
+  const [holesDialogOpen, setHolesDialogOpen] = useState(false);
+  const [numberOfHoles, setNumberOfHoles] = useState(18);
+  const [divisionsDialogOpen, setDivisionsDialogOpen] = useState(false);
+  const [divisionDecisionMade, setDivisionDecisionMade] = useState(false);
+  const [useDefaultDivisions, setUseDefaultDivisions] = useState(true);
+  const [customDivisions, setCustomDivisions] = useState([{ name: "" }]);
+
+  const handleOpenHolesDialog = () => {
+    setHolesDialogOpen(true);
+  };
+
+  const handleCloseHolesDialog = () => {
+    setHolesDialogOpen(false);
+  };
+
+  const handleCreateHoles = () => {
+    handleAddHoles();
+    handleCloseHolesDialog();
+  };
+
+  const handleOpenDivisionsDialog = () => {
+    setDivisionsDialogOpen(true);
+  };
+
+  const handleCloseDivisionsDialog = () => {
+    console.log("Closing divisions dialog");
+    setDivisionsDialogOpen(false);
+    setDivisionDecisionMade(false);
+    setUseDefaultDivisions(true);
+    setCustomDivisions([{ name: "" }]);
+  };
+
+  const handleCreateDivisions = async () => {
+    await handleAddDivisions();
+    handleCloseDivisionsDialog();
+  };
+
+  const addCustomDivision = () => {
+    setCustomDivisions([...customDivisions, { name: "" }]);
+  };
+
+  const updateCustomDivision = (index: number, value: string) => {
+    const updatedDivisions = [...customDivisions];
+    updatedDivisions[index].name = value;
+    setCustomDivisions(updatedDivisions);
+  };
+
+  const handleAddHoles = async () => {
+    try {
+      const newHoles = await createHoles(organization);
+      const updatedCourseSettings = {
+        ...courseSettings,
+        holes: [...courseSettings.holes, ...newHoles],
+      };
+      setCourseSettings(updatedCourseSettings);
+      reset(updatedCourseSettings); // Reset the form with the updated course settings
+      toast({
+        title: "Success",
+        description: "Holes added successfully",
+        variant: "default",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Failed to add holes:", error);
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Failed to add holes",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleAddDivisions = async () => {
+    console.log("Adding divisions...");
+    console.log("Use Default Divisions:", useDefaultDivisions);
+    console.log("Custom Divisions:", customDivisions);
+    try {
+      const divisions = useDefaultDivisions
+        ? [
+            { name: "MPO", active: true },
+            { name: "MA1", active: true },
+            { name: "MA2", active: true },
+            { name: "MA3", active: true },
+            { name: "MA4", active: true },
+            { name: "FPO", active: true },
+            { name: "FA1", active: true },
+            { name: "FA2", active: true },
+            { name: "FA3", active: true },
+            { name: "FA4", active: true },
+          ]
+        : customDivisions.map((division) => ({ ...division, active: true }));
+
+      console.log("Divisions to add:", divisions);
+
+      const newDivisions = await createDivisions(organization, divisions);
+      console.log("New Divisions:", newDivisions);
+      const updatedCourseSettings = {
+        ...courseSettings,
+        divisions: [...courseSettings.divisions, ...newDivisions],
+      };
+      console.log("Updated Course Settings:", updatedCourseSettings);
+      setCourseSettings(updatedCourseSettings);
+      reset(updatedCourseSettings); // Reset the form with the updated course settings
+      toast({
+        title: "Success",
+        description: "Divisions added successfully",
+        variant: "default",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Failed to add divisions:", error);
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Failed to add divisions",
+        duration: 3000,
+      });
+    }
+  };
+
+  const createHoles = async (orgCode: KindeOrganization) => {
+    const response = await fetch(`${TAGS_API_BASE_URL}/api/create-holes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orgCode, numberOfHoles }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create holes");
+    }
+
+    const holeData = await response.json();
+    return holeData.holes;
+  };
+
+  const createDivisions = async (
+    orgCode: KindeOrganization,
+    divisions: { name: string; active: boolean }[]
+  ) => {
+    const response = await fetch(`${TAGS_API_BASE_URL}/api/create-divisions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ orgCode, divisions }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create divisions");
+    }
+
+    const divisionData = await response.json();
+    return divisionData.divisions;
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -193,41 +384,29 @@ const AdminTools: NextPage = () => {
       return;
     }
 
-    if (organization) {
-      setLoading(true);
-      fetchCourseSettings(organization)
-        .then((data) => {
-          // Sort divisions by name prefix and division_id
-          const sortedDivisions = data.divisions.sort(
-            (a: Division, b: Division) => {
-              if (a.name[0] === "M" && b.name[0] === "F") return -1;
-              if (a.name[0] === "F" && b.name[0] === "M") return 1;
-              return a.division_id - b.division_id;
-            }
-          );
-          data.divisions = sortedDivisions;
-
-          // Sort holes by hole_number
-          const sortedHoles = data.holes.sort(
-            (a: HoleModel, b: HoleModel) => a.hole_number - b.hole_number
-          );
-          data.holes = sortedHoles;
-
-          reset(data); // Reset the form with sorted divisions
+    const loadSettings = async () => {
+      try {
+        if (organization) {
+          setLoading(true);
+          const data = await fetchCourseSettings(organization);
           console.log("Fetched course settings:", data);
+          setCourseSettings(data);
+          reset(data);
           setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Failed to load settings:", error);
-          setLoading(false);
-          toast({
-            title: "Error",
-            variant: "destructive",
-            description: "Failed to load course settings",
-            duration: 3000,
-          });
+        }
+      } catch (error) {
+        console.error("Failed to load settings:", error);
+        setLoading(false);
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Failed to load course settings",
+          duration: 3000,
         });
-    }
+      }
+    };
+
+    loadSettings();
   }, [isLoading, user, organization, router, reset]);
 
   const onSubmit = async (data: CourseSettingsData) => {
@@ -395,7 +574,6 @@ const AdminTools: NextPage = () => {
                           {...field}
                           placeholder="UDisc League URL"
                           onChange={(e) => {
-                            e.target.value = e.target.value.toUpperCase();
                             field.onChange(e);
                           }}
                         />
@@ -489,100 +667,126 @@ const AdminTools: NextPage = () => {
                   <strong>Note:</strong> Each event may override this setting.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-2 lg:p-6">
-                {/* Starting Holes */}
-                <FormField
-                  control={form.control}
-                  name="holes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel></FormLabel>
-                      <FormDescription></FormDescription>
-                      <FormControl>
-                        <Table className="relative">
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="min-w-[85px]">
-                                Front 9
-                              </TableHead>
-                              <TableHead className="w-[30px]">Action</TableHead>
-                              <TableHead className="min-w-[85px]">
-                                Back 9
-                              </TableHead>
-                              <TableHead className="w-[30px]">Action</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {Array.from({ length: 9 }).map((_, index) => (
-                              <TableRow key={index}>
-                                {/* Front 9 */}
-                                <TableCell>{`Hole ${field.value[index].hole_number}`}</TableCell>
-                                <TableCell>
-                                  <FormField
-                                    control={form.control}
-                                    name={`holes.${index}.active`}
-                                    render={({ field }) => (
-                                      <Button
-                                        type="button"
-                                        variant={
-                                          field.value
-                                            ? "destructive"
-                                            : "secondary"
-                                        }
-                                        onClick={() => {
-                                          const newValue = !field.value;
-                                          field.onChange(newValue);
-                                        }}
-                                      >
-                                        {field.value ? (
-                                          <X className="h-3.5 w-3.5" />
-                                        ) : (
-                                          <PlusCircle className="h-3.5 w-3.5" />
-                                        )}
-                                      </Button>
-                                    )}
-                                  />
-                                </TableCell>
-                                {/* Back 9 */}
-                                <TableCell>{`Hole ${
-                                  field.value[index + 9].hole_number
-                                }`}</TableCell>
-                                <TableCell>
-                                  <FormField
-                                    control={form.control}
-                                    name={`holes.${index + 9}.active`}
-                                    render={({ field }) => (
-                                      <Button
-                                        type="button"
-                                        variant={
-                                          field.value
-                                            ? "destructive"
-                                            : "secondary"
-                                        }
-                                        onClick={() => {
-                                          const newValue = !field.value;
-                                          field.onChange(newValue);
-                                        }}
-                                      >
-                                        {field.value ? (
-                                          <X className="h-3.5 w-3.5" />
-                                        ) : (
-                                          <PlusCircle className="h-3.5 w-3.5" />
-                                        )}
-                                      </Button>
-                                    )}
-                                  />
-                                </TableCell>
+              {form.getValues().holes && form.getValues().holes.length > 0 ? (
+                <CardContent className="p-2 lg:p-6">
+                  {/* Starting Holes */}
+                  <FormField
+                    control={form.control}
+                    name="holes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel></FormLabel>
+                        <FormDescription></FormDescription>
+                        <FormControl>
+                          <Table className="relative">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="min-w-[85px]">
+                                  Front 9
+                                </TableHead>
+                                <TableHead className="w-[30px]">
+                                  Action
+                                </TableHead>
+                                <TableHead className="min-w-[85px]">
+                                  Back 9
+                                </TableHead>
+                                <TableHead className="w-[30px]">
+                                  Action
+                                </TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
+                            </TableHeader>
+                            <TableBody>
+                              {Array.from({ length: 9 }).map((_, index) => (
+                                <TableRow key={index}>
+                                  {/* Front 9 */}
+                                  <TableCell>{`Hole ${field.value[index].hole_number}`}</TableCell>
+                                  <TableCell>
+                                    <FormField
+                                      control={form.control}
+                                      name={`holes.${index}.active`}
+                                      render={({ field }) => (
+                                        <Button
+                                          type="button"
+                                          variant={
+                                            field.value
+                                              ? "destructive"
+                                              : "secondary"
+                                          }
+                                          onClick={() => {
+                                            const newValue = !field.value;
+                                            field.onChange(newValue);
+                                          }}
+                                        >
+                                          {field.value ? (
+                                            <X className="h-3.5 w-3.5" />
+                                          ) : (
+                                            <PlusCircle className="h-3.5 w-3.5" />
+                                          )}
+                                        </Button>
+                                      )}
+                                    />
+                                  </TableCell>
+                                  {/* Back 9 */}
+                                  <TableCell>{`Hole ${
+                                    field.value[index + 9].hole_number
+                                  }`}</TableCell>
+                                  <TableCell>
+                                    <FormField
+                                      control={form.control}
+                                      name={`holes.${index + 9}.active`}
+                                      render={({ field }) => (
+                                        <Button
+                                          type="button"
+                                          variant={
+                                            field.value
+                                              ? "destructive"
+                                              : "secondary"
+                                          }
+                                          onClick={() => {
+                                            const newValue = !field.value;
+                                            field.onChange(newValue);
+                                          }}
+                                        >
+                                          {field.value ? (
+                                            <X className="h-3.5 w-3.5" />
+                                          ) : (
+                                            <PlusCircle className="h-3.5 w-3.5" />
+                                          )}
+                                        </Button>
+                                      )}
+                                    />
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              ) : (
+                <>
+                  <CardContent className="p-2 lg:p-6">
+                    <p className="text-sm text-muted-foreground text-center text-red-800">
+                      No holes found. Click the button below to add holes.
+                    </p>
+                  </CardContent>
+                  <CardFooter className="justify-center border-t p-4">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1"
+                      onClick={handleOpenHolesDialog}
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      Add Holes
+                    </Button>
+                  </CardFooter>
+                </>
+              )}
             </Card>
 
             {/* Venmo and CashApp Usernames */}
@@ -619,65 +823,177 @@ const AdminTools: NextPage = () => {
                   tags event
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-2 lg:p-6">
-                <FormField
-                  control={form.control}
-                  name="divisions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Table className="relative">
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Division Name</TableHead>
-                              <TableHead>Action</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {field.value.map((division, index) => (
-                              <TableRow key={division.division_id}>
-                                <TableCell>{division.name}</TableCell>
-                                <TableCell>
-                                  <FormField
-                                    control={form.control}
-                                    name={`divisions.${index}.active`}
-                                    render={({ field }) => (
-                                      <Button
-                                        type="button"
-                                        variant={
-                                          field.value
-                                            ? "destructive"
-                                            : "secondary"
-                                        }
-                                        onClick={() => {
-                                          const newValue = !field.value;
-                                          field.onChange(newValue);
-                                        }}
-                                      >
-                                        {field.value ? (
-                                          <X className="h-3.5 w-3.5" />
-                                        ) : (
-                                          <PlusCircle className="h-3.5 w-3.5" />
-                                        )}
-                                      </Button>
-                                    )}
-                                  />
-                                </TableCell>
+              {form.getValues().divisions &&
+              form.getValues().divisions.length > 0 ? (
+                <CardContent className="p-2 lg:p-6">
+                  <FormField
+                    control={form.control}
+                    name="divisions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Table className="relative">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Division Name</TableHead>
+                                <TableHead>Action</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
+                            </TableHeader>
+                            <TableBody>
+                              {field.value.map((division, index) => (
+                                <TableRow key={division.division_id}>
+                                  <TableCell>{division.name}</TableCell>
+                                  <TableCell>
+                                    <FormField
+                                      control={form.control}
+                                      name={`divisions.${index}.active`}
+                                      render={({ field }) => (
+                                        <Button
+                                          type="button"
+                                          variant={
+                                            field.value
+                                              ? "destructive"
+                                              : "secondary"
+                                          }
+                                          onClick={() => {
+                                            const newValue = !field.value;
+                                            field.onChange(newValue);
+                                          }}
+                                        >
+                                          {field.value ? (
+                                            <X className="h-3.5 w-3.5" />
+                                          ) : (
+                                            <PlusCircle className="h-3.5 w-3.5" />
+                                          )}
+                                        </Button>
+                                      )}
+                                    />
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              ) : (
+                <>
+                  <CardContent className="p-2 lg:p-6">
+                    <p className="text-sm text-muted-foreground text-center text-red-800">
+                      No divisions found. Click the button below to add
+                      divisions.
+                    </p>
+                  </CardContent>
+                  <CardFooter className="justify-center border-t p-4">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1"
+                      onClick={handleOpenDivisionsDialog}
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      Add Divisions
+                    </Button>
+                  </CardFooter>
+                </>
+              )}
             </Card>
             <Button type="submit">Save Settings</Button>
           </form>
         </Form>
       )}
+      <Dialog open={holesDialogOpen} onOpenChange={setHolesDialogOpen}>
+        <DialogContent className="max-w-[90%] lg:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Add Holes</DialogTitle>
+            <DialogDescription className="text-xs">
+              Enter the number of holes you want to add to the course.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Input
+              type="number"
+              value={numberOfHoles}
+              onChange={(e) => setNumberOfHoles(Number(e.target.value))}
+              min="1"
+              max="36"
+              placeholder="Enter number of holes"
+            />
+          </div>
+          <DialogFooter>
+            <Button onClick={handleCreateHoles}>Create Holes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={divisionsDialogOpen}
+        onOpenChange={handleCloseDivisionsDialog}
+      >
+        <DialogContent className="max-w-[90%] lg:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Add Divisions</DialogTitle>
+            <DialogDescription className="text-xs">
+              Select the type of divisions you want to add for user signups.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {!useDefaultDivisions &&
+              customDivisions.map((division, index) => (
+                <Input
+                  key={index}
+                  value={division.name}
+                  onChange={(e) => updateCustomDivision(index, e.target.value)}
+                  placeholder={`Division ${index + 1} name`}
+                />
+              ))}
+            {!useDefaultDivisions && (
+              <Button
+                variant="ghost"
+                className="gap-1"
+                onClick={addCustomDivision}
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                Add Division
+              </Button>
+            )}
+          </div>
+          <DialogFooter>
+            {!divisionDecisionMade && (
+              <Button
+                name="divisionType"
+                variant="default"
+                onClick={() => {
+                  setUseDefaultDivisions(true);
+                  setDivisionDecisionMade(true);
+                  handleCreateDivisions();
+                }}
+              >
+                Add Default Divisions
+              </Button>
+            )}
+            {!divisionDecisionMade && (
+              <Button
+                name="divisionType"
+                variant="ghost"
+                onClick={() => {
+                  console.log("Using Custom Divisions");
+                  setUseDefaultDivisions(false);
+                  setDivisionDecisionMade(true);
+                }}
+              >
+                Add Custom Divisions
+              </Button>
+            )}
+            {divisionDecisionMade && !useDefaultDivisions && (
+              <Button onClick={handleCreateDivisions}>Create Divisions</Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

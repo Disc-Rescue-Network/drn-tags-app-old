@@ -457,12 +457,13 @@ export default function EditEventForm({
     }
 
     if (key === "divisions") {
-      const activeCurrentDivisions = currentEvent.divisions.filter(
-        (division: any) => division.active
+      const activeCurrentDivisions = currentEvent.divisions
+        .filter((division: any) => division.active)
+        .sort((a: any, b: any) => a.division_id - b.division_id);
+
+      const activeEventDivisions = (event as TagsEvent).divisions.sort(
+        (a: any, b: any) => a.division_id - b.division_id
       );
-      // console.log("event", event);
-      const activeEventDivisions = (event as TagsEvent).divisions;
-      // console.log("Active Event Divisions:", activeEventDivisions);
 
       if (
         JSON.stringify(activeCurrentDivisions) !==
@@ -521,7 +522,7 @@ export default function EditEventForm({
     }
   });
 
-  // console.log("Differences:", differences);
+  console.log("Differences:", differences);
 
   // console.log("Org Code:", organization);
 
@@ -555,30 +556,37 @@ export default function EditEventForm({
   // Use useEffect to fetch settings data when the component mounts
   useEffect(() => {
     // Fetch settings data
+    console.log("Fetching settings data...");
     fetchSettingsData()
       .then((settingsData) => {
+        if (!settingsData) {
+          console.error("Settings data not found");
+          return;
+        }
+        console.log("Settings data:", settingsData);
+
         // Extract relevant fields from settingsData to prepopulate the form
-        // console.log("Divisions data:", settingsData.divisions);
+        console.log("Divisions data:", settingsData.divisions);
 
         setLayouts(settingsData.layouts);
         setValue("layout", event.layout || settingsData.layouts[0]); // Set default or first layout
 
-        setDivisions(settingsData.divisions);
-
-        // form.setValue("divisions", settingsData.divisions);
-
-        setValue(
-          "divisions",
-          settingsData.divisions.map((division: Division) => ({
+        // Update divisions with active status based on event divisions
+        const updatedDivisions = settingsData.divisions.map(
+          (division: Division) => ({
             ...division,
             active: event.divisions.some(
-              (eventDivision: any) =>
-                eventDivision.division_id === division.division_id
+              (eventDivision: any) => eventDivision.name === division.name
             ),
-          }))
+          })
         );
 
-        // console.log("Form default values set successfully");
+        setDivisions(updatedDivisions);
+
+        // Set the divisions field in the form with the updated divisions
+        setValue("divisions", updatedDivisions);
+
+        console.log("Form default values set successfully");
       })
       .catch((error) => {
         console.error("Error setting default values:", error);
@@ -959,31 +967,35 @@ export default function EditEventForm({
           </Dialog>
         </form>
       </Form>
-      <Card className="h-max bg-muted/20 hidden md:block">
-        <CardHeader className="p-4">
-          <CardTitle>Preview Changes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-4">
-            {differences.map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-row gap-2 items-center justify-start"
-              >
-                <Label
-                  className="text-sm"
-                  style={{ textDecoration: "line-through" }}
+      <div className="fixed top-[190px] right-[50px] z-50">
+        <Card className="h-max w-full min-w-[600px] bg-muted/20 hidden md:block">
+          <CardHeader className="p-4">
+            <CardTitle>Preview Changes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4">
+              {differences.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex flex-row gap-2 items-center justify-start"
                 >
-                  {formatValue(item.previousValue)}
-                </Label>
-                &nbsp;→&nbsp;
-                <Label className="text-sm">{formatValue(item.newValue)}</Label>
-              </div>
-            ))}
-            <EventPreviewComponent data={form.getValues()} />
-          </div>
-        </CardContent>
-      </Card>
+                  <Label
+                    className="text-sm"
+                    style={{ textDecoration: "line-through" }}
+                  >
+                    {formatValue(item.previousValue)}
+                  </Label>
+                  &nbsp;→&nbsp;
+                  <Label className="text-sm">
+                    {formatValue(item.newValue)}
+                  </Label>
+                </div>
+              ))}
+              <EventPreviewComponent data={form.getValues()} />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -434,9 +434,9 @@ export default function EventForm() {
       if (!response.ok) {
         throw new Error("Failed to fetch settings data");
       }
-      // console.log("Settings data fetched successfully");
+      console.log("Settings data fetched successfully");
       const data = await response.json();
-      // console.log("Settings data:", data);
+      console.log("Settings data:", data);
       return data; // Return the fetched settings data
     } catch (error) {
       console.error("Error fetching settings data:", error);
