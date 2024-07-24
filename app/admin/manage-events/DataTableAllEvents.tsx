@@ -79,7 +79,7 @@ export const DataTableAllEvents: React.FC<DataTableProps> = ({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar searchName={"udisc_display_name"} table={table} />
+      <DataTableToolbar searchName={"eventName"} table={table} />
       <div className="rounded-md border">
         <Table className="relative">
           <TableHeader>

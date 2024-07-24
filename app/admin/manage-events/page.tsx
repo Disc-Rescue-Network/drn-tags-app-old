@@ -356,6 +356,7 @@ const ManageEvents: NextPage = () => {
   }
 
   function editEvent(event: TagsEvent) {
+    console.log("Editing event:", event);
     router.push(`/admin/events/edit/${event.event_id}`);
   }
 
