@@ -489,7 +489,7 @@ function MenuHeader() {
         </DropdownMenu>
       ) : (
         <div className="flex items-center gap-4">
-          <LoginLink>
+          <LoginLink orgCode="org_22c313232f39a">
             <Button
               variant="link"
               size="icon"
@@ -498,7 +498,7 @@ function MenuHeader() {
               Login
             </Button>
           </LoginLink>
-          <RegisterLink orgCode="org_6c3b341e563">
+          <RegisterLink orgCode="org_22c313232f39a">
             <Button
               variant="default"
               size="icon"
