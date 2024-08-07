@@ -118,8 +118,9 @@ function SideMenu() {
     getUserOrganizations,
   } = useKindeBrowserClient();
 
+  const orgCode = organization?.orgCode;
+
   const { toast } = useToast();
-  const orgCode = getOrganization() as unknown as string;
   // // console.log("orgCode at root: ", orgCode);
   const orgCodes = getUserOrganizations() as unknown as string[];
   // // console.log("orgCodes at root: ", orgCodes);

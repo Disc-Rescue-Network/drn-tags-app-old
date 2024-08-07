@@ -97,11 +97,14 @@ function MenuHeader() {
     isLoading,
     isAuthenticated,
     user,
+    organization,
     getAccessToken,
     getToken,
     getOrganization,
     getUserOrganizations,
   } = useKindeBrowserClient();
+
+  const orgCode = organization?.orgCode;
 
   // // console.log("isAuthenticated: ", isAuthenticated);
   // // console.log("user: ", user);
