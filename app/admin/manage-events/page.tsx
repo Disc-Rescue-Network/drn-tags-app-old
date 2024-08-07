@@ -209,7 +209,7 @@ const ManageEvents: NextPage = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => deleteEvent(event)}>
-                <div className="flex flex-row gap-2 justify-center items-center">
+                <div className="flex flex-row gap-2 justify-center items-center text-red-500">
                   <X className="w-4 h-4" /> Delete Event
                 </div>
               </DropdownMenuItem>

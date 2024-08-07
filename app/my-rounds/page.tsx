@@ -3,7 +3,7 @@
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
 import { TAGS_API_BASE_URL } from "../networking/apiExports";
-import { PlayerRound } from "../types";
+import { LayoutModel, PlayerRound } from "../types";
 import {
   Card,
   CardContent,
@@ -84,7 +84,9 @@ const Home: NextPage = () => {
     score: number;
     date: Date;
     location: string;
-    layout: string;
+    layout: LayoutModel;
+    relativeScoreText: string;
+    color: string;
   } | null>(null);
 
   useEffect(() => {
@@ -179,14 +181,16 @@ const Home: NextPage = () => {
     // );
     return mostRecentRound.tagOut - mostRecentRound.tagIn;
   };
-
   const getBestFinish = (rounds: PlayerRound[]): PlayerRound | null => {
-    if (rounds.length === 0) {
-      return null; // Return null if there are no rounds to evaluate
+    // Filter out rounds where place is 0 or null
+    const validRounds = rounds.filter((round) => round.place > 0);
+
+    if (validRounds.length === 0) {
+      return null; // Return null if there are no valid rounds to evaluate
     }
 
     // Use reduce to find the round with the lowest place value
-    const bestFinish = rounds.reduce((best, current) => {
+    const bestFinish = validRounds.reduce((best, current) => {
       return current.place < best.place ? current : best;
     });
 
@@ -240,7 +244,10 @@ const Home: NextPage = () => {
   ): { lowestLeague: string | null; lowestTag: number | null } => {
     const leagueTags: Map<string, number> = new Map(); // Maps league name to the lowest tag number found in that league
 
-    rounds.forEach((round) => {
+    // Filter out rounds where tagOut is 0 or null
+    const validRounds = rounds.filter((round) => round.tagOut > 0);
+
+    validRounds.forEach((round) => {
       const leagueName = round.EventModel.leagueName!;
       const currentTag = round.tagOut;
       const existingTag = leagueTags.get(leagueName);
@@ -266,7 +273,6 @@ const Home: NextPage = () => {
 
     return { lowestLeague, lowestTag };
   };
-
   const prepareChartData = (rounds: PlayerRound[]) => {
     const labels = rounds.map((round) =>
       new Date(round.EventModel.dateTime).toLocaleDateString()
@@ -332,7 +338,9 @@ const Home: NextPage = () => {
     score: number;
     date: Date;
     location: string;
-    layout: string;
+    layout: LayoutModel;
+    relativeScoreText: string;
+    color: string;
   } | null => {
     // console.log("Rounds:", rounds);
     if (rounds.length === 0) {
@@ -345,13 +353,25 @@ const Home: NextPage = () => {
       current.score < best.score ? current : best
     );
 
+    const par = bestRound?.EventModel?.layout?.par ?? 0;
+    const relativeScore = bestRound.score - parseInt(par);
+    const relativeScoreText = `${relativeScore > 0 ? "+" : ""}${relativeScore}`;
+    const color =
+      relativeScore < 0
+        ? "text-green-500"
+        : relativeScore > 0
+        ? "text-red-500"
+        : "";
+
     // console.log("Best round:", bestRound);
     // Extract the details from the best round
     return {
       score: bestRound.score,
       date: bestRound.EventModel.dateTime,
       location: bestRound.EventModel.location,
-      layout: bestRound.EventModel.layout.name,
+      layout: bestRound.EventModel.layout,
+      relativeScoreText: relativeScoreText,
+      color: color,
     };
   };
 
@@ -459,8 +479,10 @@ const Home: NextPage = () => {
                     <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
                       <CardHeader className="pb-2">
                         <CardDescription>Best Round</CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {bestRound?.score}
+                        <CardTitle
+                          className={`text-4xl relative ${bestRound.color}`}
+                        >
+                          {bestRound.score} ({bestRound.relativeScoreText})
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -469,7 +491,7 @@ const Home: NextPage = () => {
                         {tagMovement} from last round
                       </div> */}
                         <div className="text-xs text-muted-foreground">
-                          {bestRound?.location} - {bestRound?.layout} (
+                          {bestRound?.location} - {bestRound?.layout.name} (
                           {bestRound && bestRound.date
                             ? format(bestRound.date, "MM/dd/yyyy")
                             : "Loading..."}
@@ -479,7 +501,7 @@ const Home: NextPage = () => {
                   )}
                 </div>
               ) : (
-                <Skeleton className="w-36 h-36" />
+                <Skeleton className="w-full h-48" />
               )}
               {!loading ? (
                 <div className="grid grid-cols-1 gap-2 items-end mt-2 lg:mt-0">
@@ -515,7 +537,7 @@ const Home: NextPage = () => {
                   )}
                 </div>
               ) : (
-                <Skeleton className="w-36 h-36" />
+                <Skeleton className="w-full h-48" />
               )}
 
               {!loading ? (
@@ -584,22 +606,30 @@ const Home: NextPage = () => {
                   )}
                 </>
               ) : (
-                <Skeleton className="w-36 h-36" />
+                <Skeleton className="w-full h-48" />
               )}
             </div>
 
-            {playerRounds.length > 0 ? (
-              <div className="grid grid-cols-1 gap-8">
-                <DataTable columns={columns} data={playerRounds} />
+            {loading ? (
+              <div className="flex flex-col items-center gap-1 text-center">
+                <Progress />
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-1 text-center">
-                <h3 className="text-2xl font-bold tracking-tight">
-                  No data to show yet
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Check back later when more data is available.
-                </p>
+              <div className="grid grid-cols-1 gap-8">
+                {playerRounds.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-8">
+                    <DataTable columns={columns} data={playerRounds} />
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-center">
+                    <h3 className="text-2xl font-bold tracking-tight">
+                      No data to show yet
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Check back later when more data is available.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>

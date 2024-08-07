@@ -70,7 +70,15 @@ const Leaderboard = () => {
       try {
         const data = await fetchLeaderboardData("org_155e4b351474");
         // console.log("Leaderboard data", data);
-        setDataAsOf(data.data.lastRoundPlayedOverall);
+        const lastRoundPlayedOverall = data.data.lastRoundPlayedOverall;
+        const date = new Date(lastRoundPlayedOverall); // Convert UTC date-time string to Date object
+
+        // Adjust the date to the local time zone
+        const localDate = new Date(
+          date.getTime() + date.getTimezoneOffset() * 60000
+        );
+
+        setDataAsOf(localDate.toLocaleDateString()); // Format to local date string
         setLeaderboardData(data.data.leaderboard);
         setLoading(false);
       } catch (error) {
@@ -91,7 +99,15 @@ const Leaderboard = () => {
       try {
         const data = await fetchLeaderboardData("org_1aa61d133053a");
         // console.log("Leaderboard data", data);
-        setAlcyonDataAsOf(data.data.lastRoundPlayedOverall);
+        const lastRoundPlayedOverall = data.data.lastRoundPlayedOverall;
+        const date = new Date(lastRoundPlayedOverall); // Convert UTC date-time string to Date object
+
+        // Adjust the date to the local time zone
+        const localDate = new Date(
+          date.getTime() + date.getTimezoneOffset() * 60000
+        );
+
+        setAlcyonDataAsOf(localDate.toLocaleDateString()); // Format to local date string
         setAlcyonLeaderboardData(data.data.leaderboard);
         setLoading(false);
       } catch (error) {
@@ -156,22 +172,22 @@ const Leaderboard = () => {
         </Card>
       </TabsContent>
       <TabsContent value="alcyon">
-      <Card className="border-none p-0 m-0">
-      <CardHeader className="px-0 py-4 lg:p-6">
+        <Card className="border-none p-0 m-0">
+          <CardHeader className="px-0 py-4 lg:p-6">
             <CardTitle>Alcyon Woods Tags Standings</CardTitle>
           </CardHeader>
           <CardContent className="p-0 m-0 grid gap-8 w-full">
-          <div className="grid grid-cols-1 gap-4">
-            {alcyonLeaderboardData && (
-              <DataTable
-                columns={columns}
-                data={alcyonLeaderboardData}
-                setLeaderboardData={setLeaderboardData}
-                loading={loading}
-                admin={false}
-                qualiferCount={32}
-              />
-            )}
+            <div className="grid grid-cols-1 gap-4">
+              {alcyonLeaderboardData && (
+                <DataTable
+                  columns={columns}
+                  data={alcyonLeaderboardData}
+                  setLeaderboardData={setLeaderboardData}
+                  loading={loading}
+                  admin={false}
+                  qualiferCount={32}
+                />
+              )}
             </div>
             <Card className="legend m-6">
               <CardHeader>

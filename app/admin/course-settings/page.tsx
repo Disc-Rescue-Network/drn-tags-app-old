@@ -64,16 +64,16 @@ import { PlusCircle, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
-const fetchCourseSettings = async (orgCode: KindeOrganization) => {
+const fetchCourseSettings = async (organization: KindeOrganization) => {
   // console.log("Fetching course settings for orgCode:", orgCode);
   const response = await fetch(
-    `${TAGS_API_BASE_URL}/api/fetch-course-settings/${orgCode}`
+    `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization.orgCode}`
   );
   if (!response.ok) {
     throw new Error("Failed to fetch course settings");
@@ -435,7 +435,7 @@ const AdminTools: NextPage = () => {
     // Inject orgCode into formData before submission
     const dataToSend = {
       ...data,
-      orgCode: organization,
+      orgCode: organization.orgCode,
     };
 
     try {

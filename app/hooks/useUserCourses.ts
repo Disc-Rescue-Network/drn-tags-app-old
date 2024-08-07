@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../networking/apiExports";
@@ -17,7 +19,6 @@ interface UserCoursesHook {
 }
 
 export const useUserCourses = (): UserCoursesHook => {
-  const [orgCode, setOrgCode] = useState<string>("");
   const [courses, setCourses] = useState<Course[]>([]);
   const [course, setCourse] = useState<Course>({
     orgCode: "",
@@ -38,12 +39,19 @@ export const useUserCourses = (): UserCoursesHook => {
 
   const {
     user,
+    organization,
+    userOrganizations,
     getOrganization,
     getUserOrganizations,
     getToken,
     isLoading,
     isAuthenticated,
   } = useKindeBrowserClient();
+
+  const orgCode = organization?.orgCode;
+  // console.log("orgCodes orignal: ", getUserOrganizations());
+  const orgCodes = userOrganizations;
+  // console.log("orgCodes: ", orgCodes);
 
   const fetchCourse = async (orgCodeIn: string) => {
     if (!orgCodeIn || orgCodeIn === "" || orgCodeIn === "org_6c3b341e563") {
@@ -82,16 +90,25 @@ export const useUserCourses = (): UserCoursesHook => {
       return;
     }
 
+    console.log("orgCodesIn: ", orgCodesIn);
+
     try {
       const accessToken = await getToken();
-      const response = await axios.get(`${API_BASE_URL}/courses`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        params: { orgCodes: orgCodesIn },
-      });
+      // console.log("accessToken: ", accessToken);
+      const queryString = orgCodesIn
+        .map((code) => `orgCodes[]=${encodeURIComponent(code)}`)
+        .join("&");
+      console.log("queryString: ", queryString);
+      const response = await axios.get(
+        `${API_BASE_URL}/courses?${queryString}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       const fetchedCourses: Course[] = response.data;
-      // console.log("Course data: ", fetchedCourses);
+      console.log("Course data: ", fetchedCourses);
       setCourses(fetchedCourses);
     } catch (error) {
       setErrorMessage(
@@ -104,16 +121,13 @@ export const useUserCourses = (): UserCoursesHook => {
   };
 
   useEffect(() => {
-    if (user) {
-      // console.log("Checking user courses");
-      const orgCode = getOrganization() as unknown as string;
-      setOrgCode(orgCode);
+    if (user && orgCode) {
       fetchCourse(orgCode);
-
-      const orgCodes = getUserOrganizations() as unknown as string[];
-      fetchCourses(orgCodes);
     }
-  }, [user, isLoading]);
+    if (user && orgCodes) {
+      fetchCourses(orgCodes.orgCodes);
+    }
+  }, [user, isLoading, orgCode, orgCodes]);
 
   return {
     courses,

@@ -284,7 +284,7 @@ const EventPage = ({ params }: { params: { event_id: string } }) => {
     // console.log("Fetching settings data...");
     try {
       const response = await fetch(
-        `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization}`
+        `${TAGS_API_BASE_URL}/api/fetch-course-settings/${organization.orgCode}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch settings data");

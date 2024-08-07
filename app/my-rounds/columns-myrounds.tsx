@@ -19,7 +19,17 @@ export const columns: ColumnDef<PlayerRound>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Event Date" />
     ),
-    cell: (info) => new Date(info.getValue() as string).toLocaleDateString(),
+    cell: (info) => {
+      const utcDateTimeStr = info.getValue() as string;
+      const date = new Date(utcDateTimeStr); // Convert UTC date-time string to Date object
+
+      // Adjust the date to the local time zone
+      const localDate = new Date(
+        date.getTime() + date.getTimezoneOffset() * 60000
+      );
+
+      return localDate.toLocaleDateString(); // Format to local date string
+    },
   },
   {
     accessorKey: "EventModel.location",
