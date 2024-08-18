@@ -1,5 +1,5 @@
 // src/components/DataTable.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -35,12 +35,14 @@ interface DataTableProps {
   columns: ColumnDef<PlayerRound>[];
   data: PlayerRound[];
   sort?: string;
+  onFilteredDataChange: (data: PlayerRound[]) => void;
 }
 
 export const DataTable: React.FC<DataTableProps> = ({
   columns,
   data,
   sort,
+  onFilteredDataChange,
 }) => {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -79,6 +81,12 @@ export const DataTable: React.FC<DataTableProps> = ({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
+
+  useEffect(() => {
+    onFilteredDataChange(
+      table.getFilteredRowModel().rows.map((row) => row.original)
+    );
+  }, [columnFilters, sorting]);
 
   return (
     <div className="space-y-4" style={{ maxWidth: "100%" }}>
