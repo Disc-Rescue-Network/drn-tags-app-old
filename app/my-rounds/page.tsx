@@ -43,6 +43,17 @@ import { format, set } from "date-fns";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { toast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CardCarousel from "./CardCarousel";
+import GridOfCards from "./GridOfCards";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Register the necessary chart.js components
 ChartJS.register(
@@ -67,6 +78,7 @@ const Home: NextPage = () => {
   const [last20ChartData, setLast20ChartData] = useState<any>({});
 
   const [chartOptions, setChartOptions] = useState<any>({});
+  const [selectedView, setSelectedView] = useState<string>("placements");
 
   const [playerRounds, setPlayerRounds] = useState<PlayerRound[]>([]);
   const [lowestTag, setLowestTag] = useState<number | null>(null);
@@ -88,6 +100,101 @@ const Home: NextPage = () => {
     relativeScoreText: string;
     color: string;
   } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const handleViewChange = (view: string) => {
+    setSelectedView(view);
+    updateChartData(view, playerRounds);
+  };
+
+  const updateChartData = (view: string, rounds: PlayerRound[]) => {
+    let chartData;
+    let chartOptions;
+
+    switch (view) {
+      case "placements":
+        chartData = prepareChartData(rounds);
+        chartOptions = {
+          scales: {
+            y: {
+              reverse: true,
+              title: {
+                display: true,
+                text: "Place",
+              },
+            },
+          },
+        };
+        break;
+
+      case "points":
+        chartData = preparePointsScoredData(rounds);
+        chartOptions = {
+          scales: {
+            y: {
+              reverse: false,
+              title: {
+                display: true,
+                text: "Points Scored",
+              },
+            },
+          },
+        };
+        break;
+
+      case "tag":
+        chartData = prepareTagOutData(rounds);
+        chartOptions = {
+          scales: {
+            y: {
+              reverse: true,
+              title: {
+                display: true,
+                text: "Tag Out",
+              },
+            },
+          },
+        };
+        break;
+
+      default:
+        chartData = prepareChartData(rounds);
+        chartOptions = {
+          scales: {
+            y: {
+              reverse: true,
+              title: {
+                display: true,
+                text: "Value",
+              },
+            },
+          },
+        };
+        break;
+    }
+
+    setFilteredChartData(chartData);
+    setChartOptions(chartOptions);
+  };
+
+  useEffect(() => {
+    updateChartData(selectedView, playerRounds);
+  }, [selectedView, playerRounds]);
 
   useEffect(() => {
     const fetchPlayerRounds = async (kindeId: string) => {
@@ -197,28 +304,6 @@ const Home: NextPage = () => {
     return bestFinish;
   };
 
-  const getOrdinalSuffix = (num: number): string => {
-    const lastDigit = num % 10;
-    const lastTwoDigits = num % 100;
-
-    // Handle special cases for numbers ending in 11-13
-    if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
-      return `${num}th`;
-    }
-
-    // Assign the correct suffix based on the last digit
-    switch (lastDigit) {
-      case 1:
-        return `${num}st`;
-      case 2:
-        return `${num}nd`;
-      case 3:
-        return `${num}rd`;
-      default:
-        return `${num}th`;
-    }
-  };
-
   // Function to map tags to leagues
   const mapTagsToLeagues = (
     rounds: PlayerRound[]
@@ -279,19 +364,6 @@ const Home: NextPage = () => {
     );
     const data = rounds.map((round) => round.place);
 
-    // setAllChartData({
-    //   labels,
-    //   datasets: [
-    //     {
-    //       label: "Place Over Time",
-    //       data,
-    //       fill: false,
-    //       borderColor: "rgb(75, 192, 192)",
-    //       tension: 0.1,
-    //     },
-    //   ],
-    // });
-
     setChartOptions({
       scales: {
         y: {
@@ -308,7 +380,7 @@ const Home: NextPage = () => {
       labels,
       datasets: [
         {
-          label: "Place Over Time",
+          label: "Placements Over Time",
           data,
           fill: false,
           borderColor: "rgb(75, 192, 192)",
@@ -421,6 +493,57 @@ const Home: NextPage = () => {
     };
   };
 
+  const [filteredChartData, setFilteredChartData] = useState<any>(allChartData);
+
+  const handleFilteredDataChange = (filteredData: PlayerRound[]) => {
+    const chartData = prepareChartData(filteredData);
+    setFilteredChartData(chartData);
+  };
+
+  const preparePointsScoredData = (rounds: PlayerRound[]) => {
+    const labels = rounds.map((round) =>
+      new Date(round.EventModel.dateTime).toLocaleDateString()
+    );
+    const data = rounds.map((round) => round.pointsScored); // Assuming `score` is the points scored
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Points Scored",
+          data,
+          fill: false,
+          borderColor: "rgb(255, 99, 132)",
+          tension: 0.1,
+        },
+      ],
+    };
+  };
+
+  const prepareTagOutData = (rounds: PlayerRound[]) => {
+    const validRounds = rounds.filter(
+      (round) => round.tagOut !== null && round.tagOut !== undefined
+    );
+
+    const labels = validRounds.map((round) =>
+      new Date(round.EventModel.dateTime).toLocaleDateString()
+    );
+    const data = validRounds.map((round) => round.tagOut);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Tag Out",
+          data,
+          fill: false,
+          borderColor: "rgb(54, 162, 235)",
+          tension: 0.1,
+        },
+      ],
+    };
+  };
+
   return (
     <div
       className={
@@ -436,179 +559,106 @@ const Home: NextPage = () => {
         x-chunk="dashboard-02-chunk-1"
       >
         {user ? (
-          <div className="flex flex-col items-center gap-4 p-0 w-full text-center">
-            <div className="lg:grid lg:grid-cols-2 xl:grid-cols-4 p-0 w-full gap-6">
-              {!loading ? (
-                <div className="grid grid-cols-1 gap-2 items-end">
-                  {lowestLeague != null && (
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>
-                          Lowest Tag (Season Long)
-                        </CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {lowestTag ? lowestTag : "-"}
-                          {/* {tagMovement! < 0 ? (
-                          <div className="absolute right-8 bottom-5 flex flex-row gap-1 justify-center items-center">
-                            <ChevronUp className="w-4 h-4 text-green-600" />
-                            <Label className="text-xxs">{tagMovement}</Label>
-                          </div>
-                        ) : (
-                          <div className="absolute right-8 bottom-5 flex flex-row gap-1 justify-center items-center">
-                            <ChevronDown className="w-4 h-4 text-red-600" />
-                            <Label className="text-xxs">
-                              {Math.abs(tagMovement)}
-                            </Label>
-                          </div>
-                        )} */}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {/* <div className="text-xs text-muted-foreground">
-                        {tagMovement! >= 0 ? "+" : ""}
-                        {tagMovement} from last round
-                      </div> */}
-                        <div className="text-xs text-muted-foreground">
-                          {lowestLeague ? lowestLeague : "-"}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {bestRound != null && (
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>Best Round</CardDescription>
-                        <CardTitle
-                          className={`text-4xl relative ${bestRound.color}`}
-                        >
-                          {bestRound.score} ({bestRound.relativeScoreText})
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {/* <div className="text-xs text-muted-foreground">
-                        {tagMovement! >= 0 ? "+" : ""}
-                        {tagMovement} from last round
-                      </div> */}
-                        <div className="text-xs text-muted-foreground">
-                          {bestRound?.location} - {bestRound?.layout.name} (
-                          {bestRound && bestRound.date
-                            ? format(bestRound.date, "MM/dd/yyyy")
-                            : "Loading..."}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              ) : (
-                <Skeleton className="w-full h-48" />
-              )}
-              {!loading ? (
-                <div className="grid grid-cols-1 gap-2 items-end mt-2 lg:mt-0">
-                  {bestFinish != null && (
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>Best Finish</CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {getOrdinalSuffix(bestFinish.place)}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-xs text-muted-foreground">
-                          {bestFinish.EventModel.leagueName}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                  {lowestCurrentLeague != null && (
-                    <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
-                      <CardHeader className="pb-2">
-                        <CardDescription>Best Current Tag</CardDescription>
-                        <CardTitle className="text-4xl relative">
-                          {lowestCurrentTag ? lowestCurrentTag : "-"}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-xs text-muted-foreground">
-                          {lowestCurrentLeague}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              ) : (
-                <Skeleton className="w-full h-48" />
-              )}
-
-              {!loading ? (
-                <>
-                  {hasChartData(allChartData) && (
-                    <Tabs
-                      defaultValue="all"
-                      className="col-span-2 mt-2 lg:mt-0"
-                    >
-                      <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="all">All</TabsTrigger>
-                        <TabsTrigger value="last5">Last 5</TabsTrigger>
-                        <TabsTrigger value="last10">Last 10</TabsTrigger>
-                        <TabsTrigger value="last20">Last 20</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="all">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line data={allChartData} options={chartOptions} />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      <TabsContent value="last5">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line
-                              data={last5ChartData}
-                              options={chartOptions}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      <TabsContent value="last10">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line
-                              data={last10ChartData}
-                              options={chartOptions}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      <TabsContent value="last20">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line
-                              data={last20ChartData}
-                              options={chartOptions}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                    </Tabs>
-                  )}
-                </>
-              ) : (
-                <Skeleton className="w-full h-48" />
-              )}
-            </div>
+          <div className="flex flex-col items-center gap-4 text-center">
+            {isMobile ? (
+              <CardCarousel
+                lowestCurrentLeague={lowestCurrentLeague}
+                lowestCurrentTag={lowestCurrentTag}
+                bestFinish={bestFinish}
+                bestRound={bestRound}
+                lowestLeague={lowestLeague}
+                lowestTag={lowestTag}
+                loading={loading}
+              />
+            ) : (
+              <GridOfCards
+                lowestCurrentLeague={lowestCurrentLeague}
+                lowestCurrentTag={lowestCurrentTag}
+                bestFinish={bestFinish}
+                bestRound={bestRound}
+                lowestLeague={lowestLeague}
+                lowestTag={lowestTag}
+                loading={loading}
+              />
+            )}
+            {!loading ? (
+              <div
+                className={
+                  isMobile
+                    ? "grid grid-cols-1 gap-4"
+                    : "flex flex-row justify-center w-80 m-auto gap-4"
+                }
+              >
+                {hasChartData(filteredChartData) && (
+                  <Tabs defaultValue="all" className="col-span-2 mt-2 lg:mt-0">
+                    <TabsList className="grid w-full grid-cols-4">
+                      <TabsTrigger value="all">All</TabsTrigger>
+                      <TabsTrigger value="last5">Last 5</TabsTrigger>
+                      <TabsTrigger value="last10">Last 10</TabsTrigger>
+                      <TabsTrigger value="last20">Last 20</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="all">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line
+                            data={filteredChartData}
+                            options={chartOptions}
+                          />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="last5">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line data={last5ChartData} options={chartOptions} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="last10">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line data={last10ChartData} options={chartOptions} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="last20">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line data={last20ChartData} options={chartOptions} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                )}
+                <Select value={selectedView} onValueChange={handleViewChange}>
+                  <SelectTrigger className="min-w-[180px]">
+                    <SelectValue placeholder="Select a view" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Views</SelectLabel>
+                      <SelectItem value="placements">Placements</SelectItem>
+                      <SelectItem value="points">Points Scored</SelectItem>
+                      <SelectItem value="tag">Tag</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <Skeleton className="w-full h-48" />
+            )}
 
             {loading ? (
               <div className="flex flex-col items-center gap-1 text-center">
@@ -618,7 +668,11 @@ const Home: NextPage = () => {
               <div className="grid grid-cols-1 gap-8">
                 {playerRounds.length > 0 ? (
                   <div className="grid grid-cols-1 gap-8">
-                    <DataTable columns={columns} data={playerRounds} />
+                    <DataTable
+                      columns={columns}
+                      data={playerRounds}
+                      onFilteredDataChange={handleFilteredDataChange}
+                    />
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-1 text-center">
