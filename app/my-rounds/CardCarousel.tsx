@@ -129,12 +129,14 @@ export default function CardCarousel(props: CardCarouselProps) {
       </div>
       <Button
         onClick={prevCard}
+        variant="oghostutline"
         className="absolute top-1/2 left-2 transform -translate-y-1/2 m-0 p-2"
       >
         <ChevronLeft className="w-4 h-4 m-0 p-0" />
       </Button>
       <Button
         onClick={nextCard}
+        variant="ghost"
         className="absolute top-1/2 right-2 transform -translate-y-1/2 m-0 p-2"
       >
         <ChevronRight className="w-4 h-4 m-0 p-0" />
