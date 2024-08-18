@@ -104,7 +104,7 @@ export default function CardCarousel(props: CardCarouselProps) {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="flex flex-col relative w-80">
       <div className="overflow-hidden">
         <div
           className="flex transition-transform duration-300"

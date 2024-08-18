@@ -165,7 +165,7 @@ const Home: NextPage = () => {
               reverse: true,
               title: {
                 display: true,
-                text: "TagOut",
+                text: "Tag Out",
               },
             },
           },
@@ -559,114 +559,106 @@ const Home: NextPage = () => {
         x-chunk="dashboard-02-chunk-1"
       >
         {user ? (
-          <div className="flex flex-col items-center gap-4 p-0 w-full text-center">
-            <div className="lg:grid lg:grid-cols-1 p-0 w-full gap-6">
-              {isMobile ? (
-                <CardCarousel
-                  lowestCurrentLeague={lowestCurrentLeague}
-                  lowestCurrentTag={lowestCurrentTag}
-                  bestFinish={bestFinish}
-                  bestRound={bestRound}
-                  lowestLeague={lowestLeague}
-                  lowestTag={lowestTag}
-                  loading={loading}
-                />
-              ) : (
-                <GridOfCards
-                  lowestCurrentLeague={lowestCurrentLeague}
-                  lowestCurrentTag={lowestCurrentTag}
-                  bestFinish={bestFinish}
-                  bestRound={bestRound}
-                  lowestLeague={lowestLeague}
-                  lowestTag={lowestTag}
-                  loading={loading}
-                />
-              )}
-              {!loading ? (
-                <div className="flex flex-row justify-center w-80 m-auto">
-                  {hasChartData(filteredChartData) && (
-                    <Tabs
-                      defaultValue="all"
-                      className="col-span-2 mt-2 lg:mt-0"
-                    >
-                      <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="all">All</TabsTrigger>
-                        <TabsTrigger value="last5">Last 5</TabsTrigger>
-                        <TabsTrigger value="last10">Last 10</TabsTrigger>
-                        <TabsTrigger value="last20">Last 20</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="all">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line
-                              data={filteredChartData}
-                              options={chartOptions}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      <TabsContent value="last5">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line
-                              data={last5ChartData}
-                              options={chartOptions}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      <TabsContent value="last10">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line
-                              data={last10ChartData}
-                              options={chartOptions}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      <TabsContent value="last20">
-                        <Card>
-                          <CardHeader>
-                            <CardDescription>Recent Placements</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <Line
-                              data={last20ChartData}
-                              options={chartOptions}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                    </Tabs>
-                  )}
-                  <Select value={selectedView} onValueChange={handleViewChange}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select a view" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Views</SelectLabel>
-                        <SelectItem value="placements">Placements</SelectItem>
-                        <SelectItem value="points">Points Scored</SelectItem>
-                        <SelectItem value="tag">Tag</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              ) : (
-                <Skeleton className="w-full h-48" />
-              )}
-            </div>
+          <div className="flex flex-col items-center gap-4 text-center">
+            {isMobile ? (
+              <CardCarousel
+                lowestCurrentLeague={lowestCurrentLeague}
+                lowestCurrentTag={lowestCurrentTag}
+                bestFinish={bestFinish}
+                bestRound={bestRound}
+                lowestLeague={lowestLeague}
+                lowestTag={lowestTag}
+                loading={loading}
+              />
+            ) : (
+              <GridOfCards
+                lowestCurrentLeague={lowestCurrentLeague}
+                lowestCurrentTag={lowestCurrentTag}
+                bestFinish={bestFinish}
+                bestRound={bestRound}
+                lowestLeague={lowestLeague}
+                lowestTag={lowestTag}
+                loading={loading}
+              />
+            )}
+            {!loading ? (
+              <div
+                className={
+                  isMobile
+                    ? "grid grid-cols-1 gap-4"
+                    : "flex flex-row justify-center w-80 m-auto gap-4"
+                }
+              >
+                {hasChartData(filteredChartData) && (
+                  <Tabs defaultValue="all" className="col-span-2 mt-2 lg:mt-0">
+                    <TabsList className="grid w-full grid-cols-4">
+                      <TabsTrigger value="all">All</TabsTrigger>
+                      <TabsTrigger value="last5">Last 5</TabsTrigger>
+                      <TabsTrigger value="last10">Last 10</TabsTrigger>
+                      <TabsTrigger value="last20">Last 20</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="all">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line
+                            data={filteredChartData}
+                            options={chartOptions}
+                          />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="last5">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line data={last5ChartData} options={chartOptions} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="last10">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line data={last10ChartData} options={chartOptions} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="last20">
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>{`View: ${selectedView}`}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Line data={last20ChartData} options={chartOptions} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                )}
+                <Select value={selectedView} onValueChange={handleViewChange}>
+                  <SelectTrigger className="min-w-[180px]">
+                    <SelectValue placeholder="Select a view" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Views</SelectLabel>
+                      <SelectItem value="placements">Placements</SelectItem>
+                      <SelectItem value="points">Points Scored</SelectItem>
+                      <SelectItem value="tag">Tag</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <Skeleton className="w-full h-48" />
+            )}
 
             {loading ? (
               <div className="flex flex-col items-center gap-1 text-center">
