@@ -403,7 +403,6 @@ const Home: NextPage = () => {
   // console.log("Last10ChartData:", last10ChartData);
   // console.log("Last20ChartData:", last20ChartData);
 
-  // Function to find the round with the lowest (best) score
   const findBestScoreRound = (
     rounds: PlayerRound[]
   ): {
@@ -414,14 +413,21 @@ const Home: NextPage = () => {
     relativeScoreText: string;
     color: string;
   } | null => {
-    // console.log("Rounds:", rounds);
     if (rounds.length === 0) {
-      // console.log("No rounds found, can't find best score");
       return null; // No rounds available
     }
 
+    // Filter out rounds where the score is null or 0
+    const validRounds = rounds.filter(
+      (round) => round.score !== null && round.score > 0
+    );
+
+    if (validRounds.length === 0) {
+      return null; // No valid rounds found
+    }
+
     // Find the round with the lowest score
-    const bestRound = rounds.reduce((best, current) =>
+    const bestRound = validRounds.reduce((best, current) =>
       current.score < best.score ? current : best
     );
 
@@ -435,7 +441,6 @@ const Home: NextPage = () => {
         ? "text-red-500"
         : "";
 
-    // console.log("Best round:", bestRound);
     // Extract the details from the best round
     return {
       score: bestRound.score,
