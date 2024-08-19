@@ -42,15 +42,18 @@ export default function Settings() {
 
   const [loading, setLoading] = useState(false);
 
-  const { userProfile, setUserProfile } = useUserDetails(
+  const { userProfile, setUserProfile, fetchUserDetails } = useUserDetails(
     isAuthenticated,
     user,
     getAccessToken
   );
 
   useEffect(() => {
-    // console.log("userProfile", userProfile);
-  }, [userProfile]);
+    console.log("userProfile", userProfile);
+    if (!userProfile) {
+      fetchUserDetails();
+    }
+  }, []);
 
   const { toast } = useToast();
 
@@ -115,7 +118,10 @@ export default function Settings() {
     }
   };
 
-  if (!userProfile) return null;
+  if (!userProfile) {
+    console.error("User profile is not defined");
+    return null;
+  }
 
   return (
     <div className="grid min-h-screen w-full">
