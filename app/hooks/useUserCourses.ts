@@ -16,6 +16,7 @@ interface UserCoursesHook {
   belongsToOrg: boolean;
   errorMessage: string;
   showErrorMessage: boolean;
+  loading: boolean;
 }
 
 export const useUserCourses = (): UserCoursesHook => {
@@ -36,6 +37,7 @@ export const useUserCourses = (): UserCoursesHook => {
   const [belongsToOrg, setBelongsToOrg] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const {
     user,
@@ -52,6 +54,14 @@ export const useUserCourses = (): UserCoursesHook => {
   // console.log("orgCodes orignal: ", getUserOrganizations());
   const orgCodes = userOrganizations;
   // console.log("orgCodes: ", orgCodes);
+
+  useEffect(() => {
+    if (isLoading) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+  }, [isLoading]);
 
   const fetchCourse = async (orgCodeIn: string) => {
     if (!orgCodeIn || orgCodeIn === "" || orgCodeIn === "org_6c3b341e563") {
@@ -139,5 +149,6 @@ export const useUserCourses = (): UserCoursesHook => {
     belongsToOrg,
     errorMessage,
     showErrorMessage,
+    loading,
   };
 };
