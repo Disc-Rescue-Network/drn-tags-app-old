@@ -11,6 +11,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import UDiscDisplayNameDialog from "./components/UDiscDisplayNameDialog";
 import { Course } from "./types/Course";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import openGraphImage from "@/public/opengraph_tagsapp.jpg";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
     url: "https://tags.discrescuenetwork.com",
     images: [
       {
-        url: "/opengraph_tagsapp.jpg", // Update with the correct path to your image
+        url: openGraphImage.src, // Update with the correct path to your image
         width: 1200,
         height: 630,
         alt: "The Tags App OpenGraph Image - by Disc Rescue Network",
@@ -65,7 +66,7 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
     images: [
       {
-        url: "/opengraph_tagsapp.jpg", // Update with the correct path to your image
+        url: openGraphImage.src, // Update with the correct path to your image
         width: 1200,
         height: 630,
         alt: "The Tags App OpenGraph Image - by Disc Rescue Network",
