@@ -104,15 +104,15 @@ export default function CardCarousel(props: CardCarouselProps) {
   };
 
   return (
-    <div className="flex flex-col relative w-full max-w-md mx-auto">
-      <div className="overflow-hidden">
+    <div className="flex flex-col relative w-full mx-auto">
+      <div className="overflow-hidden w-full">
         <div
-          className="flex transition-transform duration-300"
+          className="flex transition-transform duration-300 w-full"
           style={{ transform: `translateX(-${currentCard * 100}%)` }}
         >
           {cards.map((card, index) => (
             <div key={index} className="min-w-full flex-shrink-0">
-              <Card className="flex flex-col h-fit min-h-[170px] max-w-[315px] items-center justify-center">
+              <Card className="flex flex-col h-fit min-h-[170px] w-full items-center justify-center">
                 <CardHeader className="pb-2">
                   <CardDescription>{card.title}</CardDescription>
                   <CardTitle className={card.style}>{card.value}</CardTitle>
@@ -152,5 +152,6 @@ export default function CardCarousel(props: CardCarouselProps) {
         ))}
       </div>
     </div>
-  );
-}
+
+      )
+    }
