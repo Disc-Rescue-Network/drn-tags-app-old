@@ -55,6 +55,7 @@ import { SuggestionFormData } from "../types";
 import { useForm } from "react-hook-form";
 import { useTheme } from "next-themes";
 import { Course } from "../types/Course";
+import { useUserCourses } from "../hooks/useUserCourses";
 
 function SideMenu() {
   const pathname = usePathname();
@@ -78,23 +79,6 @@ function SideMenu() {
     };
   }, []);
 
-  const [belongsToOrg, setBelongsToOrg] = useState(false);
-  const [course, setCourse] = useState<Course>({
-    orgCode: "",
-    courseName: "",
-    state: "",
-    city: "",
-    shortCode: "",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    activeForLostAndFound: false,
-    shortLink: "",
-    link: "",
-  });
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
-
-  const [showErrorMessage, setShowErrorMessage] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("Testing");
 
   const {
     permissions,
@@ -125,92 +109,94 @@ function SideMenu() {
   const orgCodes = getUserOrganizations() as unknown as string[];
   // // console.log("orgCodes at root: ", orgCodes);
 
-  useEffect(() => {
-    const fetchCourse = async () => {
-      if (isLoading) return;
-      // // console.log("fetching course for orgCode", orgCode);
-      if (!orgCode || orgCode === "" || orgCode === "org_6c3b341e563") {
-        console.error("Organization code is required");
-        // toast({
-        //   variant: "destructive",
-        //   title: "Error",
-        //   description: "Organization code is required.",
-        //   duration: 3000,
-        // });
-        setBelongsToOrg(false);
-        return;
-      }
+  const { course, courses, belongsToOrg, errorMessage, showErrorMessage } = useUserCourses();
 
-      try {
-        // // console.log(`${API_BASE_URL}/course/${orgCode}`);
+  // useEffect(() => {
+  //   const fetchCourse = async () => {
+  //     if (isLoading) return;
+  //     // // console.log("fetching course for orgCode", orgCode);
+  //     if (!orgCode || orgCode === "" || orgCode === "org_6c3b341e563") {
+  //       console.error("Organization code is required");
+  //       // toast({
+  //       //   variant: "destructive",
+  //       //   title: "Error",
+  //       //   description: "Organization code is required.",
+  //       //   duration: 3000,
+  //       // });
+  //       setBelongsToOrg(false);
+  //       return;
+  //     }
 
-        const accessToken = getAccessToken();
+  //     try {
+  //       // // console.log(`${API_BASE_URL}/course/${orgCode}`);
 
-        const response = await axios.get(`${API_BASE_URL}/course/${orgCode}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        // // console.log(response);
-        const data = response.data;
-        // // console.log(data);
-        setCourse(data);
-        setBelongsToOrg(true);
-      } catch (error) {
-        console.error(`Error fetching course for orgCode ${orgCode}: ${error}`);
-        setErrorMessage(
-          `Error fetching course for orgCode ${orgCode}: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-        setShowErrorMessage(true);
-        setBelongsToOrg(false);
-      }
-    };
+  //       const accessToken = getAccessToken();
 
-    fetchCourse();
+  //       const response = await axios.get(`${API_BASE_URL}/course/${orgCode}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //       });
+  //       // // console.log(response);
+  //       const data = response.data;
+  //       // // console.log(data);
+  //       setCourse(data);
+  //       setBelongsToOrg(true);
+  //     } catch (error) {
+  //       console.error(`Error fetching course for orgCode ${orgCode}: ${error}`);
+  //       setErrorMessage(
+  //         `Error fetching course for orgCode ${orgCode}: ${
+  //           error instanceof Error ? error.message : String(error)
+  //         }`
+  //       );
+  //       setShowErrorMessage(true);
+  //       setBelongsToOrg(false);
+  //     }
+  //   };
 
-    const fetchCourses = async () => {
-      // // console.log("fetching courses for orgCodes", orgCodes);
-      if (orgCodes === undefined || orgCodes === null) {
-        console.error("No organization codes provided");
-        setErrorMessage("No organization codes found. Please contact support.");
-        setShowErrorMessage(true);
-        return;
-      }
+  //   fetchCourse();
 
-      if (orgCodes.length === 0) {
-        console.error("No organization codes provided");
-        setErrorMessage("No organization codes found. Please contact support.");
-        setShowErrorMessage(true);
-        return;
-      }
+  //   const fetchCourses = async () => {
+  //     // // console.log("fetching courses for orgCodes", orgCodes);
+  //     if (orgCodes === undefined || orgCodes === null) {
+  //       console.error("No organization codes provided");
+  //       setErrorMessage("No organization codes found. Please contact support.");
+  //       setShowErrorMessage(true);
+  //       return;
+  //     }
 
-      try {
-        const accessToken = getToken();
-        const response = await axios.get(`${API_BASE_URL}/courses`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          params: { orgCodes: orgCodes },
-        });
+  //     if (orgCodes.length === 0) {
+  //       console.error("No organization codes provided");
+  //       setErrorMessage("No organization codes found. Please contact support.");
+  //       setShowErrorMessage(true);
+  //       return;
+  //     }
 
-        const fetchedCourses: Course[] = response.data;
-        // // console.log(fetchedCourses);
-        setAllCourses(fetchedCourses);
-      } catch (error) {
-        console.error(`Error fetching courses: ${error}`);
-        setErrorMessage(
-          `Error fetching courses: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-        setShowErrorMessage(true);
-      }
-    };
+  //     try {
+  //       const accessToken = getToken();
+  //       const response = await axios.get(`${API_BASE_URL}/courses`, {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //         params: { orgCodes: orgCodes },
+  //       });
 
-    fetchCourses();
-  }, [orgCode, orgCodes]);
+  //       const fetchedCourses: Course[] = response.data;
+  //       // // console.log(fetchedCourses);
+  //       setAllCourses(fetchedCourses);
+  //     } catch (error) {
+  //       console.error(`Error fetching courses: ${error}`);
+  //       setErrorMessage(
+  //         `Error fetching courses: ${
+  //           error instanceof Error ? error.message : String(error)
+  //         }`
+  //       );
+  //       setShowErrorMessage(true);
+  //     }
+  //   };
+
+  //   fetchCourses();
+  // }, [orgCode, orgCodes]);
 
   const {
     register,
