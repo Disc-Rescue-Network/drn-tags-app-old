@@ -92,7 +92,7 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} columnHeaders={columnHeadersArray} />
+      <DataTableViewOptions table={table} columnHeaders={columnHeadersArray} tableId={"manage-events"}/>
     </div>
   );
 }

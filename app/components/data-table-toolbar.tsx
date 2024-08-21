@@ -58,6 +58,7 @@ export function DataTableToolbar<TData>({
       <DataTableViewOptions
         table={table}
         columnHeaders={columnHeadersArrayTags}
+        tableId="tags"
       />
     </div>
   );

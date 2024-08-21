@@ -5,15 +5,6 @@ import { DataTableColumnHeader } from "../components/data-table-column-header";
 import { Label } from "@/components/ui/label";
 
 export const columns: ColumnDef<PlayerRound>[] = [
-  // {
-  //   accessorKey: "udisc_display_name",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Player Name" />
-  //   ),
-  //   cell: (info) => info.getValue(),
-  //   enableSorting: true,
-  //   enableHiding: true,
-  // },
   {
     accessorKey: "EventModel.dateTime",
     header: ({ column }) => (
@@ -39,10 +30,6 @@ export const columns: ColumnDef<PlayerRound>[] = [
     cell: (info) => info.getValue(),
     enableSorting: true,
     filterFn: (row, id, value) => {
-      // console.log("Filtering:", {
-      //   rowValue: row.getValue(id),
-      //   filterValue: value,
-      // });
       return value.includes(row.getValue(id));
     },
   },
@@ -54,10 +41,6 @@ export const columns: ColumnDef<PlayerRound>[] = [
     cell: (info) => info.getValue(),
     enableSorting: true,
     filterFn: (row, id, value) => {
-      // console.log("Filtering:", {
-      //   rowValue: row.getValue(id),
-      //   filterValue: value,
-      // });
       return value.includes(row.getValue(id));
     },
   },
