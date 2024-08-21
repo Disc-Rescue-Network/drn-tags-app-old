@@ -104,7 +104,7 @@ export default function CardCarousel(props: CardCarouselProps) {
   };
 
   return (
-    <div className="flex flex-col relative w-80">
+    <div className="flex flex-col relative w-full max-w-md mx-auto">
       <div className="overflow-hidden">
         <div
           className="flex transition-transform duration-300"
@@ -141,6 +141,16 @@ export default function CardCarousel(props: CardCarouselProps) {
       >
         <ChevronRight className="w-4 h-4 m-0 p-0" />
       </Button>
+      <div className="flex justify-center mt-2">
+        {cards.map((_, index) => (
+          <div
+            key={index}
+            className={`w-2 h-2 rounded-full mx-1 ${
+              index === currentCard ? "bg-blue-500" : "bg-gray-300"
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -121,6 +121,7 @@ export function DataTableToolbar<TData>({
       <DataTableViewOptions
         table={table}
         columnHeaders={columnHeadersArrayRounds}
+        tableId="my-rounds"
       />
     </div>
   );

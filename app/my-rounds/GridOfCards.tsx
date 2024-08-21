@@ -99,11 +99,10 @@ export default function GridOfCards(props: CardCarouselProps) {
       style: "text-4xl relative",
     },
   ];
-
   return (
-    <div className="flex flex-row w-full gap-4 justify-evenly items-center">
+    <div className="flex flex-col w-full gap-4 justify-evenly items-center lg:flex-row">
       {!loading ? (
-        <div className="flex flex-row w-full gap-4 justify-evenly items-center">
+        <div className="flex flex-col w-full gap-4 justify-evenly items-center lg:flex-row">
           {lowestLeague != null && (
             <Card className="flex flex-col h-fit min-h-[170px] min-w-[300px] items-center justify-center">
               <CardHeader className="pb-2">
@@ -191,7 +190,7 @@ export default function GridOfCards(props: CardCarouselProps) {
           )}
         </div>
       ) : (
-        <div className="flex flex-row w-full">
+        <div className="flex flex-col w-full gap-4 lg:flex-row">
           <Skeleton className="w-full h-48" />
           <Skeleton className="w-full h-48" />
           <Skeleton className="w-full h-48" />

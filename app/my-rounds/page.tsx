@@ -551,20 +551,20 @@ const Home: NextPage = () => {
 
   return (
     <div
-      className={
+      className={`${
         user
-          ? "grid grid-col-1 p-2 lg:p-6 gap-4 h-full w-full text-center items-start"
+          ? "grid grid-cols-1 p-2 lg:p-6 gap-4 h-full w-full text-center items-start"
           : "flex flex-col max-h-[60dvh] p-4 lg:p-6 gap-4 h-full w-full text-center items-start"
-      }
+      }`}
     >
       <h1 className="text-lg text-left font-semibold md:text-2xl">My Rounds</h1>
-
+  
       <div
         className="flex flex-1 w-full m-auto min-h-[50dvh] h-full items-center justify-center rounded-lg border border-dashed shadow-sm p-2 bg-muted/60"
         x-chunk="dashboard-02-chunk-1"
       >
         {user ? (
-          <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex flex-col items-center gap-4 text-center w-full">
             {isMobile ? (
               <CardCarousel
                 lowestCurrentLeague={lowestCurrentLeague}
@@ -588,14 +588,14 @@ const Home: NextPage = () => {
             )}
             {!loading ? (
               <div
-                className={
+                className={`${
                   isMobile
                     ? "grid grid-cols-1 gap-4"
-                    : "flex flex-row justify-center w-80 m-auto gap-4"
-                }
+                    : "flex flex-row justify-center w-full m-auto gap-4"
+                }`}
               >
                 {hasChartData(filteredChartData) && (
-                  <Tabs defaultValue="all" className="col-span-2 mt-2 lg:mt-0">
+                  <Tabs defaultValue="all" className="col-span-2 mt-2 lg:mt-0 w-full">
                     <TabsList className="grid w-full grid-cols-4">
                       <TabsTrigger value="all">All</TabsTrigger>
                       <TabsTrigger value="last5">Last 5</TabsTrigger>
@@ -608,10 +608,7 @@ const Home: NextPage = () => {
                           <CardDescription>{`View: ${selectedView}`}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <Line
-                            data={filteredChartData}
-                            options={chartOptions}
-                          />
+                          <Line data={filteredChartData} options={chartOptions} />
                         </CardContent>
                       </Card>
                     </TabsContent>
@@ -664,15 +661,14 @@ const Home: NextPage = () => {
             ) : (
               <Skeleton className="w-full h-48" />
             )}
-
             {loading ? (
               <div className="flex flex-col items-center gap-1 text-center">
                 <Progress />
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-8">
+              <div className="grid grid-cols-1 gap-8 w-full">
                 {playerRounds.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-8">
+                  <div className="grid grid-cols-1 gap-8 w-full">
                     <DataTable
                       columns={columns}
                       data={playerRounds}
