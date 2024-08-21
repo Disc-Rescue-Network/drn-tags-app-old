@@ -14,6 +14,7 @@ interface UserCoursesHook {
   belongsToOrg: boolean;
   errorMessage: string;
   showErrorMessage: boolean;
+  loading: boolean;
 }
 interface CourseResponse {
   id: number;
@@ -44,6 +45,7 @@ export const useUserCourses = (): UserCoursesHook => {
   const [belongsToOrg, setBelongsToOrg] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const {
     user,
@@ -55,6 +57,7 @@ export const useUserCourses = (): UserCoursesHook => {
   } = useKindeBrowserClient();
 
   const fetchCourse = async (orgCodeIn: string) => {
+    setLoading(true);
     if (!orgCodeIn || orgCodeIn === "" || orgCodeIn === "org_6c3b341e563") {
       setErrorMessage("Organization code is required.");
       setShowErrorMessage(true);
@@ -85,10 +88,14 @@ export const useUserCourses = (): UserCoursesHook => {
       );
       setShowErrorMessage(true);
       setBelongsToOrg(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchCourses = async (orgCodesIn: string[]) => {
+    setLoading(true);
+
     if (orgCodesIn.length === 0) {
       setErrorMessage("No organization codes found. Please contact support.");
       setShowErrorMessage(true);
@@ -116,6 +123,8 @@ export const useUserCourses = (): UserCoursesHook => {
         }`
       );
       setShowErrorMessage(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,5 +152,6 @@ export const useUserCourses = (): UserCoursesHook => {
     belongsToOrg,
     errorMessage,
     showErrorMessage,
+    loading,
   };
 };
