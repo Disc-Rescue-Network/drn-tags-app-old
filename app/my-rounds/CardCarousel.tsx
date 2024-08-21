@@ -112,7 +112,7 @@ export default function CardCarousel(props: CardCarouselProps) {
         >
           {cards.map((card, index) => (
             <div key={index} className="min-w-full flex-shrink-0">
-              <Card className="flex flex-col h-fit min-h-[170px] items-center justify-center">
+              <Card className="flex flex-col h-fit min-h-[170px] max-w-[315px] items-center justify-center">
                 <CardHeader className="pb-2">
                   <CardDescription>{card.title}</CardDescription>
                   <CardTitle className={card.style}>{card.value}</CardTitle>
@@ -137,7 +137,7 @@ export default function CardCarousel(props: CardCarouselProps) {
       <Button
         onClick={nextCard}
         variant="ghost"
-        className="absolute top-1/2 right-2 transform -translate-y-1/2 m-0 p-2"
+        className="absolute top-1/2 right-3 transform -translate-y-1/2 m-0 p-2"
       >
         <ChevronRight className="w-4 h-4 m-0 p-0" />
       </Button>

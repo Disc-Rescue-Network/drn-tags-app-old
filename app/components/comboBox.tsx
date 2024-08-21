@@ -22,13 +22,9 @@ import {
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useUserCourses } from "../hooks/useUserCourses";
 import { Course } from "../types/Course";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface ComboBoxProps {
-  currentCourse: Course;
-  allCourses: Course[];
-}
-
-export function ComboBox(props: ComboBoxProps) {
+export function ComboBox() {
   const {
     course,
     setCourse,
@@ -38,58 +34,68 @@ export function ComboBox(props: ComboBoxProps) {
     belongsToOrg,
     errorMessage,
     showErrorMessage,
+    loading,
   } = useUserCourses();
   const [open, setOpen] = React.useState(false);
 
-  // console.log("Current course:", course);
-  // console.log("All courses:", courses);
+  console.log("Current course:", course);
+  console.log("All courses:", courses);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[200px] justify-between"
-        >
-          {course ? course.courseName : "Select course..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder="Search course..." />
-          <CommandList>
-            <CommandEmpty>No course found.</CommandEmpty>
-            <CommandGroup>
-              {courses.map((courseLocal) => (
-                <CommandItem
-                  key={courseLocal.orgCode}
-                  value={courseLocal.courseName}
-                  onSelect={(selectedCourse) => {
-                    setCourse(courseLocal);
-                    setIsSwitchingOrgs(true);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      course.courseName === courseLocal.courseName
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  />
-                  <LoginLink orgCode={courseLocal.orgCode}>
-                    {courseLocal.courseName}
-                  </LoginLink>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <>
+      {loading ? (
+        <Skeleton className="w-[200px] h-[30px] rounded" />
+      ) : (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-[200px] justify-between"
+            >
+              {course ? course.courseName : "Select course..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0">
+            <Command>
+              <CommandInput placeholder="Search course..." />
+              <CommandList>
+                <CommandEmpty>No course found.</CommandEmpty>
+                <CommandGroup>
+                  {courses.map((courseLocal) => (
+                    <CommandItem
+                      key={courseLocal.orgCode}
+                      value={courseLocal.courseName}
+                      onSelect={(selectedCourse) => {
+                        setCourse(courseLocal);
+                        setIsSwitchingOrgs(true);
+                        setOpen(false);
+                      }}
+                    >
+                      <LoginLink
+                        orgCode={courseLocal.orgCode}
+                        className="flex flex-row items-center gap-2"
+                      >
+                        <Check
+                          className={cn(
+                            "h-4 w-4",
+                            course.courseName === courseLocal.courseName
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        {courseLocal.courseName}
+                      </LoginLink>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      )}
+    </>
   );
 }

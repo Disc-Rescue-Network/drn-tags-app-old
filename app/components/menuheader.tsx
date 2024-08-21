@@ -467,13 +467,10 @@ function MenuHeader() {
                 Support
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            {courses.length > 1 && <DropdownMenuSeparator />}
 
-            {course.courseName !== "" ? (
-              <ComboBox currentCourse={course} allCourses={courses} />
-            ) : (
-              <Skeleton className="w-[200px] h-[30px] rounded" />
-            )}
+            {courses.length > 1 && <ComboBox />}
+
             {isAuthenticated && <DropdownMenuSeparator className="mt-2" />}
 
             {isAuthenticated ? (
