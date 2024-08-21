@@ -54,8 +54,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { API_BASE_URL, TAGS_API_BASE_URL } from "../networking/apiExports";
-import axios from "axios";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { ComboBox } from "./comboBox";
 import { useTheme } from "next-themes";
